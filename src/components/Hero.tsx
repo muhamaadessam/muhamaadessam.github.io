@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { FileText, ChevronRight } from 'lucide-react';
+import { FaLinkedin } from 'react-icons/fa';
 import { getPortfolioData, PortfolioData, incrementCvDownloadCount } from '@/lib/services';
 import Image from 'next/image';
 
@@ -71,10 +72,10 @@ export default function Hero() {
             {data?.objective || 'Building beautiful, scalable, and high-performance applications.'}
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start">
+          <div className="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start flex-wrap">
             <a
               href="#projects"
-              className="px-8 py-4 bg-primary text-white font-bold rounded-2xl hover:bg-primary-dark hover:scale-105 transition-all flex items-center justify-between gap-6 w-full sm:w-auto min-w-[200px]"
+              className="px-8 py-4 bg-primary text-white font-medium rounded-2xl hover:bg-primary-dark hover:scale-105 transition-all flex items-center justify-center gap-4 w-full sm:w-auto min-w-[200px]"
             >
               <span className="whitespace-nowrap">View My Work</span>
               <ChevronRight className="w-5 h-5" />
@@ -89,6 +90,16 @@ export default function Hero() {
             >
               <FileText className="w-5 h-5 text-gray-300" />
               <span className="whitespace-nowrap">Download CV</span>
+            </a>
+
+            <a
+              href={data?.linkedin || "https://www.linkedin.com/in/muhammadessam159/"}
+              target="_blank"
+              rel="noreferrer"
+              className="px-8 py-4 bg-dark-card text-white font-medium rounded-2xl hover:bg-gray-700 hover:scale-105 transition-all flex items-center justify-center gap-4 border border-white/5 w-full sm:w-auto min-w-[200px]"
+            >
+              <FaLinkedin className="w-5 h-5 text-[#0A66C2]" />
+              <span className="whitespace-nowrap">LinkedIn</span>
             </a>
           </div>
         </motion.div>
