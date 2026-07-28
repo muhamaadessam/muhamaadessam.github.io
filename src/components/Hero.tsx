@@ -24,19 +24,19 @@ export default function Hero() {
       <div className="absolute inset-0 z-0 opacity-20">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
       </div>
-      
+
       {/* Floating Logo Pattern */}
-      <div 
-        className="absolute inset-0 z-0 opacity-[0.12] pointer-events-none" 
-        style={{ 
-          backgroundImage: 'url("/logos/essamLogoBorder.png")', 
-          backgroundSize: '150px 150px', 
+      <div
+        className="absolute inset-0 z-0 opacity-[0.12] pointer-events-none"
+        style={{
+          backgroundImage: 'url("/logos/essamLogoBorder.png")',
+          backgroundSize: '150px 150px',
           backgroundRepeat: 'repeat',
           backgroundPosition: 'center',
           transform: 'rotate(-5deg) scale(1.2)',
         }}
       ></div>
-      
+
       {/* Gradients to fade edges */}
       <div className="absolute inset-0 z-0 bg-gradient-to-r from-dark-bg via-transparent to-dark-bg pointer-events-none"></div>
       <div className="absolute inset-0 z-0 bg-gradient-to-b from-dark-bg via-transparent to-dark-bg pointer-events-none"></div>
@@ -98,7 +98,7 @@ export default function Hero() {
               rel="noreferrer"
               className="px-8 py-4 bg-dark-card text-white font-medium rounded-2xl hover:bg-gray-700 hover:scale-105 transition-all flex items-center justify-center gap-4 border border-white/5 w-full sm:w-auto min-w-[200px]"
             >
-              <FaLinkedin className="w-5 h-5 text-[#0A66C2]" />
+              <FaLinkedin className="w-5 h-5 text-white" />
               <span className="whitespace-nowrap">LinkedIn</span>
             </a>
           </div>
