@@ -3,15 +3,15 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { FileText, ChevronRight } from 'lucide-react';
-import { FaLinkedin } from 'react-icons/fa';
+import { FaGithub, FaLinkedin } from 'react-icons/fa';
 import { getPortfolioData, PortfolioData, incrementCvDownloadCount } from '@/lib/services';
 import Image from 'next/image';
 
-export default function Hero() {
-  const [data, setData] = useState<PortfolioData | null>(null);
+export default function Hero({ data: initialData }: { data: PortfolioData | null }) {
+  const [data, setData] = useState(initialData);
 
   useEffect(() => {
-    getPortfolioData().then(res => setData(res));
+    getPortfolioData().then(setData);
   }, []);
 
   const handleDownloadCV = () => {
@@ -64,12 +64,16 @@ export default function Hero() {
             </span>
           </h1>
 
-          <h2 className="text-3xl md:text-4xl text-gray-400 font-normal mb-8">
-            {data?.jop_title || 'Flutter Developer'}
+          <h2 className="text-2xl md:text-4xl text-gray-200 font-semibold mb-6 text-balance">
+            Flutter Developer with 3+ Years of Experience
           </h2>
 
-          <p className="text-gray-400 mb-12 max-w-lg mx-auto lg:mx-0 text-lg leading-relaxed font-light">
-            {data?.objective || 'Building beautiful, scalable, and high-performance applications.'}
+          <p className="text-gray-300 mb-6 max-w-xl mx-auto lg:mx-0 text-lg leading-relaxed">
+            Building scalable, production-ready mobile applications using Flutter, Dart, BLoC, and Clean Architecture.
+          </p>
+
+          <p className="text-sm md:text-base text-primary mb-10 font-semibold">
+            3+ Years Experience <span className="text-gray-500">|</span> Production Apps <span className="text-gray-500">|</span> Flutter &amp; Dart
           </p>
 
           <div className="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start flex-wrap">
@@ -100,6 +104,17 @@ export default function Hero() {
             >
               <FaLinkedin className="w-5 h-5 text-white" />
               <span className="whitespace-nowrap">LinkedIn</span>
+            </a>
+
+            <a
+              href={data?.github || "https://github.com/muhamaadessam"}
+              target="_blank"
+              rel="noreferrer"
+              aria-label="View Muhammad Essam's GitHub profile"
+              className="px-5 py-4 text-gray-300 hover:text-white transition-colors flex items-center justify-center gap-3"
+            >
+              <FaGithub className="w-6 h-6" />
+              <span>GitHub</span>
             </a>
           </div>
         </motion.div>

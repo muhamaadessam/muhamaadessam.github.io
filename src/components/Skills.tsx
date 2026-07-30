@@ -5,15 +5,11 @@ import { motion } from 'framer-motion';
 import { getSkills, Skill } from '@/lib/services';
 import { Code2 } from 'lucide-react';
 
-export default function Skills() {
-  const [skills, setSkills] = useState<Skill[]>([]);
-  const [loading, setLoading] = useState(true);
+export default function Skills({ skills: initialSkills }: { skills: Skill[] }) {
+  const [skills, setSkills] = useState(initialSkills);
 
   useEffect(() => {
-    getSkills().then((data) => {
-      setSkills(data);
-      setLoading(false);
-    });
+    getSkills().then(setSkills);
   }, []);
 
   const containerVariants = {
@@ -50,16 +46,7 @@ export default function Skills() {
           <div className="h-1 w-20 bg-primary mx-auto rounded-full" />
         </motion.div>
 
-        {loading ? (
-          <div className="flex flex-col items-center justify-center py-12">
-            <div className="relative w-12 h-12 mb-4">
-              <div className="absolute inset-0 border-2 border-primary/20 rounded-full"></div>
-              <div className="absolute inset-0 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
-              <div className="absolute inset-2 bg-primary/10 rounded-full animate-pulse"></div>
-            </div>
-            <p className="text-primary/70 text-sm font-mono uppercase tracking-widest animate-pulse">Loading</p>
-          </div>
-        ) : skills.length > 0 ? (
+        {skills.length > 0 ? (
           <motion.div 
             variants={containerVariants}
             initial="hidden"

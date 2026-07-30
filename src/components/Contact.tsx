@@ -5,7 +5,8 @@ import { motion } from 'framer-motion';
 import { sendTelegramMessage } from '@/lib/services';
 import { db } from '@/lib/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { Send, CheckCircle, AlertCircle } from 'lucide-react';
+import { Send, CheckCircle, AlertCircle, FileText } from 'lucide-react';
+import { FaGithub, FaLinkedin } from 'react-icons/fa';
 
 export default function Contact() {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
@@ -68,8 +69,19 @@ ${formData.message}
           <h2 className="text-3xl md:text-4xl font-bold mb-4">Get In Touch</h2>
           <div className="h-1 w-20 bg-primary mx-auto rounded-full mb-6" />
           <p className="text-gray-400 max-w-2xl mx-auto">
-            Have a project in mind or just want to say hi? Feel free to reach out.
+            I&apos;m open to new opportunities. Looking for a Flutter Developer who can build scalable, production-ready mobile applications? Let&apos;s talk.
           </p>
+          <div className="flex flex-wrap justify-center gap-5 mt-7">
+            <a href="https://drive.google.com/uc?export=download&id=11R3XbF-0bTpnFe4wCdOYy9Qgw4ISQKEc" target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-white hover:text-primary transition-colors">
+              <FileText className="w-5 h-5" /> Download CV
+            </a>
+            <a href="https://www.linkedin.com/in/muhammadessam159/" target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-white hover:text-primary transition-colors">
+              <FaLinkedin className="w-5 h-5" /> LinkedIn
+            </a>
+            <a href="https://github.com/muhamaadessam" target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-white hover:text-primary transition-colors">
+              <FaGithub className="w-5 h-5" /> GitHub
+            </a>
+          </div>
         </motion.div>
 
         <div className="max-w-2xl mx-auto">

@@ -2,19 +2,15 @@
 
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { getFunFacts, FunFacts } from '@/lib/services';
 import { FileText } from 'lucide-react';
 import { FaGithub, FaLinkedin } from 'react-icons/fa';
+import { FunFacts, getFunFacts } from '@/lib/services';
 
-export default function About() {
-  const [funFacts, setFunFacts] = useState<FunFacts | null>(null);
-  const [loading, setLoading] = useState(true);
+export default function About({ funFacts: initialFunFacts }: { funFacts: FunFacts | null }) {
+  const [funFacts, setFunFacts] = useState(initialFunFacts);
 
   useEffect(() => {
-    getFunFacts().then((data) => {
-      setFunFacts(data);
-      setLoading(false);
-    });
+    getFunFacts().then(setFunFacts);
   }, []);
 
   return (
@@ -36,16 +32,6 @@ export default function About() {
           <div className="h-1 w-20 bg-primary mx-auto rounded-full" />
         </motion.div>
 
-        {loading ? (
-          <div className="flex flex-col items-center justify-center py-12">
-            <div className="relative w-12 h-12 mb-4">
-              <div className="absolute inset-0 border-2 border-primary/20 rounded-full"></div>
-              <div className="absolute inset-0 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
-              <div className="absolute inset-2 bg-primary/10 rounded-full animate-pulse"></div>
-            </div>
-            <p className="text-primary/70 text-sm font-mono uppercase tracking-widest animate-pulse">Loading</p>
-          </div>
-        ) : (
           <div className="max-w-4xl mx-auto glass p-8 md:p-12 rounded-2xl">
             <div className="flex flex-col md:flex-row gap-8 items-center md:items-start">
               <div className="w-full md:w-2/3">
@@ -56,16 +42,14 @@ export default function About() {
                   My goal is to craft digital experiences that leave a lasting impact.
                 </p>
                 
-                {funFacts && funFacts.facts && funFacts.facts.length > 0 && (
-                  <div className="mt-8">
+                {funFacts?.facts?.length ? <div className="mt-8">
                     <h4 className="text-xl font-medium mb-4 text-primary">Fun Facts</h4>
-                    <ul className="list-disc list-inside text-gray-400 space-y-2">
-                      {funFacts.facts.map((fact, index) => (
-                        <li key={index}>{fact}</li>
+                    <ul className="text-gray-400 space-y-2">
+                      {funFacts.facts.map((fact) => (
+                        <li key={fact}>{fact}</li>
                       ))}
                     </ul>
-                  </div>
-                )}
+                  </div> : null}
               </div>
               <div className="w-full md:w-1/3 flex flex-col gap-4">
                 <a href="https://github.com/muhamaadessam" target="_blank" rel="noreferrer" className="flex items-center justify-center gap-3 w-full py-3 px-4 glass rounded-xl hover:bg-white/10 transition-colors text-white">
@@ -83,7 +67,6 @@ export default function About() {
               </div>
             </div>
           </div>
-        )}
       </div>
     </section>
   );

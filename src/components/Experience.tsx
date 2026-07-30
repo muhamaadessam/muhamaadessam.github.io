@@ -40,16 +40,11 @@ function calculateDuration(start: string, end: string | null): string {
   return `${years} yrs ${months} mos`;
 }
 
-export default function Experience() {
-  const [experiences, setExperiences] = useState<ExperienceType[]>([]);
-  const [loading, setLoading] = useState(true);
+export default function Experience({ experiences: initialExperiences }: { experiences: ExperienceType[] }) {
+  const [experiences, setExperiences] = useState(initialExperiences);
 
   useEffect(() => {
-    getExperiences().then((data) => {
-      // Assuming you might want to sort by some criteria or let Firebase return them.
-      setExperiences(data);
-      setLoading(false);
-    });
+    getExperiences().then(setExperiences);
   }, []);
 
   const containerVariants = {
@@ -84,15 +79,7 @@ export default function Experience() {
           <div className="h-1 w-20 bg-primary mx-auto rounded-full" />
         </motion.div>
 
-        {loading ? (
-          <div className="flex flex-col items-center justify-center py-12">
-            <div className="relative w-12 h-12 mb-4">
-              <div className="absolute inset-0 border-2 border-primary/20 rounded-full"></div>
-              <div className="absolute inset-0 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
-            </div>
-            <p className="text-primary/70 text-sm font-mono tracking-widest animate-pulse">Loading</p>
-          </div>
-        ) : experiences.length > 0 ? (
+        {experiences.length > 0 ? (
           <motion.div 
             variants={containerVariants}
             initial="hidden"
@@ -106,7 +93,7 @@ export default function Experience() {
                 variants={itemVariants}
                 className="relative group"
               >
-                <div className="glass p-6 md:p-8 rounded-2xl transition-all duration-300 border-l-4 border-l-primary/30 hover:border-l-primary relative shadow-lg">
+                <div className="glass p-6 md:p-8 rounded-2xl transition-all duration-300 hover:border-primary/50 relative shadow-lg">
                   <div className="mb-4">
                     <h3 className="font-bold text-xl md:text-2xl text-white">{exp.title}</h3>
                     <div className="text-primary font-medium text-base md:text-lg mt-1 flex items-center gap-2 flex-wrap">

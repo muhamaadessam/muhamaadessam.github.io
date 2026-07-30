@@ -6,16 +6,12 @@ import { ExternalLink } from 'lucide-react';
 import { getProjects, Project } from '@/lib/services';
 import { useRouter } from 'next/navigation';
 
-export default function Projects() {
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [loading, setLoading] = useState(true);
+export default function Projects({ projects: initialProjects }: { projects: Project[] }) {
+  const [projects, setProjects] = useState(initialProjects);
   const router = useRouter();
 
   useEffect(() => {
-    getProjects().then((data) => {
-      setProjects(data);
-      setLoading(false);
-    });
+    getProjects().then(setProjects);
   }, []);
 
   return (
@@ -37,16 +33,7 @@ export default function Projects() {
           <div className="h-1 w-20 bg-primary mx-auto rounded-full" />
         </motion.div>
 
-        {loading ? (
-          <div className="flex flex-col items-center justify-center py-12">
-            <div className="relative w-12 h-12 mb-4">
-              <div className="absolute inset-0 border-2 border-primary/20 rounded-full"></div>
-              <div className="absolute inset-0 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
-              <div className="absolute inset-2 bg-primary/10 rounded-full animate-pulse"></div>
-            </div>
-            <p className="text-primary/70 text-sm font-mono uppercase tracking-widest animate-pulse">Loading</p>
-          </div>
-        ) : projects.length > 0 ? (
+        {projects.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {projects.map((project, index) => (
               <motion.div
@@ -92,6 +79,10 @@ export default function Projects() {
                     </div>
                   </div>
                   <p className="text-gray-400 mb-6 flex-grow text-sm leading-relaxed line-clamp-3">{project.projectDescription}</p>
+
+                  <p className="text-sm text-gray-300 mb-5">
+                    <span className="font-semibold text-white">My Role:</span> Flutter Developer
+                  </p>
                   
                   {project.techStack && project.techStack.length > 0 && (
                     <div className="flex flex-wrap gap-2 mb-6">
