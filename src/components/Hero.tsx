@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion';
 import { FileText, ChevronRight } from 'lucide-react';
 import { FaGithub, FaLinkedin } from 'react-icons/fa';
-import { PortfolioData, incrementCvDownloadCount } from '@/lib/services';
+import { PortfolioData, incrementCvDownloadCount, trackPortfolioEvent } from '@/lib/services';
 import Image from 'next/image';
 
 export default function Hero({ data }: { data: PortfolioData | null }) {
@@ -38,35 +38,30 @@ export default function Hero({ data }: { data: PortfolioData | null }) {
 
         {/* Left Content (Text) */}
         <motion.div
-          className="flex-1 text-center lg:text-left order-2 lg:order-1"
+          className="flex-1 text-center lg:text-left order-1"
           initial={{ opacity: 0, x: -50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <div className="inline-block px-5 py-2 rounded-full mb-8 border border-primary">
-            <span className="text-primary font-semibold tracking-wider text-xs uppercase">Welcome to my portfolio</span>
-          </div>
-
-          <h1 className="text-6xl md:text-8xl font-bold text-white mb-6 tracking-tight leading-[1.1]">
-            Hi, I&apos;m <br />
-            <span className="text-primary block mt-2">
-              {data?.name ? data.name.split(' ')[0] : 'Muhammad'}
-            </span>
-            <span className="text-primary block">
-              {data?.name ? data.name.split(' ').slice(1).join(' ') : 'Essam'}
-            </span>
+          <h1 className="text-5xl md:text-7xl font-bold text-white mb-5 tracking-tight leading-[1.08]">
+            {data?.name || 'Muhammad Essam'}
+            <span className="text-primary block mt-3">Flutter Developer</span>
           </h1>
 
-          <h2 className="text-2xl md:text-4xl text-gray-200 font-semibold mb-6 text-balance">
-            Flutter Developer with 3+ Years of Experience
-          </h2>
-
           <p className="text-gray-300 mb-6 max-w-xl mx-auto lg:mx-0 text-lg leading-relaxed">
-            Building scalable, production-ready mobile applications using Flutter, Dart, BLoC, and Clean Architecture.
+            Flutter Developer with 3+ years of experience building and shipping production mobile applications for Android and iOS.
           </p>
 
+          <div className="flex flex-wrap justify-center lg:justify-start gap-2 mb-6">
+            {['Flutter', 'Dart', 'BLoC', 'Clean Architecture', 'Firebase', 'REST APIs', 'Production Apps'].map((keyword) => (
+              <span key={keyword} className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs text-gray-300">
+                {keyword}
+              </span>
+            ))}
+          </div>
+
           <p className="text-sm md:text-base text-primary mb-10 font-semibold">
-            3+ Years Experience <span className="text-gray-500">|</span> Production Apps <span className="text-gray-500">|</span> Flutter &amp; Dart
+            3+ Years Experience <span className="text-gray-500">|</span> Production Apps <span className="text-gray-500">|</span> Android &amp; iOS
           </p>
 
           <div className="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start flex-wrap">
@@ -74,8 +69,15 @@ export default function Hero({ data }: { data: PortfolioData | null }) {
               href="#projects"
               className="px-8 py-4 bg-primary text-white font-medium rounded-2xl hover:bg-primary-dark hover:scale-105 transition-all flex items-center justify-center gap-4 w-full sm:w-auto min-w-[200px]"
             >
-              <span className="whitespace-nowrap">View My Work</span>
+              <span className="whitespace-nowrap">View Production Apps</span>
               <ChevronRight className="w-5 h-5" />
+            </a>
+
+            <a
+              href="#contact"
+              className="px-8 py-4 bg-dark-card text-white font-medium rounded-2xl hover:bg-gray-700 hover:scale-105 transition-all flex items-center justify-center gap-4 border border-white/5 w-full sm:w-auto min-w-[200px]"
+            >
+              <span className="whitespace-nowrap">Contact Me</span>
             </a>
 
             <a
@@ -93,6 +95,7 @@ export default function Hero({ data }: { data: PortfolioData | null }) {
               href={data?.linkedin || "https://www.linkedin.com/in/muhammadessam159/"}
               target="_blank"
               rel="noreferrer"
+              onClick={() => trackPortfolioEvent('external_link_click', 'linkedin')}
               className="px-8 py-4 bg-dark-card text-white font-medium rounded-2xl hover:bg-gray-700 hover:scale-105 transition-all flex items-center justify-center gap-4 border border-white/5 w-full sm:w-auto min-w-[200px]"
             >
               <FaLinkedin className="w-5 h-5 text-white" />
@@ -103,6 +106,7 @@ export default function Hero({ data }: { data: PortfolioData | null }) {
               href={data?.github || "https://github.com/muhamaadessam"}
               target="_blank"
               rel="noreferrer"
+              onClick={() => trackPortfolioEvent('external_link_click', 'github')}
               aria-label="View Muhammad Essam's GitHub profile"
               className="px-5 py-4 text-gray-300 hover:text-white transition-colors flex items-center justify-center gap-3"
             >
@@ -114,12 +118,12 @@ export default function Hero({ data }: { data: PortfolioData | null }) {
 
         {/* Right Content - Image */}
         <motion.div
-          className="flex-1 flex justify-center items-center order-1 lg:order-2 mt-20 lg:mt-0 mb-12 lg:mb-0 w-full"
+          className="flex-1 flex justify-center items-center order-2 mt-4 lg:mt-0 mb-12 lg:mb-0 w-full"
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, delay: 0.2 }}
         >
-          <div className="relative w-72 h-72 sm:w-80 sm:h-80 lg:w-96 lg:h-96 flex items-center justify-center">
+          <div className="relative w-60 h-60 sm:w-80 sm:h-80 lg:w-96 lg:h-96 flex items-center justify-center">
             {/* Animated Glow Blob Behind */}
             <motion.div
               className="absolute inset-0 bg-gradient-to-tr from-primary to-accent opacity-40 blur-3xl"

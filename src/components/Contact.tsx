@@ -2,19 +2,26 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { sendTelegramMessage } from '@/lib/services';
+import { PortfolioData, incrementCvDownloadCount, sendTelegramMessage, trackPortfolioEvent } from '@/lib/services';
 import { db } from '@/lib/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { Send, CheckCircle, AlertCircle, FileText } from 'lucide-react';
-import { FaGithub, FaLinkedin } from 'react-icons/fa';
+import { Mail, Send, CheckCircle, AlertCircle, FileText } from 'lucide-react';
+import { FaGithub, FaLinkedin, FaWhatsapp } from 'react-icons/fa';
 
-export default function Contact() {
+export default function Contact({ data }: { data: PortfolioData | null }) {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const phone = data?.phone || '+201557760110';
+  const email = data?.email || 'muhammadessam159@gmail.com';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.email || !formData.message) return;
+    if (Date.now() - Number(localStorage.getItem('last_contact_submit') || 0) < 60_000) {
+      setStatus('error');
+      setTimeout(() => setStatus('idle'), 3000);
+      return;
+    }
     
     setStatus('loading');
     
@@ -26,9 +33,6 @@ export default function Contact() {
 ${formData.message}
     `;
 
-    const success = await sendTelegramMessage(formattedMessage);
-    
-    // Save to Firestore
     try {
       await addDoc(collection(db, 'messages'), {
         name: formData.name,
@@ -37,15 +41,15 @@ ${formData.message}
         createdAt: serverTimestamp(),
         read: false
       });
-    } catch (e) {
-      console.error('Error saving message to database', e);
-    }
-    
-    if (success) {
+      const telegramSent = await sendTelegramMessage(formattedMessage);
+      if (!telegramSent) throw new Error('Telegram notification failed');
+      await trackPortfolioEvent('contact_submit');
+      localStorage.setItem('last_contact_submit', String(Date.now()));
       setStatus('success');
       setFormData({ name: '', email: '', message: '' });
       setTimeout(() => setStatus('idle'), 3000);
-    } else {
+    } catch (e) {
+      console.error('Error saving message to database', e);
       setStatus('error');
       setTimeout(() => setStatus('idle'), 3000);
     }
@@ -69,16 +73,22 @@ ${formData.message}
           <h2 className="text-3xl md:text-4xl font-bold mb-4">Get In Touch</h2>
           <div className="h-1 w-20 bg-primary mx-auto rounded-full mb-6" />
           <p className="text-gray-400 max-w-2xl mx-auto">
-            I&apos;m open to new opportunities. Looking for a Flutter Developer who can build scalable, production-ready mobile applications? Let&apos;s talk.
+            Open to Flutter Developer opportunities and freelance projects. Looking for a developer who can build scalable, production-ready mobile applications? Let&apos;s talk.
           </p>
           <div className="flex flex-wrap justify-center gap-5 mt-7">
-            <a href="https://drive.google.com/uc?export=download&id=11R3XbF-0bTpnFe4wCdOYy9Qgw4ISQKEc" target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-white hover:text-primary transition-colors">
+            <a href={`mailto:${email}`} onClick={() => trackPortfolioEvent('external_link_click', 'email')} className="inline-flex items-center gap-2 text-white hover:text-primary transition-colors">
+              <Mail className="w-5 h-5" /> Email
+            </a>
+            <a href={`https://api.whatsapp.com/send/?phone=${phone.replace('+', '')}&text&type=phone_number&app_absent=0`} target="_blank" rel="noreferrer" onClick={() => trackPortfolioEvent('external_link_click', 'whatsapp')} className="inline-flex items-center gap-2 text-white hover:text-primary transition-colors">
+              <FaWhatsapp className="w-5 h-5" /> WhatsApp
+            </a>
+            <a href="https://drive.google.com/uc?export=download&id=11R3XbF-0bTpnFe4wCdOYy9Qgw4ISQKEc" target="_blank" rel="noreferrer" onClick={() => incrementCvDownloadCount()} className="inline-flex items-center gap-2 text-white hover:text-primary transition-colors">
               <FileText className="w-5 h-5" /> Download CV
             </a>
-            <a href="https://www.linkedin.com/in/muhammadessam159/" target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-white hover:text-primary transition-colors">
+            <a href="https://www.linkedin.com/in/muhammadessam159/" target="_blank" rel="noreferrer" onClick={() => trackPortfolioEvent('external_link_click', 'linkedin')} className="inline-flex items-center gap-2 text-white hover:text-primary transition-colors">
               <FaLinkedin className="w-5 h-5" /> LinkedIn
             </a>
-            <a href="https://github.com/muhamaadessam" target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-white hover:text-primary transition-colors">
+            <a href="https://github.com/muhamaadessam" target="_blank" rel="noreferrer" onClick={() => trackPortfolioEvent('external_link_click', 'github')} className="inline-flex items-center gap-2 text-white hover:text-primary transition-colors">
               <FaGithub className="w-5 h-5" /> GitHub
             </a>
           </div>
@@ -146,12 +156,12 @@ ${formData.message}
               ) : status === 'success' ? (
                 <>
                   <CheckCircle className="w-5 h-5" />
-                  Sent Successfully
+                  Message Saved
                 </>
               ) : status === 'error' ? (
                 <>
                   <AlertCircle className="w-5 h-5" />
-                  Failed to Send
+                  Please try again shortly
                 </>
               ) : (
                 <>

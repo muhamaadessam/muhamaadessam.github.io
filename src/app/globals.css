@@ -44,9 +44,20 @@ body {
 
 .dark .glass {
   background: rgba(51, 56, 66, 0.7); /* translucent version of dark-card (#333842) */
-  backdrop-filter: blur(32px);
-  -webkit-backdrop-filter: blur(32px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(66, 165, 245, 0.2); /* main color border */
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 /* Hide scrollbar */

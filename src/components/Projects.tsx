@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { CircleAlert, ExternalLink, UsersRound } from 'lucide-react';
-import { Project } from '@/lib/services';
+import { Project, trackPortfolioEvent } from '@/lib/services';
 import { useRouter } from 'next/navigation';
 
 export default function Projects({ projects }: { projects: Project[] }) {
@@ -37,7 +37,10 @@ export default function Projects({ projects }: { projects: Project[] }) {
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 whileHover={{ y: -10 }}
-                onClick={() => router.push(`/projects/${project.id}`)}
+                onClick={() => {
+                  trackPortfolioEvent('project_click', project.id);
+                  router.push(`/projects/${project.id}`);
+                }}
                 className="cursor-pointer glass rounded-2xl overflow-hidden group flex flex-col h-full hover:border-primary/50 hover:shadow-[0_0_25px_rgba(102,252,241,0.15)] transition-all duration-500"
               >
                 {project.projectImage && (
@@ -46,6 +49,7 @@ export default function Projects({ projects }: { projects: Project[] }) {
                     <img 
                       src={project.projectImage} 
                       alt={project.projectName} 
+                      loading={index < 3 ? 'eager' : 'lazy'}
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-90 group-hover:opacity-100"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end justify-center pb-4">
@@ -105,7 +109,10 @@ export default function Projects({ projects }: { projects: Project[] }) {
                           target="_blank"
                           rel="noreferrer"
                           title="Join the testing group first"
-                          onClick={(e) => e.stopPropagation()}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            trackPortfolioEvent('external_link_click', project.id);
+                          }}
                           className="z-10 relative flex items-center gap-1.5 px-3.5 py-1.5 bg-blue-500 text-[11px] font-bold text-white rounded-full hover:bg-blue-400 transition-colors"
                         >
                           <UsersRound className="w-3.5 h-3.5" aria-hidden="true" />
@@ -118,7 +125,10 @@ export default function Projects({ projects }: { projects: Project[] }) {
                           href={lnk.link} 
                           target="_blank" 
                           rel="noreferrer" 
-                          onClick={(e) => e.stopPropagation()}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            trackPortfolioEvent('external_link_click', project.id);
+                          }}
                           className="z-10 relative flex items-center gap-1.5 px-3.5 py-1.5 bg-black/40 hover:bg-primary text-[11px] font-bold text-gray-300 hover:text-dark-bg rounded-full border border-white/10 hover:border-primary transition-all duration-300 shadow-sm"
                         >
                           <span>{lnk.title || 'Live Demo'}</span>

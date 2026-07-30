@@ -1,36 +1,71 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Muhammad Essam Portfolio
 
-## Getting Started
+Professional portfolio for Muhammad Essam, a Flutter Developer focused on production-ready Android and iOS applications.
 
-First, run the development server:
+Live site: https://muhamaadessam.github.io/
+
+## About
+
+This portfolio is built to help recruiters and clients quickly understand Muhammad's mobile development experience, technical stack, project work, and contact paths.
+
+## Features
+
+- Recruiter-focused hero with Flutter, Dart, BLoC, Clean Architecture, Firebase, REST APIs, and production app positioning
+- Featured project cards with role, stack, project type/status, links, and testing-group calls to action
+- Static project detail pages generated for GitHub Pages refresh/direct-link support
+- Contact form with Firestore message saving and optional secure external notification endpoint
+- Lightweight event tracking for page views, project clicks, CV downloads, contact submits, and external links
+- SEO metadata, Open Graph/Twitter cards, sitemap, robots, and JSON-LD Person schema
+
+## Tech Stack
+
+- Next.js static export
+- React
+- TypeScript
+- Tailwind CSS
+- Firebase Firestore
+- Framer Motion
+
+## Architecture
+
+- `src/app/page.tsx` fetches portfolio data once at build time and passes it to client sections.
+- `src/app/projects/[id]/page.tsx` generates static project routes with `generateStaticParams()`.
+- `src/app/projects/[id]/ProjectDetailsClient.tsx` owns interactive project UI such as screenshots and lightbox behavior.
+- `src/lib/services.ts` contains Firebase reads, Firestore writes, and privacy-light analytics helpers.
+
+## Installation
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Build
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run lint
+npm run build
+```
 
-## Learn More
+The static export is emitted by Next.js for GitHub Pages.
 
-To learn more about Next.js, take a look at the following resources:
+## Contact Notification Endpoint
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Telegram notifications are sent from the frontend using the Firestore document `config/telegram`.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Expected fields:
 
-## Deploy on Vercel
+- `bot_token`
+- `chat_id`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+This keeps the notification flow simple for GitHub Pages, but it means the bot token can be exposed to visitors who inspect network traffic if your Firestore rules allow this document to be read publicly. For stronger security, move this back behind a backend endpoint later.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The contact form saves messages to Firestore, then requires Telegram to respond successfully before showing success.
+
+## Contact
+
+- Portfolio: https://muhamaadessam.github.io/
+- LinkedIn: https://www.linkedin.com/in/muhammadessam159/
+- GitHub: https://github.com/muhamaadessam

@@ -6,6 +6,14 @@ import { FaGithub, FaLinkedin } from 'react-icons/fa';
 import { FunFacts } from '@/lib/services';
 
 export default function About({ funFacts }: { funFacts: FunFacts | null }) {
+  const highlights = [
+    '3+ Years Flutter Development',
+    'Production Mobile Applications',
+    'Android & iOS Delivery',
+    'API & Firebase Integration',
+    'Clean Architecture Implementation',
+  ];
+
   return (
     <section 
       id="about" 
@@ -28,12 +36,20 @@ export default function About({ funFacts }: { funFacts: FunFacts | null }) {
           <div className="max-w-4xl mx-auto glass p-8 md:p-12 rounded-2xl">
             <div className="flex flex-col md:flex-row gap-8 items-center md:items-start">
               <div className="w-full md:w-2/3">
-                <h3 className="text-2xl font-semibold mb-2 text-white">Hello, I&apos;m Muhammad Essam!</h3>
-                <h4 className="text-primary text-lg mb-6">Software Engineer</h4>
+                <h3 className="text-2xl font-semibold mb-2 text-white">Flutter Developer for production mobile apps</h3>
+                <h4 className="text-primary text-lg mb-6">Mobile Application Engineer</h4>
                 <p className="text-gray-300 leading-relaxed mb-8">
-                  I&apos;m a passionate Software Engineer based in Egypt. I specialize in building beautiful, high-performance web and mobile applications.
-                  My goal is to craft digital experiences that leave a lasting impact.
+                  I specialize in scalable mobile applications using Flutter, Dart, BLoC, Clean Architecture, Firebase, and API integrations. I focus on production-ready delivery: clear architecture, reliable integrations, readable code, and mobile experiences teams can maintain after launch.
                 </p>
+
+                <h4 className="text-xl font-medium mb-4 text-primary">Professional Highlights</h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
+                  {highlights.map((highlight) => (
+                    <div key={highlight} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-gray-200">
+                      {highlight}
+                    </div>
+                  ))}
+                </div>
                 
                 {funFacts?.facts?.length ? <div className="mt-8">
                     <h4 className="text-xl font-medium mb-4 text-primary">Fun Facts</h4>

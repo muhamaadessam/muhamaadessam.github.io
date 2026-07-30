@@ -185,16 +185,13 @@ export async function getPortfolioData(): Promise<PortfolioData | null> {
   }
 }
 
-// Client-side Telegram integration
-async function getTelegramConfig() {
-  const configDoc = await getDoc(doc(db, 'config', 'telegram'));
-  if (configDoc.exists()) {
-    return configDoc.data();
-  }
-  return null;
-}
-
 const IGNORED_VISITOR_IDS = new Set(['1777640653418', '1777681421611', '1783389357146']);
+type PortfolioEvent = 'page_view' | 'project_click' | 'cv_download' | 'contact_submit' | 'external_link_click';
+
+async function getTelegramConfig(): Promise<{ bot_token?: string; chat_id?: string } | null> {
+  const configDoc = await getDoc(doc(db, 'config', 'telegram'));
+  return configDoc.exists() ? configDoc.data() : null;
+}
 
 function isIgnoredVisitor(visitorId: string | null): boolean {
   return visitorId !== null && IGNORED_VISITOR_IDS.has(visitorId);
@@ -218,17 +215,12 @@ export async function trackVisitor(): Promise<void> {
     const docRef = doc(db, 'stats', 'visitors');
     const snapshot = await getDoc(docRef);
 
-    let totalVisits = 1;
-    let totalVisitors = 1;
-
     if (snapshot.exists()) {
       const data = snapshot.data();
       const users = data.users || {};
       const currentCount = users[visitorId] || 0;
 
       isNewVisitor = currentCount === 0;
-      totalVisitors = isNewVisitor ? Object.keys(users).length + 1 : Object.keys(users).length;
-      totalVisits = (data.total_visites || 0) + 1;
 
       await setDoc(docRef, {
         total_visitors: isNewVisitor ? increment(1) : Object.keys(users).length,
@@ -248,29 +240,26 @@ export async function trackVisitor(): Promise<void> {
       });
     }
 
-    // Send Telegram Notification
-    const config = await getTelegramConfig();
-    if (config?.bot_token && config?.chat_id) {
-      let message;
-      if (isNewVisitor) {
-        message = `🎉 *New Unique Visitor!*\n\n*Visitor ID:* \`${visitorId}\`\nA new user has visited your portfolio!\nTotal Unique Visitors: \`${totalVisitors}\``;
-      } else {
-        message = `👀 *Portfolio Visit!*\n\n*Visitor ID:* \`${visitorId}\`\nA return visitor just opened your portfolio.\nTotal Visits: \`${totalVisits}\``;
-      }
-
-      const url = `https://api.telegram.org/bot${config.bot_token}/sendMessage`;
-      await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          chat_id: config.chat_id,
-          text: message,
-          parse_mode: 'Markdown',
-        }),
-      });
-    }
+    await trackPortfolioEvent('page_view');
   } catch (error) {
     console.error('Error tracking visitor:', error);
+  }
+}
+
+export async function trackPortfolioEvent(event: PortfolioEvent, target = 'site'): Promise<void> {
+  try {
+    if (typeof window === 'undefined') return;
+
+    const visitorId = localStorage.getItem('visitor_id');
+    if (isIgnoredVisitor(visitorId)) return;
+
+    const safeTarget = target.replace(/[^a-z0-9_-]/gi, '_').slice(0, 80) || 'site';
+    await setDoc(doc(db, 'stats', 'events'), {
+      [event]: increment(1),
+      [`${event}_${safeTarget}`]: increment(1),
+    }, { merge: true });
+  } catch (error) {
+    console.error(`Error tracking ${event}:`, error);
   }
 }
 
@@ -284,20 +273,7 @@ export async function incrementCvDownloadCount(): Promise<void> {
       count: increment(1)
     }).catch(() => { });
 
-    const config = await getTelegramConfig();
-    if (config?.bot_token && config?.chat_id) {
-      const message = `📄 *CV Downloaded!*\n\n*Visitor ID:* \`${visitorId || 'Unknown'}\`\nSomeone just downloaded your CV!`;
-      const url = `https://api.telegram.org/bot${config.bot_token}/sendMessage`;
-      await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          chat_id: config.chat_id,
-          text: message,
-          parse_mode: 'Markdown',
-        }),
-      });
-    }
+    await trackPortfolioEvent('cv_download');
   } catch (error) {
     console.error('Error incrementing CV download count:', error);
   }
@@ -308,8 +284,7 @@ export async function sendTelegramMessage(message: string): Promise<boolean> {
     const config = await getTelegramConfig();
     if (!config?.bot_token || !config?.chat_id) return false;
 
-    const url = `https://api.telegram.org/bot${config.bot_token}/sendMessage`;
-    const response = await fetch(url, {
+    const response = await fetch(`https://api.telegram.org/bot${config.bot_token}/sendMessage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
