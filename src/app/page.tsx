@@ -28,7 +28,7 @@ export default async function Home() {
       <Experience experiences={experiences} />
       <Skills skills={skills} />
       <Contact />
-      <Footer />
+      <Footer data={portfolio} />
     </main>
   );
 }

@@ -1,17 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { getSkills, Skill } from '@/lib/services';
+import { Skill } from '@/lib/services';
 import { Code2 } from 'lucide-react';
 
-export default function Skills({ skills: initialSkills }: { skills: Skill[] }) {
-  const [skills, setSkills] = useState(initialSkills);
-
-  useEffect(() => {
-    getSkills().then(setSkills);
-  }, []);
-
+export default function Skills({ skills }: { skills: Skill[] }) {
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {

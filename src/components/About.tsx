@@ -1,18 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { FileText } from 'lucide-react';
 import { FaGithub, FaLinkedin } from 'react-icons/fa';
-import { FunFacts, getFunFacts } from '@/lib/services';
+import { FunFacts } from '@/lib/services';
 
-export default function About({ funFacts: initialFunFacts }: { funFacts: FunFacts | null }) {
-  const [funFacts, setFunFacts] = useState(initialFunFacts);
-
-  useEffect(() => {
-    getFunFacts().then(setFunFacts);
-  }, []);
-
+export default function About({ funFacts }: { funFacts: FunFacts | null }) {
   return (
     <section 
       id="about" 
@@ -45,7 +38,7 @@ export default function About({ funFacts: initialFunFacts }: { funFacts: FunFact
                 {funFacts?.facts?.length ? <div className="mt-8">
                     <h4 className="text-xl font-medium mb-4 text-primary">Fun Facts</h4>
                     <ul className="text-gray-400 space-y-2">
-                      {funFacts.facts.map((fact) => (
+                      {funFacts.facts.slice(0, 4).map((fact) => (
                         <li key={fact}>{fact}</li>
                       ))}
                     </ul>

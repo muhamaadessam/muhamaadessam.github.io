@@ -1,19 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { FileText, ChevronRight } from 'lucide-react';
 import { FaGithub, FaLinkedin } from 'react-icons/fa';
-import { getPortfolioData, PortfolioData, incrementCvDownloadCount } from '@/lib/services';
+import { PortfolioData, incrementCvDownloadCount } from '@/lib/services';
 import Image from 'next/image';
 
-export default function Hero({ data: initialData }: { data: PortfolioData | null }) {
-  const [data, setData] = useState(initialData);
-
-  useEffect(() => {
-    getPortfolioData().then(setData);
-  }, []);
-
+export default function Hero({ data }: { data: PortfolioData | null }) {
   const handleDownloadCV = () => {
     incrementCvDownloadCount();
   };

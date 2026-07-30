@@ -1,17 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { getPortfolioData, PortfolioData } from '@/lib/services';
+import { PortfolioData } from '@/lib/services';
 import { FaGithub, FaLinkedin, FaWhatsapp } from 'react-icons/fa';
 import { Mail, Phone } from 'lucide-react';
 
-export default function Footer() {
+export default function Footer({ data }: { data: PortfolioData | null }) {
   const currentYear = new Date().getFullYear();
-  const [data, setData] = useState<PortfolioData | null>(null);
-
-  useEffect(() => {
-    getPortfolioData().then(res => setData(res));
-  }, []);
 
   return (
     <footer className="relative mt-auto pt-16 pb-8 overflow-hidden bg-dark-bg border-t border-white/5">

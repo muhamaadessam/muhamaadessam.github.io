@@ -1,8 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { getExperiences, Experience as ExperienceType } from '@/lib/services';
+import { Experience as ExperienceType } from '@/lib/services';
 import { ExternalLink } from 'lucide-react';
 
 function formatMonthYear(dateString: string): string {
@@ -40,13 +39,7 @@ function calculateDuration(start: string, end: string | null): string {
   return `${years} yrs ${months} mos`;
 }
 
-export default function Experience({ experiences: initialExperiences }: { experiences: ExperienceType[] }) {
-  const [experiences, setExperiences] = useState(initialExperiences);
-
-  useEffect(() => {
-    getExperiences().then(setExperiences);
-  }, []);
-
+export default function Experience({ experiences }: { experiences: ExperienceType[] }) {
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {

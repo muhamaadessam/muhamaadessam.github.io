@@ -1,18 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { ExternalLink } from 'lucide-react';
-import { getProjects, Project } from '@/lib/services';
+import { CircleAlert, ExternalLink, UsersRound } from 'lucide-react';
+import { Project } from '@/lib/services';
 import { useRouter } from 'next/navigation';
 
-export default function Projects({ projects: initialProjects }: { projects: Project[] }) {
-  const [projects, setProjects] = useState(initialProjects);
+export default function Projects({ projects }: { projects: Project[] }) {
   const router = useRouter();
-
-  useEffect(() => {
-    getProjects().then(setProjects);
-  }, []);
 
   return (
     <section 
@@ -72,8 +66,12 @@ export default function Projects({ projects: initialProjects }: { projects: Proj
                         </span>
                       )}
                       {project.status && (
-                        <span className="text-[10px] px-2.5 py-1 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-full font-bold uppercase tracking-wider">
+                        <span
+                          title={project.status === 'testing' ? 'Join the testing group first' : undefined}
+                          className="inline-flex items-center gap-1 text-[10px] px-2.5 py-1 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-full font-bold uppercase tracking-wider"
+                        >
                           {project.status.replaceAll('-', ' ')}
+                          {project.status === 'testing' && <CircleAlert className="w-3 h-3" aria-hidden="true" />}
                         </span>
                       )}
                     </div>
@@ -99,8 +97,21 @@ export default function Projects({ projects: initialProjects }: { projects: Proj
                     </div>
                   )}
                   
-                  {project.links && project.links.length > 0 && (
+                  {(project.status === 'testing' && project.testingGroupLink?.startsWith('https://') || project.links?.length > 0) && (
                     <div className="flex flex-wrap gap-2 mt-auto pt-4 border-t border-white/10">
+                      {project.status === 'testing' && project.testingGroupLink?.startsWith('https://') && (
+                        <a
+                          href={project.testingGroupLink}
+                          target="_blank"
+                          rel="noreferrer"
+                          title="Join the testing group first"
+                          onClick={(e) => e.stopPropagation()}
+                          className="z-10 relative flex items-center gap-1.5 px-3.5 py-1.5 bg-blue-500 text-[11px] font-bold text-white rounded-full hover:bg-blue-400 transition-colors"
+                        >
+                          <UsersRound className="w-3.5 h-3.5" aria-hidden="true" />
+                          <span>Join Testing Group</span>
+                        </a>
+                      )}
                       {project.links.map((lnk, i) => (
                         <a 
                           key={i}
