@@ -12,7 +12,7 @@ export default function Projects({ projects }: { projects: Project[] }) {
     <section 
       id="projects" 
       className="py-24 relative bg-dark-bg bg-fixed bg-cover bg-center"
-      style={{ backgroundImage: 'url("/backgrounds/projects_bg.png")' }}
+      style={{ backgroundImage: 'url("/backgrounds/projects_bg.webp")' }}
     >
       <div className="absolute inset-0 bg-dark-bg/90"></div>
       <div className="container mx-auto px-6 relative z-10">
@@ -82,9 +82,21 @@ export default function Projects({ projects }: { projects: Project[] }) {
                   </div>
                   <p className="text-gray-400 mb-6 flex-grow text-sm leading-relaxed line-clamp-3">{project.projectDescription}</p>
 
-                  <p className="text-sm text-gray-300 mb-5">
-                    <span className="font-semibold text-white">My Role:</span> Flutter Developer
-                  </p>
+                  <div className="mb-5">
+                    <span className="text-sm font-semibold text-white mb-2 block">My Contribution:</span>
+                    <ul className="text-sm text-gray-300 space-y-1 list-disc list-inside">
+                      {project.myContribution?.length ? project.myContribution.slice(0, 4).map((cont, idx) => (
+                        <li key={idx} className="line-clamp-1">{cont}</li>
+                      )) : (
+                        <>
+                          <li>Developed Flutter mobile application</li>
+                          <li>Implemented BLoC state management</li>
+                          <li>Integrated REST APIs</li>
+                          <li>Managed production release process</li>
+                        </>
+                      )}
+                    </ul>
+                  </div>
                   
                   {project.techStack && project.techStack.length > 0 && (
                     <div className="flex flex-wrap gap-2 mb-6">

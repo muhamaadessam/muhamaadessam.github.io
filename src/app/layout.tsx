@@ -48,7 +48,7 @@ export default function RootLayout({
   };
 
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
+    <html lang="en" className="dark" data-scroll-behavior="smooth" suppressHydrationWarning>
       <body className={`${firaCode.className} antialiased selection:bg-primary/30 selection:text-primary-dark`}>
         <script
           type="application/ld+json"

@@ -2,9 +2,7 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { PortfolioData, incrementCvDownloadCount, sendTelegramMessage, trackPortfolioEvent } from '@/lib/services';
-import { db } from '@/lib/firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { PortfolioData, incrementCvDownloadCount, trackPortfolioEvent } from '@/lib/services';
 import { Mail, Send, CheckCircle, AlertCircle, FileText } from 'lucide-react';
 import { FaGithub, FaLinkedin, FaWhatsapp } from 'react-icons/fa';
 
@@ -25,31 +23,26 @@ export default function Contact({ data }: { data: PortfolioData | null }) {
     
     setStatus('loading');
     
-    const formattedMessage = `
-🌟 New Contact Form Submission!
-👤 Name: ${formData.name}
-📧 Email: ${formData.email}
-📝 Message: 
-${formData.message}
-    `;
-
     try {
-      await addDoc(collection(db, 'messages'), {
-        name: formData.name,
-        email: formData.email,
-        message: formData.message,
-        createdAt: serverTimestamp(),
-        read: false
+      const response = await fetch('https://portfolio-contact-api.vercel.app/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          name: formData.name,
+          email: formData.email,
+          message: formData.message 
+        })
       });
-      const telegramSent = await sendTelegramMessage(formattedMessage);
-      if (!telegramSent) throw new Error('Telegram notification failed');
+
+      if (!response.ok) throw new Error('Failed to send message via backend');
+      
       await trackPortfolioEvent('contact_submit');
       localStorage.setItem('last_contact_submit', String(Date.now()));
       setStatus('success');
       setFormData({ name: '', email: '', message: '' });
       setTimeout(() => setStatus('idle'), 3000);
     } catch (e) {
-      console.error('Error saving message to database', e);
+      console.error('Error in contact flow:', e);
       setStatus('error');
       setTimeout(() => setStatus('idle'), 3000);
     }
@@ -59,7 +52,7 @@ ${formData.message}
     <section 
       id="contact" 
       className="py-24 relative bg-dark-bg bg-fixed bg-cover bg-center"
-      style={{ backgroundImage: 'url("/backgrounds/contact_bg.png")' }}
+      style={{ backgroundImage: 'url("/backgrounds/contact_bg.webp")' }}
     >
       <div className="absolute inset-0 bg-dark-bg/90"></div>
       <div className="container mx-auto px-6 relative z-10">

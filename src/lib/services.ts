@@ -20,6 +20,11 @@ export interface Project {
   testingGroupLink?: string;
   isFeatured: boolean;
   screenshots?: string[];
+  overview?: string;
+  challenge?: string;
+  solution?: string;
+  myRole?: string;
+  myContribution?: string[];
 }
 
 export interface Skill {
@@ -43,9 +48,7 @@ export interface Experience {
   companyUrl?: string; // Link to the company's website or LinkedIn
 }
 
-export interface FunFacts {
-  facts: string[];
-}
+
 
 export interface Message {
   id: string;
@@ -147,19 +150,6 @@ export async function getExperiences(): Promise<Experience[]> {
   }
 }
 
-export async function getFunFacts(): Promise<FunFacts | null> {
-  try {
-    const docSnap = await getDoc(doc(db, 'fun_facts', 'main'));
-    if (docSnap.exists()) {
-      return { facts: docSnap.data().facts };
-    }
-    return null;
-  } catch (error) {
-    console.error('Error fetching fun facts:', error);
-    return null;
-  }
-}
-
 export interface PortfolioData {
   objective?: string;
   company?: string;
@@ -187,11 +177,6 @@ export async function getPortfolioData(): Promise<PortfolioData | null> {
 
 const IGNORED_VISITOR_IDS = new Set(['1777640653418', '1777681421611', '1783389357146']);
 type PortfolioEvent = 'page_view' | 'project_click' | 'cv_download' | 'contact_submit' | 'external_link_click';
-
-async function getTelegramConfig(): Promise<{ bot_token?: string; chat_id?: string } | null> {
-  const configDoc = await getDoc(doc(db, 'config', 'telegram'));
-  return configDoc.exists() ? configDoc.data() : null;
-}
 
 function isIgnoredVisitor(visitorId: string | null): boolean {
   return visitorId !== null && IGNORED_VISITOR_IDS.has(visitorId);
@@ -276,25 +261,5 @@ export async function incrementCvDownloadCount(): Promise<void> {
     await trackPortfolioEvent('cv_download');
   } catch (error) {
     console.error('Error incrementing CV download count:', error);
-  }
-}
-
-export async function sendTelegramMessage(message: string): Promise<boolean> {
-  try {
-    const config = await getTelegramConfig();
-    if (!config?.bot_token || !config?.chat_id) return false;
-
-    const response = await fetch(`https://api.telegram.org/bot${config.bot_token}/sendMessage`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        chat_id: config.chat_id,
-        text: message,
-      }),
-    });
-    return response.ok;
-  } catch (error) {
-    console.error('Error sending telegram message:', error);
-    return false;
   }
 }

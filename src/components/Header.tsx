@@ -29,7 +29,7 @@ export default function Header() {
       <div className="transition-all duration-300 w-full max-w-4xl mx-auto rounded-2xl px-6 py-3 flex justify-between items-center bg-dark-card/60 backdrop-blur-md border border-primary/20 shadow-lg shadow-black/30">
         <Link href="/" className="flex items-center">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logos/essamLogoWithText.png" alt="M.Essam Logo" className="h-10 object-contain" />
+          <img src="/logos/essamLogoWithText.webp" alt="M.Essam Logo" className="h-10 object-contain" />
         </Link>
         
         <nav className="hidden md:flex items-center gap-8">

@@ -151,11 +151,56 @@ export default function ProjectDetailsClient({ project, projectId }: { project: 
               {project.projectName}
             </h1>
             
-            <div className="glass p-6 rounded-2xl border-white/5 shadow-xl mb-10">
-              <p className="text-lg md:text-xl text-gray-300 leading-relaxed font-light">
-                {project.projectDescription}
-              </p>
+            <div className="glass p-8 rounded-2xl border-white/5 shadow-xl mb-10 space-y-8">
+              <div>
+                <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2"><Sparkles className="w-5 h-5 text-primary"/> Overview</h2>
+                <p className="text-lg text-gray-300 leading-relaxed font-light">
+                  {project.overview || project.projectDescription}
+                </p>
+              </div>
+              
+              {project.challenge && (
+                <div>
+                  <h2 className="text-2xl font-bold text-white mb-4">Challenge</h2>
+                  <p className="text-lg text-gray-300 leading-relaxed font-light">{project.challenge}</p>
+                </div>
+              )}
+              
+              {project.solution && (
+                <div>
+                  <h2 className="text-2xl font-bold text-white mb-4">Solution</h2>
+                  <p className="text-lg text-gray-300 leading-relaxed font-light">{project.solution}</p>
+                </div>
+              )}
+              
+              <div>
+                <h2 className="text-2xl font-bold text-white mb-4">My Role</h2>
+                <p className="text-lg text-gray-300 leading-relaxed font-medium mb-3 text-primary">
+                  {project.myRole || 'Flutter Developer'}
+                </p>
+                <ul className="list-disc list-inside space-y-2 text-gray-300 font-light text-lg">
+                  {project.myContribution?.length ? project.myContribution.map((cont, idx) => (
+                    <li key={idx}>{cont}</li>
+                  )) : (
+                    <>
+                      <li>Developed Flutter mobile application</li>
+                      <li>Implemented BLoC state management</li>
+                      <li>Integrated REST APIs</li>
+                      <li>Managed production release process</li>
+                    </>
+                  )}
+                </ul>
+              </div>
             </div>
+
+              {project.status?.toLowerCase() === 'testing' && (
+                <div className="mb-8 p-4 glass border border-blue-500/30 rounded-xl bg-blue-500/5">
+                  <p className="text-blue-200 text-sm">
+                    <strong>Note:</strong> This application is currently available through Google Play Closed Testing. 
+                    Join the tester group first using the button below, then you can access the Play Store installation link.
+                  </p>
+                </div>
+              )}
 
             <div className="flex flex-wrap items-center gap-4 mb-10">
               {project.status?.toLowerCase() === 'testing' && project.testingGroupLink?.startsWith('https://') && (
@@ -191,7 +236,7 @@ export default function ProjectDetailsClient({ project, projectId }: { project: 
 
             {project.techStack && project.techStack.length > 0 && (
               <div className="mb-10">
-                <h3 className="text-sm text-gray-500 uppercase tracking-widest mb-4 font-semibold">Tech Stack</h3>
+                <h2 className="text-2xl font-bold text-white mb-4">Technical Implementation</h2>
                 <div className="flex flex-wrap gap-2.5">
                   {project.techStack.map((tech, idx) => (
                     <motion.span 
@@ -210,7 +255,7 @@ export default function ProjectDetailsClient({ project, projectId }: { project: 
 
             {project.keyFeaturesAndBenefits && project.keyFeaturesAndBenefits.length > 0 && (
               <div>
-                <h3 className="text-sm text-gray-500 uppercase tracking-widest mb-4 font-semibold">Key Features & Benefits</h3>
+                <h2 className="text-2xl font-bold text-white mb-4">Features</h2>
                 <ul className="list-disc list-inside space-y-2 text-gray-300">
                   {project.keyFeaturesAndBenefits.map((feature, idx) => (
                     <motion.li 
@@ -234,7 +279,7 @@ export default function ProjectDetailsClient({ project, projectId }: { project: 
             transition={{ duration: 0.8, delay: 0.2 }}
             className="lg:col-span-6 order-1 lg:order-2 relative perspective-1000"
           >
-            <div className="absolute -inset-4 bg-gradient-to-tr from-primary via-accent-light to-accent rounded-[2rem] blur-3xl opacity-20 animate-pulse"></div>
+            <div className="absolute -inset-4 bg-gradient-to-tr from-primary via-accent-light to-accent rounded-[2rem] blur-2xl opacity-10"></div>
             <div className="glass rounded-[2rem] relative overflow-hidden border border-white/20 shadow-2xl transform transition-transform duration-500 hover:scale-[1.02] hover:-rotate-1">
               <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent"></div>
               <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>

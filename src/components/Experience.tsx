@@ -57,7 +57,7 @@ export default function Experience({ experiences }: { experiences: ExperienceTyp
     <section 
       id="experience" 
       className="py-24 relative bg-dark-bg bg-fixed bg-cover bg-center"
-      style={{ backgroundImage: 'url("/backgrounds/experience_bg.png")' }}
+      style={{ backgroundImage: 'url("/backgrounds/experience_bg.webp")' }}
     >
       <div className="absolute inset-0 bg-dark-bg/85"></div>
       <div className="container mx-auto px-6 relative z-10">

@@ -3,9 +3,8 @@
 import { motion } from 'framer-motion';
 import { FileText } from 'lucide-react';
 import { FaGithub, FaLinkedin } from 'react-icons/fa';
-import { FunFacts } from '@/lib/services';
 
-export default function About({ funFacts }: { funFacts: FunFacts | null }) {
+export default function About() {
   const highlights = [
     '3+ Years Flutter Development',
     'Production Mobile Applications',
@@ -18,7 +17,7 @@ export default function About({ funFacts }: { funFacts: FunFacts | null }) {
     <section 
       id="about" 
       className="py-24 relative bg-dark-bg bg-fixed bg-cover bg-center"
-      style={{ backgroundImage: 'url("/backgrounds/about_bg.png")' }}
+      style={{ backgroundImage: 'url("/backgrounds/about_bg.webp")' }}
     >
       <div className="absolute inset-0 bg-dark-bg/90"></div>
       <div className="container mx-auto px-6 relative z-10">
@@ -39,7 +38,7 @@ export default function About({ funFacts }: { funFacts: FunFacts | null }) {
                 <h3 className="text-2xl font-semibold mb-2 text-white">Flutter Developer for production mobile apps</h3>
                 <h4 className="text-primary text-lg mb-6">Mobile Application Engineer</h4>
                 <p className="text-gray-300 leading-relaxed mb-8">
-                  I specialize in scalable mobile applications using Flutter, Dart, BLoC, Clean Architecture, Firebase, and API integrations. I focus on production-ready delivery: clear architecture, reliable integrations, readable code, and mobile experiences teams can maintain after launch.
+                  Flutter Developer specializing in scalable Android and iOS applications using Flutter, Dart, BLoC, Clean Architecture, Firebase, and REST APIs. Experienced in building production-ready mobile solutions.
                 </p>
 
                 <h4 className="text-xl font-medium mb-4 text-primary">Professional Highlights</h4>
@@ -51,14 +50,7 @@ export default function About({ funFacts }: { funFacts: FunFacts | null }) {
                   ))}
                 </div>
                 
-                {funFacts?.facts?.length ? <div className="mt-8">
-                    <h4 className="text-xl font-medium mb-4 text-primary">Fun Facts</h4>
-                    <ul className="text-gray-400 space-y-2">
-                      {funFacts.facts.slice(0, 4).map((fact) => (
-                        <li key={fact}>{fact}</li>
-                      ))}
-                    </ul>
-                  </div> : null}
+
               </div>
               <div className="w-full md:w-1/3 flex flex-col gap-4">
                 <a href="https://github.com/muhamaadessam" target="_blank" rel="noreferrer" className="flex items-center justify-center gap-3 w-full py-3 px-4 glass rounded-xl hover:bg-white/10 transition-colors text-white">

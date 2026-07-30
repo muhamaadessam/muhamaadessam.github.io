@@ -22,7 +22,7 @@ export default function Hero({ data }: { data: PortfolioData | null }) {
       <div
         className="absolute inset-0 z-0 opacity-[0.12] pointer-events-none"
         style={{
-          backgroundImage: 'url("/logos/essamLogoBorder.png")',
+          backgroundImage: 'url("/logos/essamLogoBorder.webp")',
           backgroundSize: '150px 150px',
           backgroundRepeat: 'repeat',
           backgroundPosition: 'center',
@@ -124,48 +124,20 @@ export default function Hero({ data }: { data: PortfolioData | null }) {
           transition={{ duration: 0.8, delay: 0.2 }}
         >
           <div className="relative w-60 h-60 sm:w-80 sm:h-80 lg:w-96 lg:h-96 flex items-center justify-center">
-            {/* Animated Glow Blob Behind */}
-            <motion.div
-              className="absolute inset-0 bg-gradient-to-tr from-primary to-accent opacity-40 blur-3xl"
-              animate={{
-                scale: [1, 1.1, 1],
-                rotate: [0, 90, 180, 270, 360],
-                borderRadius: [
-                  "60% 40% 30% 70% / 60% 30% 70% 40%",
-                  "30% 70% 70% 30% / 30% 30% 70% 70%",
-                  "50% 50% 20% 80% / 25% 80% 20% 75%",
-                  "60% 40% 30% 70% / 60% 30% 70% 40%",
-                ]
-              }}
-              transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-            />
+            {/* Simple Glow Blob Behind */}
+            <div className="absolute inset-0 bg-gradient-to-tr from-primary to-accent opacity-30 blur-2xl rounded-full" />
 
-            {/* Morphing Gelatinous Image Container */}
-            <motion.div
-              className="relative w-[95%] h-[95%] overflow-hidden border-4 border-primary/50 shadow-[0_0_40px_rgba(66,165,245,0.4)] glass z-10"
-              animate={{
-                borderRadius: [
-                  "40% 60% 70% 30% / 40% 50% 60% 50%",
-                  "70% 30% 50% 50% / 30% 30% 70% 70%",
-                  "30% 70% 70% 30% / 50% 60% 30% 60%",
-                  "40% 60% 70% 30% / 40% 50% 60% 50%",
-                ],
-                y: [-10, 10, -10]
-              }}
-              transition={{
-                borderRadius: { duration: 8, repeat: Infinity, ease: "easeInOut" },
-                y: { duration: 4, repeat: Infinity, ease: "easeInOut" }
-              }}
-            >
+            {/* Image Container */}
+            <div className="relative w-[85%] h-[85%] overflow-hidden border-4 border-primary/30 shadow-[0_0_30px_rgba(66,165,245,0.2)] glass rounded-full z-10 hover:border-primary/60 transition-colors duration-300">
               <Image
                 src="/profilePic.webp"
                 alt={data?.name || 'Muhammad Essam'}
                 fill
-                sizes="(max-width: 640px) 274px, (max-width: 1024px) 304px, 365px"
-                preload
+                sizes="(max-width: 640px) 200px, (max-width: 1024px) 250px, 320px"
+                priority
                 className="object-cover object-top pt-[10px]"
               />
-            </motion.div>
+            </div>
           </div>
         </motion.div>
       </div>

@@ -53,16 +53,27 @@ The static export is emitted by Next.js for GitHub Pages.
 
 ## Contact Notification Endpoint
 
-Telegram notifications are sent from the frontend using the Firestore document `config/telegram`.
+Telegram notifications are sent through a server-side endpoint. Telegram credentials must never be stored in Firestore or bundled into frontend code.
 
-Expected fields:
+This repo includes a deployable endpoint at `api/send-telegram.ts`. Configure these environment variables on the server that hosts that endpoint:
 
-- `bot_token`
-- `chat_id`
+```bash
+TELEGRAM_BOT_TOKEN=your-regenerated-token
+TELEGRAM_CHAT_ID=your-chat-id
+CONTACT_ALLOWED_ORIGIN=https://muhamaadessam.github.io
+```
 
-This keeps the notification flow simple for GitHub Pages, but it means the bot token can be exposed to visitors who inspect network traffic if your Firestore rules allow this document to be read publicly. For stronger security, move this back behind a backend endpoint later.
+Configure the static portfolio build with the public endpoint URL:
+
+```bash
+NEXT_PUBLIC_CONTACT_ENDPOINT=https://your-secure-api.example.com/api/send-telegram
+```
+
+GitHub Pages cannot run server-side API routes, so the endpoint must be hosted on a serverless/backend platform and the static site must call it via `NEXT_PUBLIC_CONTACT_ENDPOINT`.
 
 The contact form saves messages to Firestore, then requires Telegram to respond successfully before showing success.
+
+After the previous exposure, regenerate the Telegram bot token in BotFather and delete the old `config/telegram` Firestore document.
 
 ## Contact
 

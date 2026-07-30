@@ -18,7 +18,7 @@ export default function Footer({ data }: { data: PortfolioData | null }) {
           {/* Brand/About */}
           <div className="flex flex-col items-center md:items-start">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logos/essamLogoWithText.png" alt="M.Essam" className="h-12 object-contain mb-4" />
+            <img src="/logos/essamLogoWithText.webp" alt="M.Essam" className="h-12 object-contain mb-4" />
             <p className="text-gray-400 text-center md:text-left text-sm max-w-xs">
               {data?.objective || 'Building beautiful, scalable, and high-performance applications. Creating digital experiences that leave a lasting impact.'}
             </p>
