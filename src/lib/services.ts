@@ -200,12 +200,17 @@ export async function trackVisitor(): Promise<void> {
     const docRef = doc(db, 'stats', 'visitors');
     const snapshot = await getDoc(docRef);
 
+    let totalUnique = 1;
+    let totalVisits = 1;
+
     if (snapshot.exists()) {
       const data = snapshot.data();
       const users = data.users || {};
       const currentCount = users[visitorId] || 0;
 
       isNewVisitor = currentCount === 0;
+      totalUnique = isNewVisitor ? (data.total_visitors || 0) + 1 : (data.total_visitors || 0);
+      totalVisits = (data.total_visites || 0) + 1;
 
       await setDoc(docRef, {
         total_visitors: isNewVisitor ? increment(1) : Object.keys(users).length,
@@ -223,6 +228,25 @@ export async function trackVisitor(): Promise<void> {
           [visitorId]: 1,
         }
       });
+    }
+
+    try {
+      const apiEndpoint = process.env.NEXT_PUBLIC_CONTACT_ENDPOINT 
+        ? process.env.NEXT_PUBLIC_CONTACT_ENDPOINT.replace('/contact', '/visitor')
+        : 'https://portfolio-contact-api-muhammad-essam.vercel.app/api/visitor';
+
+      await fetch(apiEndpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          visitorId,
+          isNewVisitor,
+          totalUnique,
+          totalVisits,
+        })
+      });
+    } catch (apiError) {
+      console.error('Failed to send visitor Telegram notification:', apiError);
     }
 
     await trackPortfolioEvent('page_view');
