@@ -85,16 +85,9 @@ export default function Projects({ projects }: { projects: Project[] }) {
                   <div className="mb-5">
                     <span className="text-sm font-semibold text-white mb-2 block">My Contribution:</span>
                     <ul className="text-sm text-gray-300 space-y-1 list-disc list-inside">
-                      {project.myContribution?.length ? project.myContribution.slice(0, 4).map((cont, idx) => (
-                        <li key={idx} className="line-clamp-1">{cont}</li>
-                      )) : (
-                        <>
-                          <li>Developed Flutter mobile application</li>
-                          <li>Implemented BLoC state management</li>
-                          <li>Integrated REST APIs</li>
-                          <li>Managed production release process</li>
-                        </>
-                      )}
+                      {project.myContribution?.slice(0, 4).map((cont, idx) => (
+                        <li key={idx}>{cont}</li>
+                      ))}
                     </ul>
                   </div>
                   

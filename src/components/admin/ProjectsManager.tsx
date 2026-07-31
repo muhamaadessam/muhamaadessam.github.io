@@ -116,7 +116,7 @@ export default function ProjectsManager() {
         <div className="flex gap-4">
 
           <button
-            onClick={() => setEditingProject({ id: '', projectName: '', projectDescription: '', projectImage: '', techStack: [], keyFeaturesAndBenefits: [], links: [], category: '', status: '', testingGroupLink: '', isFeatured: false, screenshots: [] })}
+            onClick={() => setEditingProject({ id: '', projectName: '', projectDescription: '', projectImage: '', techStack: [], keyFeaturesAndBenefits: [], myContribution: [], links: [], category: '', status: '', testingGroupLink: '', isFeatured: false, screenshots: [] })}
             className="bg-primary hover:bg-primary-dark text-dark-bg px-6 py-3 rounded-xl font-bold transition-all shadow-[0_0_15px_rgba(102,252,241,0.3)] hover:shadow-[0_0_25px_rgba(102,252,241,0.5)] flex items-center gap-2 transform hover:scale-105"
           >
             <Plus className="w-5 h-5" />
@@ -280,6 +280,47 @@ export default function ProjectsManager() {
                       >
                         <Plus className="w-4 h-4" />
                         Add Feature
+                      </button>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-1.5">My Contribution (Key Deliverables)</label>
+                    <div className="space-y-2">
+                      {(editingProject.myContribution || []).map((contribution, idx) => (
+                        <div key={idx} className="flex gap-2">
+                          <input
+                            type="text"
+                            className="w-full bg-black/40 border border-white/10 focus:border-primary/50 focus:ring-1 focus:ring-primary/50 rounded-xl px-4 py-2 text-white transition-all outline-none"
+                            placeholder="e.g. Developed mobile application using Flutter"
+                            value={contribution}
+                            onChange={e => {
+                              const newContributions = [...(editingProject.myContribution || [])];
+                              newContributions[idx] = e.target.value;
+                              setEditingProject({ ...editingProject, myContribution: newContributions });
+                            }}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const newContributions = [...(editingProject.myContribution || [])];
+                              newContributions.splice(idx, 1);
+                              setEditingProject({ ...editingProject, myContribution: newContributions });
+                            }}
+                            className="bg-red-500/20 text-red-500 hover:bg-red-500 hover:text-white px-3 py-2 rounded-xl transition-all"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ))}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditingProject({ ...editingProject, myContribution: [...(editingProject.myContribution || []), ''] });
+                        }}
+                        className="bg-white/5 hover:bg-white/10 text-gray-300 px-4 py-2 rounded-xl text-sm font-medium transition-all flex items-center gap-2"
+                      >
+                        <Plus className="w-4 h-4" />
+                        Add Contribution
                       </button>
                     </div>
                   </div>

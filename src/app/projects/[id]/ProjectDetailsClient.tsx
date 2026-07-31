@@ -179,16 +179,9 @@ export default function ProjectDetailsClient({ project, projectId }: { project: 
                   {project.myRole || 'Flutter Developer'}
                 </p>
                 <ul className="list-disc list-inside space-y-2 text-gray-300 font-light text-lg">
-                  {project.myContribution?.length ? project.myContribution.map((cont, idx) => (
+                  {project.myContribution?.map((cont, idx) => (
                     <li key={idx}>{cont}</li>
-                  )) : (
-                    <>
-                      <li>Developed Flutter mobile application</li>
-                      <li>Implemented BLoC state management</li>
-                      <li>Integrated REST APIs</li>
-                      <li>Managed production release process</li>
-                    </>
-                  )}
+                  ))}
                 </ul>
               </div>
             </div>
