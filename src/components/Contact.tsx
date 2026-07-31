@@ -24,7 +24,7 @@ export default function Contact({ data }: { data: PortfolioData | null }) {
     setStatus('loading');
     
     try {
-      const response = await fetch('https://portfolio-contact-api.vercel.app/api/contact', {
+      const response = await fetch(process.env.NEXT_PUBLIC_CONTACT_ENDPOINT || 'https://portfolio-contact-api-muhammad-essam.vercel.app/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
