@@ -282,6 +282,20 @@ export async function incrementCvDownloadCount(): Promise<void> {
       count: increment(1)
     }).catch(() => { });
 
+    try {
+      const apiEndpoint = process.env.NEXT_PUBLIC_CONTACT_ENDPOINT 
+        ? process.env.NEXT_PUBLIC_CONTACT_ENDPOINT.replace('/contact', '/cv-download')
+        : 'https://portfolio-contact-api-muhammad-essam.vercel.app/api/cv-download';
+
+      await fetch(apiEndpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ visitorId })
+      });
+    } catch (apiError) {
+      console.error('Failed to send CV download Telegram notification:', apiError);
+    }
+
     await trackPortfolioEvent('cv_download');
   } catch (error) {
     console.error('Error incrementing CV download count:', error);
