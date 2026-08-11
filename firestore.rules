@@ -37,6 +37,10 @@ service cloud.firestore {
       allow create, update: if true;
       allow delete: if request.auth != null;
     }
+
+    match /telegram_logs/{document} {
+      allow read, delete: if request.auth != null;
+    }
     
     match /messages/{document=**} {
       allow create: if 

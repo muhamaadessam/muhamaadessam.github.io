@@ -1,6 +1,60 @@
-import { collection, doc, setDoc, updateDoc, deleteDoc, addDoc, getDocs, query, orderBy } from 'firebase/firestore';
+import { collection, doc, setDoc, updateDoc, deleteDoc, addDoc, getDoc, getDocs, query, orderBy } from 'firebase/firestore';
 import { db } from './firebase';
-import { Project, Skill, PortfolioData, Experience, Message } from './services';
+import { Project, Skill, PortfolioData, Experience, Message, TelegramLogType } from './services';
+
+export interface PortfolioStats {
+  totalVisitors: number;
+  totalVisits: number;
+  cvDownloads: number;
+  events: Record<string, number>;
+  visitors: { id: string; visits: number }[];
+}
+
+export interface TelegramLog {
+  id: string;
+  type: TelegramLogType;
+  payload: Record<string, unknown>;
+  createdAt?: { toDate(): Date };
+}
+
+export async function getTelegramLogs(): Promise<TelegramLog[]> {
+  try {
+    const snapshot = await getDocs(query(collection(db, 'telegram_logs'), orderBy('createdAt', 'desc')));
+    return snapshot.docs.map((item) => ({ id: item.id, ...item.data() })) as TelegramLog[];
+  } catch (error) {
+    console.error('Error fetching Telegram logs:', error);
+    return [];
+  }
+}
+
+export async function getPortfolioStats(): Promise<PortfolioStats> {
+  try {
+    const [visitorsSnapshot, downloadsSnapshot, eventsSnapshot] = await Promise.all([
+      getDoc(doc(db, 'stats', 'visitors')),
+      getDoc(doc(db, 'stats', 'cv_downloads')),
+      getDoc(doc(db, 'stats', 'events')),
+    ]);
+
+    const visitorsData = visitorsSnapshot.data() || {};
+    const users = visitorsData.users && typeof visitorsData.users === 'object' ? visitorsData.users : {};
+    const visitors = Object.entries(users)
+      .map(([id, visits]) => ({ id, visits: Number(visits) || 0 }))
+      .sort((a, b) => b.visits - a.visits);
+
+    return {
+      totalVisitors: Number(visitorsData.total_visitors) || visitors.length,
+      totalVisits: Number(visitorsData.total_visites ?? visitorsData.total_visits) || 0,
+      cvDownloads: Number(downloadsSnapshot.data()?.count) || 0,
+      events: Object.fromEntries(
+        Object.entries(eventsSnapshot.data() || {}).filter(([, value]) => typeof value === 'number'),
+      ) as Record<string, number>,
+      visitors,
+    };
+  } catch (error) {
+    console.error('Error fetching portfolio stats:', error);
+    return { totalVisitors: 0, totalVisits: 0, cvDownloads: 0, events: {}, visitors: [] };
+  }
+}
 
 // Helper to remove undefined fields which Firebase doesn't support
 const cleanObject = (obj: object) => {

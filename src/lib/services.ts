@@ -1,4 +1,4 @@
-import { collection, doc, getDoc, getDocs, setDoc, updateDoc, increment } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, setDoc, increment } from 'firebase/firestore';
 import { db } from './firebase';
 
 export interface LinkModel {
@@ -58,6 +58,8 @@ export interface Message {
   createdAt?: { toDate(): Date };
   read: boolean;
 }
+
+export type TelegramLogType = 'contact' | 'visitor' | 'cv_download';
 
 export async function getProjects(): Promise<Project[]> {
   try {
@@ -235,15 +237,16 @@ export async function trackVisitor(): Promise<void> {
         ? process.env.NEXT_PUBLIC_CONTACT_ENDPOINT.replace('/contact', '/visitor')
         : 'https://portfolio-contact-api-muhammad-essam.vercel.app/api/visitor';
 
+      const payload = {
+        visitorId,
+        isNewVisitor,
+        totalUnique,
+        totalVisits,
+      };
       await fetch(apiEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          visitorId,
-          isNewVisitor,
-          totalUnique,
-          totalVisits,
-        })
+        body: JSON.stringify(payload)
       });
     } catch (apiError) {
       console.error('Failed to send visitor Telegram notification:', apiError);
@@ -278,19 +281,20 @@ export async function incrementCvDownloadCount(): Promise<void> {
     if (isIgnoredVisitor(visitorId)) return;
 
     const statsDoc = doc(db, 'stats', 'cv_downloads');
-    await updateDoc(statsDoc, {
+    await setDoc(statsDoc, {
       count: increment(1)
-    }).catch(() => { });
+    }, { merge: true });
 
     try {
       const apiEndpoint = process.env.NEXT_PUBLIC_CONTACT_ENDPOINT 
         ? process.env.NEXT_PUBLIC_CONTACT_ENDPOINT.replace('/contact', '/cv-download')
         : 'https://portfolio-contact-api-muhammad-essam.vercel.app/api/cv-download';
 
+      const payload = { visitorId };
       await fetch(apiEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ visitorId })
+        body: JSON.stringify(payload)
       });
     } catch (apiError) {
       console.error('Failed to send CV download Telegram notification:', apiError);
