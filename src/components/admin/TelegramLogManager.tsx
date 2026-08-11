@@ -22,6 +22,10 @@ function valueOf(value: unknown): string {
   return String(value);
 }
 
+function getTime(log: TelegramLog): number {
+  return log.createdAt?.toDate().getTime() || 0;
+}
+
 function Detail({ icon: Icon, label, value, wide = false }: { icon: typeof MapPin; label: string; value: unknown; wide?: boolean }) {
   return (
     <div className={`min-w-0 ${wide ? 'sm:col-span-2' : ''}`}>
@@ -87,7 +91,16 @@ export default function TelegramLogManager() {
   };
 
   const visitorLogs = logs.filter((log) => log.type === 'visitor');
-  const uniqueVisitorIds = new Set(visitorLogs.map((log) => log.payload.visitorId).filter(Boolean));
+  const visitorGroups = Object.entries(visitorLogs.reduce<Record<string, TelegramLog[]>>((groups, log) => {
+    const visitorId = String(log.payload.visitorId || log.id);
+    groups[visitorId] = groups[visitorId] || [];
+    groups[visitorId].push(log);
+    return groups;
+  }, {})).map(([visitorId, visits]) => {
+    const orderedVisits = visits.sort((a, b) => getTime(b) - getTime(a));
+    return { visitorId, visits: orderedVisits, latest: orderedVisits[0] };
+  }).sort((a, b) => getTime(b.latest) - getTime(a.latest));
+  const uniqueVisitorIds = new Set(visitorGroups.map((group) => group.visitorId));
   const newVisitors = new Set(visitorLogs.filter((log) => log.payload.isNewVisitor === true).map((log) => log.payload.visitorId).filter(Boolean)).size;
   const returningVisits = visitorLogs.filter((log) => log.payload.isNewVisitor !== true).length;
   const cvDownloads = logs.filter((log) => log.type === 'cv_download').length;
@@ -106,16 +119,21 @@ export default function TelegramLogManager() {
 
   const locations = rank((log) => [log.payload.city, log.payload.country].filter(Boolean).join(', '));
   const devices = rank((log) => valueOf(log.payload.device));
-  const visibleLogs = filter === 'all' ? logs : logs.filter((log) => log.type === filter);
+  const visibleGroups = filter === 'all' || filter === 'visitor' ? visitorGroups : [];
+  const visibleLogs = filter === 'all' ? logs.filter((log) => log.type !== 'visitor') : logs.filter((log) => log.type === filter);
+  const activityItems = [
+    ...visibleGroups.map((group) => ({ kind: 'visitor' as const, time: getTime(group.latest), group })),
+    ...visibleLogs.map((log) => ({ kind: 'log' as const, time: getTime(log), log })),
+  ].sort((a, b) => b.time - a.time);
 
   const filters = [
     ['all', 'All activity', logs.length],
-    ['visitor', 'Visitors', visitorLogs.length],
+    ['visitor', 'Visitors', visitorGroups.length],
     ['cv_download', 'CV downloads', cvDownloads],
     ['contact', 'Messages', contactMessages],
   ] as const;
 
-  const renderPayload = (log: TelegramLog) => {
+  const renderPayload = (log: TelegramLog, visitorVisitCount?: number) => {
     const payload = log.payload || {};
     const location = [payload.city, payload.region, payload.country].filter(Boolean).join(', ');
     const hasCoordinates = payload.latitude && payload.longitude && payload.latitude !== 'Unknown' && payload.longitude !== 'Unknown';
@@ -156,7 +174,7 @@ export default function TelegramLogManager() {
             </div>
             {log.type === 'visitor' && (
               <div className="flex flex-wrap gap-2 text-xs">
-                <span className="rounded-full bg-primary/10 border border-primary/20 px-3 py-1 text-primary">{valueOf(payload.totalVisits)} visits</span>
+                <span className="rounded-full bg-primary/10 border border-primary/20 px-3 py-1 text-primary">{visitorVisitCount || 1} visits by this visitor</span>
                 <span className="rounded-full bg-white/5 border border-white/10 px-3 py-1 text-gray-300">{valueOf(payload.totalUnique)} unique visitors</span>
               </div>
             )}
@@ -195,6 +213,23 @@ export default function TelegramLogManager() {
       </>
     );
   };
+
+  const renderVisitHistory = (visits: TelegramLog[]) => (
+    <div className="mt-6 border-t border-white/10 pt-5">
+      <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-white">
+        <Clock3 className="h-4 w-4 text-primary" aria-hidden="true" />
+        Visit history <span className="text-xs font-normal text-gray-500">({visits.length})</span>
+      </div>
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+        {visits.map((visit, index) => (
+          <div key={visit.id} className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-xs text-gray-300">
+            <span className="mr-2 text-gray-500">#{visits.length - index}</span>
+            {formatDate(visit.createdAt)}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 
   if (loading) {
     return (
@@ -294,13 +329,17 @@ export default function TelegramLogManager() {
               </div>
             </div>
             <div className="grid gap-5">
-              {visibleLogs.map((log) => (
-                <article key={log.id} className="glass rounded-2xl border border-primary/20 p-6 md:p-7">
-                  <div className="mb-4 flex flex-wrap justify-between gap-2"><h3 className="text-lg font-bold text-primary">{labels[log.type] || log.type}</h3><span className="text-xs text-gray-400">{formatDate(log.createdAt)}</span></div>
-                  {renderPayload(log)}
+              {activityItems.map((item) => (
+                <article key={item.kind === 'visitor' ? item.group.visitorId : item.log.id} className="glass rounded-2xl border border-primary/20 p-6 md:p-7">
+                  <div className="mb-4 flex flex-wrap justify-between gap-2">
+                    <h3 className="text-lg font-bold text-primary">{item.kind === 'visitor' ? labels.visitor : labels[item.log.type] || item.log.type}</h3>
+                    <span className="text-xs text-gray-400">{formatDate(item.kind === 'visitor' ? item.group.latest.createdAt : item.log.createdAt)}</span>
+                  </div>
+                  {item.kind === 'visitor' ? renderPayload(item.group.latest, item.group.visits.length) : renderPayload(item.log)}
+                  {item.kind === 'visitor' && renderVisitHistory(item.group.visits)}
                 </article>
               ))}
-              {!visibleLogs.length && <p className="rounded-2xl border border-white/10 py-10 text-center text-sm text-gray-500">No records match this filter.</p>}
+              {!activityItems.length && <p className="rounded-2xl border border-white/10 py-10 text-center text-sm text-gray-500">No records match this filter.</p>}
             </div>
           </div>
         </>
