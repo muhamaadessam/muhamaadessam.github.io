@@ -11,6 +11,21 @@ import MessageManager from '@/components/admin/MessageManager';
 import TelegramLogManager from '@/components/admin/TelegramLogManager';
 import { getPortfolioStats, PortfolioStats } from '@/lib/adminServices';
 
+const eventLabels: Record<string, string> = {
+  page_view: 'Page views',
+  project_click: 'Project opens',
+  external_link_click: 'External link clicks',
+  cv_download: 'CV downloads',
+  contact_submit: 'Contact submissions',
+};
+
+function formatEventLabel(event: string): string {
+  const base = Object.keys(eventLabels).find((name) => event === name || event.startsWith(`${name}_`));
+  if (!base) return event.replaceAll('_', ' ');
+  if (event === base) return `${eventLabels[base]} (total)`;
+  return `${eventLabels[base]} — ${event.slice(base.length + 1).replaceAll('_', ' ')}`;
+}
+
 export default function AdminDashboard() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
@@ -128,7 +143,7 @@ export default function AdminDashboard() {
                 <div className="space-y-3 max-h-80 overflow-auto">
                   {Object.entries(stats?.events || {}).sort(([, a], [, b]) => b - a).map(([event, count]) => (
                     <div key={event} className="flex justify-between gap-4 border-b border-white/10 pb-2">
-                      <span className="text-gray-300 break-all">{event.replaceAll('_', ' ')}</span>
+                      <span className="text-gray-300 break-all">{formatEventLabel(event)}</span>
                       <span className="font-bold text-primary">{count}</span>
                     </div>
                   ))}

@@ -36,7 +36,7 @@ export default function Contact({ data }: { data: PortfolioData | null }) {
 
       if (!response.ok) throw new Error('Failed to send message via backend');
       
-      await trackPortfolioEvent('contact_submit');
+      await trackPortfolioEvent('contact_submit', 'contact_form');
       localStorage.setItem('last_contact_submit', String(Date.now()));
       setStatus('success');
       setFormData({ name: '', email: '', message: '' });

@@ -29,10 +29,11 @@ export async function getTelegramLogs(): Promise<TelegramLog[]> {
 
 export async function getPortfolioStats(): Promise<PortfolioStats> {
   try {
-    const [visitorsSnapshot, downloadsSnapshot, eventsSnapshot] = await Promise.all([
+    const [visitorsSnapshot, downloadsSnapshot, eventsSnapshot, projectsSnapshot] = await Promise.all([
       getDoc(doc(db, 'stats', 'visitors')),
       getDoc(doc(db, 'stats', 'cv_downloads')),
       getDoc(doc(db, 'stats', 'events')),
+      getDocs(collection(db, 'projects')),
     ]);
 
     const visitorsData = visitorsSnapshot.data() || {};
@@ -41,13 +42,28 @@ export async function getPortfolioStats(): Promise<PortfolioStats> {
       .map(([id, visits]) => ({ id, visits: Number(visits) || 0 }))
       .sort((a, b) => b.visits - a.visits);
 
+    const projectNames = Object.fromEntries(projectsSnapshot.docs.map((item) => {
+      const data = item.data();
+      return [String(data.id || item.id), String(data.projectName || item.id)];
+    }));
+
+    const events = Object.entries(eventsSnapshot.data() || {})
+      .filter(([, value]) => typeof value === 'number')
+      .reduce((result, [event, count]) => {
+        const legacyPrefix = event.startsWith('project_click_') || event.startsWith('external_link_click_')
+          ? event.slice(0, event.lastIndexOf('_') + 1)
+          : '';
+        const legacyId = legacyPrefix ? event.slice(legacyPrefix.length) : '';
+        const label = legacyPrefix && projectNames[legacyId] ? `${legacyPrefix}${projectNames[legacyId]}` : event;
+        result[label] = (result[label] || 0) + Number(count);
+        return result;
+      }, {} as Record<string, number>);
+
     return {
       totalVisitors: Number(visitorsData.total_visitors) || visitors.length,
       totalVisits: Number(visitorsData.total_visites ?? visitorsData.total_visits) || 0,
       cvDownloads: Number(downloadsSnapshot.data()?.count) || 0,
-      events: Object.fromEntries(
-        Object.entries(eventsSnapshot.data() || {}).filter(([, value]) => typeof value === 'number'),
-      ) as Record<string, number>,
+      events,
       visitors,
     };
   } catch (error) {

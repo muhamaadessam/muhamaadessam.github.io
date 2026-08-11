@@ -252,7 +252,7 @@ export async function trackVisitor(): Promise<void> {
       console.error('Failed to send visitor Telegram notification:', apiError);
     }
 
-    await trackPortfolioEvent('page_view');
+    await trackPortfolioEvent('page_view', 'homepage');
   } catch (error) {
     console.error('Error tracking visitor:', error);
   }
@@ -265,7 +265,7 @@ export async function trackPortfolioEvent(event: PortfolioEvent, target = 'site'
     const visitorId = localStorage.getItem('visitor_id');
     if (isIgnoredVisitor(visitorId)) return;
 
-    const safeTarget = target.replace(/[^a-z0-9_-]/gi, '_').slice(0, 80) || 'site';
+    const safeTarget = target.trim().replace(/[^a-z0-9]+/gi, '_').replace(/^_+|_+$/g, '').slice(0, 80) || 'site';
     await setDoc(doc(db, 'stats', 'events'), {
       [event]: increment(1),
       [`${event}_${safeTarget}`]: increment(1),
@@ -300,7 +300,7 @@ export async function incrementCvDownloadCount(): Promise<void> {
       console.error('Failed to send CV download Telegram notification:', apiError);
     }
 
-    await trackPortfolioEvent('cv_download');
+    await trackPortfolioEvent('cv_download', 'cv');
   } catch (error) {
     console.error('Error incrementing CV download count:', error);
   }

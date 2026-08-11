@@ -38,7 +38,7 @@ export default function Projects({ projects }: { projects: Project[] }) {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 whileHover={{ y: -10 }}
                 onClick={() => {
-                  trackPortfolioEvent('project_click', project.id);
+                  trackPortfolioEvent('project_click', project.projectName || project.id);
                   router.push(`/projects/${project.id}`);
                 }}
                 className="cursor-pointer glass rounded-2xl overflow-hidden group flex flex-col h-full hover:border-primary/50 hover:shadow-[0_0_25px_rgba(102,252,241,0.15)] transition-all duration-500"
@@ -116,7 +116,7 @@ export default function Projects({ projects }: { projects: Project[] }) {
                           title="Join the testing group first"
                           onClick={(e) => {
                             e.stopPropagation();
-                            trackPortfolioEvent('external_link_click', project.id);
+                            trackPortfolioEvent('external_link_click', `${project.projectName || project.id} / Testing Group`);
                           }}
                           className="z-10 relative flex items-center gap-1.5 px-3.5 py-1.5 bg-blue-500 text-[11px] font-bold text-white rounded-full hover:bg-blue-400 transition-colors"
                         >
@@ -132,7 +132,7 @@ export default function Projects({ projects }: { projects: Project[] }) {
                           rel="noreferrer" 
                           onClick={(e) => {
                             e.stopPropagation();
-                            trackPortfolioEvent('external_link_click', project.id);
+                            trackPortfolioEvent('external_link_click', `${project.projectName || project.id} / ${lnk.title || 'Live Demo'}`);
                           }}
                           className="z-10 relative flex items-center gap-1.5 px-3.5 py-1.5 bg-black/40 hover:bg-primary text-[11px] font-bold text-gray-300 hover:text-dark-bg rounded-full border border-white/10 hover:border-primary transition-all duration-300 shadow-sm"
                         >
