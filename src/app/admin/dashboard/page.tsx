@@ -32,6 +32,7 @@ export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<'analytics' | 'telegram' | 'projects' | 'skills' | 'experience' | 'messages'>('analytics');
   const [stats, setStats] = useState<PortfolioStats | null>(null);
   const [statsLoading, setStatsLoading] = useState(false);
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -58,6 +59,8 @@ export default function AdminDashboard() {
     await signOut(auth);
     router.push('/admin');
   };
+
+  const selectedProject = stats?.projectAnalytics.find((project) => project.id === selectedProjectId);
 
   if (loading) {
     return <div className="flex justify-center items-center h-[60vh]">Verifying Access...</div>;
@@ -136,6 +139,85 @@ export default function AdminDashboard() {
                 </div>
               ))}
             </div>
+
+            {!!stats?.projectAnalytics.length && (
+              <section className="glass rounded-2xl p-6 border border-primary/20 mb-8">
+                <div className="flex items-start justify-between gap-4 mb-5">
+                  <div>
+                    <h3 className="font-bold text-lg">Project performance</h3>
+                    <p className="text-sm text-gray-400 mt-1">اختار مشروع عشان تشوف فتحاته وكل زرار اتداس عليه.</p>
+                  </div>
+                  {selectedProject && (
+                    <button
+                      type="button"
+                      onClick={() => setSelectedProjectId(null)}
+                      className="text-sm text-gray-400 hover:text-primary transition-colors"
+                    >
+                      All projects
+                    </button>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {stats.projectAnalytics.map((project) => {
+                    const buttonClicks = project.buttons.reduce((total, button) => total + button.clicks, 0);
+                    const isSelected = selectedProjectId === project.id;
+                    return (
+                      <button
+                        key={project.id}
+                        type="button"
+                        aria-pressed={isSelected}
+                        onClick={() => setSelectedProjectId(project.id)}
+                        className={`text-left rounded-xl border p-4 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/60 ${isSelected ? 'border-primary bg-primary/10' : 'border-white/10 bg-white/[0.03] hover:border-primary/40'}`}
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <span className="font-semibold text-white">{project.name}</span>
+                          <span className="text-primary font-bold whitespace-nowrap">{project.opens} opens</span>
+                        </div>
+                        <p className="text-xs text-gray-400 mt-3">{buttonClicks} button clicks</p>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {selectedProject && (
+                  <div className="mt-6 pt-5 border-t border-white/10">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
+                      <div className="rounded-xl bg-white/[0.04] p-4">
+                        <p className="text-xs text-gray-400">Project opens</p>
+                        <p className="text-2xl font-bold text-primary mt-1">{selectedProject.opens}</p>
+                      </div>
+                      <div className="rounded-xl bg-white/[0.04] p-4">
+                        <p className="text-xs text-gray-400">Button clicks</p>
+                        <p className="text-2xl font-bold text-primary mt-1">{selectedProject.buttons.reduce((total, button) => total + button.clicks, 0)}</p>
+                      </div>
+                      <div className="rounded-xl bg-white/[0.04] p-4">
+                        <p className="text-xs text-gray-400">Most clicked</p>
+                        <p className="text-lg font-bold text-white mt-1 truncate">{selectedProject.buttons[0]?.name || 'No button data yet'}</p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      {selectedProject.buttons.map((button) => {
+                        const maxClicks = selectedProject.buttons[0]?.clicks || 1;
+                        return (
+                          <div key={button.name}>
+                            <div className="flex justify-between gap-4 text-sm mb-1">
+                              <span className="text-gray-300">{button.name}</span>
+                              <span className="font-bold text-primary">{button.clicks}</span>
+                            </div>
+                            <div className="h-2 rounded-full bg-white/10 overflow-hidden">
+                              <div className="h-full rounded-full bg-primary" style={{ width: `${Math.min(100, (button.clicks / maxClicks) * 100)}%` }} />
+                            </div>
+                          </div>
+                        );
+                      })}
+                      {!selectedProject.buttons.length && <p className="text-sm text-gray-500">No button clicks recorded for this project yet.</p>}
+                    </div>
+                  </div>
+                )}
+              </section>
+            )}
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className="glass rounded-2xl p-6 border border-white/10">

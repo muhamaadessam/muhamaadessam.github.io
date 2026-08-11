@@ -180,6 +180,10 @@ export async function getPortfolioData(): Promise<PortfolioData | null> {
 const IGNORED_VISITOR_IDS = new Set(['1777640653418', '1777681421611', '1783389357146']);
 type PortfolioEvent = 'page_view' | 'project_click' | 'cv_download' | 'contact_submit' | 'external_link_click';
 
+export function toAnalyticsKey(value: string): string {
+  return value.trim().replace(/[^\p{L}\p{N}]+/gu, '_').replace(/^_+|_+$/g, '').slice(0, 80) || 'unknown';
+}
+
 function isIgnoredVisitor(visitorId: string | null): boolean {
   return visitorId !== null && IGNORED_VISITOR_IDS.has(visitorId);
 }
@@ -265,13 +269,46 @@ export async function trackPortfolioEvent(event: PortfolioEvent, target = 'site'
     const visitorId = localStorage.getItem('visitor_id');
     if (isIgnoredVisitor(visitorId)) return;
 
-    const safeTarget = target.trim().replace(/[^a-z0-9]+/gi, '_').replace(/^_+|_+$/g, '').slice(0, 80) || 'site';
+    const safeTarget = toAnalyticsKey(target);
     await setDoc(doc(db, 'stats', 'events'), {
       [event]: increment(1),
       [`${event}_${safeTarget}`]: increment(1),
     }, { merge: true });
   } catch (error) {
     console.error(`Error tracking ${event}:`, error);
+  }
+}
+
+export async function trackProjectEvent(
+  event: 'project_click' | 'external_link_click',
+  projectId: string,
+  projectName: string,
+  button?: string,
+): Promise<void> {
+  await trackPortfolioEvent(event, projectName);
+
+  try {
+    if (typeof window === 'undefined') return;
+
+    const visitorId = localStorage.getItem('visitor_id');
+    if (isIgnoredVisitor(visitorId)) return;
+
+    const projectKey = toAnalyticsKey(projectId);
+    const fields: Record<string, unknown> = { [`project_${projectKey}_name`]: projectName };
+
+    if (event === 'project_click') {
+      fields[`project_${projectKey}_opens`] = increment(1);
+    }
+
+    if (button) {
+      const buttonKey = toAnalyticsKey(button);
+      fields[`project_${projectKey}_button_${buttonKey}`] = increment(1);
+      fields[`project_${projectKey}_button_label_${buttonKey}`] = button;
+    }
+
+    await setDoc(doc(db, 'stats', 'project_events'), fields, { merge: true });
+  } catch (error) {
+    console.error(`Error tracking project ${event}:`, error);
   }
 }
 

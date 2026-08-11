@@ -1,6 +1,6 @@
 import { collection, doc, setDoc, updateDoc, deleteDoc, addDoc, getDoc, getDocs, query, orderBy } from 'firebase/firestore';
 import { db } from './firebase';
-import { Project, Skill, PortfolioData, Experience, Message, TelegramLogType } from './services';
+import { Project, Skill, PortfolioData, Experience, Message, TelegramLogType, toAnalyticsKey } from './services';
 
 export interface PortfolioStats {
   totalVisitors: number;
@@ -8,6 +8,14 @@ export interface PortfolioStats {
   cvDownloads: number;
   events: Record<string, number>;
   visitors: { id: string; visits: number }[];
+  projectAnalytics: ProjectAnalytics[];
+}
+
+export interface ProjectAnalytics {
+  id: string;
+  name: string;
+  opens: number;
+  buttons: { name: string; clicks: number }[];
 }
 
 export interface TelegramLog {
@@ -29,10 +37,11 @@ export async function getTelegramLogs(): Promise<TelegramLog[]> {
 
 export async function getPortfolioStats(): Promise<PortfolioStats> {
   try {
-    const [visitorsSnapshot, downloadsSnapshot, eventsSnapshot, projectsSnapshot] = await Promise.all([
+    const [visitorsSnapshot, downloadsSnapshot, eventsSnapshot, projectEventsSnapshot, projectsSnapshot] = await Promise.all([
       getDoc(doc(db, 'stats', 'visitors')),
       getDoc(doc(db, 'stats', 'cv_downloads')),
       getDoc(doc(db, 'stats', 'events')),
+      getDoc(doc(db, 'stats', 'project_events')),
       getDocs(collection(db, 'projects')),
     ]);
 
@@ -47,7 +56,9 @@ export async function getPortfolioStats(): Promise<PortfolioStats> {
       return [String(data.id || item.id), String(data.projectName || item.id)];
     }));
 
-    const events = Object.entries(eventsSnapshot.data() || {})
+    const rawEvents = eventsSnapshot.data() || {};
+    const projectEvents = projectEventsSnapshot.data() || {};
+    const events = Object.entries(rawEvents)
       .filter(([, value]) => typeof value === 'number')
       .reduce((result, [event, count]) => {
         const legacyPrefix = event.startsWith('project_click_') || event.startsWith('external_link_click_')
@@ -59,16 +70,54 @@ export async function getPortfolioStats(): Promise<PortfolioStats> {
         return result;
       }, {} as Record<string, number>);
 
+    const projectAnalytics = projectsSnapshot.docs.map((item) => {
+      const data = item.data();
+      const id = String(data.id || item.id);
+      const name = String(data.projectName || id);
+      const prefix = `project_${toAnalyticsKey(id)}`;
+      const legacyNameKey = name.trim().replace(/[^a-z0-9]+/gi, '_').replace(/^_+|_+$/g, '').slice(0, 80);
+      const legacyOpens = Number(
+        rawEvents[`project_click_${toAnalyticsKey(name)}`] ||
+        rawEvents[`project_click_${legacyNameKey}`] ||
+        rawEvents[`project_click_${id}`],
+      ) || 0;
+      const buttons = Object.entries(projectEvents)
+        .filter(([key, value]) => key.startsWith(`${prefix}_button_`) && !key.startsWith(`${prefix}_button_label_`) && typeof value === 'number')
+        .map(([key, value]) => ({
+          name: String(projectEvents[`${prefix}_button_label_${key.slice(`${prefix}_button_`.length)}`] || key.slice(`${prefix}_button_`.length).replaceAll('_', ' ')),
+          clicks: Number(value),
+        }))
+        .sort((a, b) => b.clicks - a.clicks);
+      const legacyExternalClicks = Object.entries(rawEvents)
+        .filter(([key, value]) => {
+          const nameMatches = key === `external_link_click_${toAnalyticsKey(name)}` || key.startsWith(`external_link_click_${toAnalyticsKey(name)}_`);
+          const legacyNameMatches = legacyNameKey && (key === `external_link_click_${legacyNameKey}` || key.startsWith(`external_link_click_${legacyNameKey}_`));
+          const idMatches = key === `external_link_click_${toAnalyticsKey(id)}` || key.startsWith(`external_link_click_${toAnalyticsKey(id)}_`);
+          return typeof value === 'number' && (nameMatches || legacyNameMatches || idMatches);
+        })
+        .reduce((total, [, value]) => total + Number(value), 0);
+
+      return {
+        id,
+        name: String(projectEvents[`${prefix}_name`] || name),
+        opens: Number(projectEvents[`${prefix}_opens`]) || legacyOpens,
+        buttons: buttons.length || !legacyExternalClicks
+          ? buttons
+          : [{ name: 'Legacy external links', clicks: legacyExternalClicks }],
+      };
+    }).sort((a, b) => b.opens - a.opens);
+
     return {
       totalVisitors: Number(visitorsData.total_visitors) || visitors.length,
       totalVisits: Number(visitorsData.total_visites ?? visitorsData.total_visits) || 0,
       cvDownloads: Number(downloadsSnapshot.data()?.count) || 0,
       events,
       visitors,
+      projectAnalytics,
     };
   } catch (error) {
     console.error('Error fetching portfolio stats:', error);
-    return { totalVisitors: 0, totalVisits: 0, cvDownloads: 0, events: {}, visitors: [] };
+    return { totalVisitors: 0, totalVisits: 0, cvDownloads: 0, events: {}, visitors: [], projectAnalytics: [] };
   }
 }
 
