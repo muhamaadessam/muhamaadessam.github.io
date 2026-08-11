@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Project, trackPortfolioEvent } from '@/lib/services';
+import { Project, trackProjectEvent } from '@/lib/services';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, ExternalLink, Code2, LayoutDashboard, Sparkles, Database, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import Header from '@/components/Header';
@@ -201,7 +201,7 @@ export default function ProjectDetailsClient({ project, projectId }: { project: 
                   href={project.testingGroupLink}
                   target="_blank"
                   rel="noreferrer"
-                  onClick={() => trackPortfolioEvent('external_link_click', project.id)}
+                  onClick={() => trackProjectEvent('external_link_click', project.id, project.projectName || project.id, 'Join Testing Group')}
                   className="px-8 py-4 font-bold rounded-xl transition-all duration-300 flex items-center gap-2 hover:scale-105 shadow-lg bg-blue-500 text-white hover:bg-blue-400"
                 >
                   <ExternalLink className="w-5 h-5" />
@@ -214,7 +214,7 @@ export default function ProjectDetailsClient({ project, projectId }: { project: 
                   href={lnk.link} 
                   target="_blank" 
                   rel="noreferrer" 
-                  onClick={() => trackPortfolioEvent('external_link_click', project.id)}
+                  onClick={() => trackProjectEvent('external_link_click', project.id, project.projectName || project.id, lnk.title || 'Visit Project')}
                   className={`px-8 py-4 font-bold rounded-xl transition-all duration-300 flex items-center gap-2 hover:scale-105 shadow-lg ${i === 0 ? 'bg-primary text-dark-bg hover:bg-primary-dark hover:shadow-primary/30' : 'glass text-white border border-white/10 hover:border-primary/50 hover:bg-white/5'}`}
                 >
                   {lnk.title?.toLowerCase().includes('github') || lnk.title?.toLowerCase().includes('source') ? (
