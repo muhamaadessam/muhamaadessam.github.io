@@ -67,49 +67,56 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto">
-      <div className="flex justify-between items-center mb-8 border-b border-white/10 pb-4">
-        <div className="flex gap-4">
+    <div className="max-w-6xl mx-auto min-w-0">
+      <div className="flex flex-col gap-4 mb-6 sm:mb-8 border-b border-white/10 pb-4 sm:flex-row sm:justify-between sm:items-center">
+        <div className="-mx-4 flex min-w-0 max-w-full gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:gap-4 sm:overflow-visible sm:px-0 sm:pb-0" role="tablist" aria-label="Dashboard sections">
           <button
+            type="button"
             onClick={() => setActiveTab('analytics')}
-            className={`px-4 py-2 font-bold rounded-lg transition-colors ${activeTab === 'analytics' ? 'bg-primary text-dark-bg' : 'text-gray-400 hover:text-white'}`}
+            className={`min-h-11 shrink-0 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-bold transition-colors sm:px-4 ${activeTab === 'analytics' ? 'bg-primary text-dark-bg' : 'text-gray-400 hover:text-white'}`}
           >
             Analytics
           </button>
           <button
+            type="button"
             onClick={() => setActiveTab('projects')}
-            className={`px-4 py-2 font-bold rounded-lg transition-colors ${activeTab === 'projects' ? 'bg-primary text-dark-bg' : 'text-gray-400 hover:text-white'}`}
+            className={`min-h-11 shrink-0 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-bold transition-colors sm:px-4 ${activeTab === 'projects' ? 'bg-primary text-dark-bg' : 'text-gray-400 hover:text-white'}`}
           >
             Manage Projects
           </button>
           <button
+            type="button"
             onClick={() => setActiveTab('telegram')}
-            className={`px-4 py-2 font-bold rounded-lg transition-colors ${activeTab === 'telegram' ? 'bg-primary text-dark-bg' : 'text-gray-400 hover:text-white'}`}
+            className={`min-h-11 shrink-0 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-bold transition-colors sm:px-4 ${activeTab === 'telegram' ? 'bg-primary text-dark-bg' : 'text-gray-400 hover:text-white'}`}
           >
             Telegram Data
           </button>
           <button
+            type="button"
             onClick={() => setActiveTab('skills')}
-            className={`px-4 py-2 font-bold rounded-lg transition-colors ${activeTab === 'skills' ? 'bg-primary text-dark-bg' : 'text-gray-400 hover:text-white'}`}
+            className={`min-h-11 shrink-0 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-bold transition-colors sm:px-4 ${activeTab === 'skills' ? 'bg-primary text-dark-bg' : 'text-gray-400 hover:text-white'}`}
           >
             Manage Skills
           </button>
           <button
+            type="button"
             onClick={() => setActiveTab('experience')}
-            className={`px-4 py-2 font-bold rounded-lg transition-colors ${activeTab === 'experience' ? 'bg-primary text-dark-bg' : 'text-gray-400 hover:text-white'}`}
+            className={`min-h-11 shrink-0 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-bold transition-colors sm:px-4 ${activeTab === 'experience' ? 'bg-primary text-dark-bg' : 'text-gray-400 hover:text-white'}`}
           >
             Manage Experience
           </button>
           <button
+            type="button"
             onClick={() => setActiveTab('messages')}
-            className={`px-4 py-2 font-bold rounded-lg transition-colors flex items-center gap-2 ${activeTab === 'messages' ? 'bg-primary text-dark-bg' : 'text-gray-400 hover:text-white'}`}
+            className={`min-h-11 shrink-0 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-bold transition-colors flex items-center gap-2 sm:px-4 ${activeTab === 'messages' ? 'bg-primary text-dark-bg' : 'text-gray-400 hover:text-white'}`}
           >
             Messages
           </button>
         </div>
         <button
+          type="button"
           onClick={handleLogout}
-          className="text-red-500 hover:underline px-4 py-2"
+          className="min-h-11 self-end px-3 py-2 text-sm text-red-500 hover:underline sm:self-auto sm:px-4"
         >
           Logout
         </button>
@@ -118,7 +125,7 @@ export default function AdminDashboard() {
       <div className="mt-8">
         {activeTab === 'analytics' && (
           <section>
-            <div className="flex items-center justify-between mb-6">
+            <div className="mb-6 flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h2 className="text-2xl font-bold">Portfolio Analytics</h2>
                 <p className="text-gray-400 text-sm mt-1">Visitors, CV downloads, and tracked interactions.</p>
@@ -141,8 +148,8 @@ export default function AdminDashboard() {
             </div>
 
             {!!stats?.projectAnalytics.length && (
-              <section className="glass rounded-2xl p-6 border border-primary/20 mb-8">
-                <div className="flex items-start justify-between gap-4 mb-5">
+              <section className="glass rounded-2xl border border-primary/20 p-4 mb-8 sm:p-6">
+                <div className="mb-5 flex flex-col items-start gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div>
                     <h3 className="font-bold text-lg">Project performance</h3>
                     <p className="text-sm text-gray-400 mt-1">اختار مشروع عشان تشوف فتحاته وكل زرار اتداس عليه.</p>
@@ -220,7 +227,7 @@ export default function AdminDashboard() {
             )}
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="glass rounded-2xl p-6 border border-white/10">
+              <div className="glass min-w-0 rounded-2xl border border-white/10 p-4 sm:p-6">
                 <h3 className="font-bold text-lg mb-4">All tracked events</h3>
                 <div className="space-y-3 max-h-80 overflow-auto">
                   {Object.entries(stats?.events || {}).sort(([, a], [, b]) => b - a).map(([event, count]) => (
@@ -233,7 +240,7 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
-              <div className="glass rounded-2xl p-6 border border-white/10">
+              <div className="glass min-w-0 rounded-2xl border border-white/10 p-4 sm:p-6">
                 <h3 className="font-bold text-lg mb-4">Visitors</h3>
                 <div className="overflow-auto max-h-80">
                   <table className="w-full text-sm">

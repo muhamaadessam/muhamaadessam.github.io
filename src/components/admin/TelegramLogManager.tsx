@@ -153,7 +153,7 @@ export default function TelegramLogManager() {
                 <UserRound className="w-4 h-4 text-primary" aria-hidden="true" />
                 {valueOf(payload.name)}
               </div>
-              <a href={`mailto:${valueOf(payload.email)}`} className="flex items-center gap-2 text-sm text-primary hover:underline">
+              <a href={`mailto:${valueOf(payload.email)}`} className="flex min-w-0 items-center gap-2 break-all text-sm text-primary hover:underline">
                 <Mail className="w-4 h-4" aria-hidden="true" />
                 {valueOf(payload.email)}
               </a>
@@ -244,7 +244,7 @@ export default function TelegramLogManager() {
   }
 
   return (
-    <section className="space-y-8">
+    <section className="min-w-0 space-y-8">
       <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
         <div>
           <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-primary">Engagement center</p>
