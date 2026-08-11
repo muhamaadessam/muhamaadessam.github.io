@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { getTelegramLogs, TelegramLog } from '@/lib/adminServices';
-import { Clock3, Download, Eye, Globe2, Mail, MapPin, MessageSquare, Monitor, Navigation, UserRound } from 'lucide-react';
+import { Activity, BarChart3, Clock3, Download, Eye, Globe2, Mail, MapPin, MessageSquare, Monitor, Navigation, UserRound, UsersRound } from 'lucide-react';
 
 const labels = {
   contact: 'Contact message',
@@ -34,9 +34,45 @@ function Detail({ icon: Icon, label, value, wide = false }: { icon: typeof MapPi
   );
 }
 
+function Metric({ icon: Icon, label, value, note }: { icon: typeof Eye; label: string; value: string | number; note: string }) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-dark-card/55 p-5 shadow-lg shadow-black/10">
+      <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.14em] text-gray-400">
+        <Icon className="h-4 w-4 text-primary" aria-hidden="true" />
+        {label}
+      </div>
+      <p className="mt-4 text-3xl font-bold tracking-tight text-white">{value}</p>
+      <p className="mt-1 text-xs text-gray-400">{note}</p>
+    </div>
+  );
+}
+
+function RankedList({ items, empty }: { items: { label: string; count: number }[]; empty: string }) {
+  const max = items[0]?.count || 1;
+
+  if (!items.length) return <p className="text-sm text-gray-500">{empty}</p>;
+
+  return (
+    <div className="space-y-4">
+      {items.map((item) => (
+        <div key={item.label}>
+          <div className="mb-1.5 flex justify-between gap-3 text-sm">
+            <span className="truncate text-gray-300">{item.label}</span>
+            <span className="font-semibold text-primary">{item.count}</span>
+          </div>
+          <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
+            <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${Math.max((item.count / max) * 100, 8)}%` }} />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function TelegramLogManager() {
   const [logs, setLogs] = useState<TelegramLog[]>([]);
   const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState<'all' | 'visitor' | 'cv_download' | 'contact'>('all');
 
   useEffect(() => {
     getTelegramLogs().then((data) => {
@@ -49,6 +85,35 @@ export default function TelegramLogManager() {
     if (!timestamp) return 'Just now';
     return new Intl.DateTimeFormat('en-US', { dateStyle: 'medium', timeStyle: 'short' }).format(timestamp.toDate());
   };
+
+  const visitorLogs = logs.filter((log) => log.type === 'visitor');
+  const uniqueVisitorIds = new Set(visitorLogs.map((log) => log.payload.visitorId).filter(Boolean));
+  const newVisitors = new Set(visitorLogs.filter((log) => log.payload.isNewVisitor === true).map((log) => log.payload.visitorId).filter(Boolean)).size;
+  const returningVisits = visitorLogs.filter((log) => log.payload.isNewVisitor !== true).length;
+  const cvDownloads = logs.filter((log) => log.type === 'cv_download').length;
+  const contactMessages = logs.filter((log) => log.type === 'contact').length;
+  const visitorCount = uniqueVisitorIds.size;
+  const cvRate = visitorCount ? Math.round((cvDownloads / visitorCount) * 100) : 0;
+  const contactRate = visitorCount ? Math.round((contactMessages / visitorCount) * 100) : 0;
+
+  const rank = (getValue: (log: TelegramLog) => string) => Object.entries(
+    logs.filter((log) => log.type === 'visitor').reduce<Record<string, number>>((counts, log) => {
+      const value = getValue(log);
+      if (value && value !== 'Unknown') counts[value] = (counts[value] || 0) + 1;
+      return counts;
+    }, {}),
+  ).map(([label, count]) => ({ label, count })).sort((a, b) => b.count - a.count).slice(0, 4);
+
+  const locations = rank((log) => [log.payload.city, log.payload.country].filter(Boolean).join(', '));
+  const devices = rank((log) => valueOf(log.payload.device));
+  const visibleLogs = filter === 'all' ? logs : logs.filter((log) => log.type === filter);
+
+  const filters = [
+    ['all', 'All activity', logs.length],
+    ['visitor', 'Visitors', visitorLogs.length],
+    ['cv_download', 'CV downloads', cvDownloads],
+    ['contact', 'Messages', contactMessages],
+  ] as const;
 
   const renderPayload = (log: TelegramLog) => {
     const payload = log.payload || {};
@@ -131,29 +196,114 @@ export default function TelegramLogManager() {
     );
   };
 
-  if (loading) return <div>Loading Telegram data...</div>;
+  if (loading) {
+    return (
+      <div className="space-y-4 animate-pulse">
+        <div className="h-8 w-64 rounded-lg bg-white/10" />
+        <div className="h-4 w-96 max-w-full rounded bg-white/10" />
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {[1, 2, 3, 4].map((item) => <div key={item} className="h-32 rounded-2xl bg-white/5" />)}
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <section>
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold">Telegram Data ({logs.length})</h2>
-        <p className="text-gray-400 text-sm mt-1">The payloads saved after Telegram notifications succeeded.</p>
+    <section className="space-y-8">
+      <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+        <div>
+          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-primary">Engagement center</p>
+          <h2 className="text-3xl font-bold tracking-tight text-white">Telegram intelligence</h2>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-gray-400">A readable view of visitor signals, recruiter interest, and contact activity captured after Telegram notifications succeed.</p>
+        </div>
+        <div className="flex items-center gap-2 self-start rounded-full border border-primary/20 bg-primary/10 px-3 py-2 text-xs text-primary md:self-auto">
+          <Activity className="h-4 w-4" aria-hidden="true" />
+          {logs.length} records tracked
+        </div>
       </div>
 
-      {logs.length === 0 ? (
-        <div className="text-center text-gray-400 py-12 glass rounded-xl border border-white/10">No Telegram data found.</div>
-      ) : (
-        <div className="grid gap-4">
-          {logs.map((log) => (
-            <article key={log.id} className="glass p-6 md:p-7 rounded-2xl border border-primary/20">
-              <div className="flex flex-wrap justify-between gap-2 mb-4">
-                <h3 className="font-bold text-lg text-primary">{labels[log.type] || log.type}</h3>
-                <span className="text-xs text-gray-400">{formatDate(log.createdAt)}</span>
-              </div>
-              {renderPayload(log)}
-            </article>
-          ))}
+      {!logs.length ? (
+        <div className="rounded-2xl border border-white/10 bg-dark-card/40 py-16 text-center">
+          <Activity className="mx-auto mb-4 h-8 w-8 text-primary" aria-hidden="true" />
+          <h3 className="font-semibold text-white">No Telegram activity yet</h3>
+          <p className="mt-2 text-sm text-gray-400">New visitor, CV, and contact notifications will appear here.</p>
         </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <Metric icon={UsersRound} label="Reach" value={visitorCount} note="unique visitor IDs" />
+            <Metric icon={Eye} label="Visits" value={visitorLogs.length} note={`${newVisitors} new · ${returningVisits} returning`} />
+            <Metric icon={Download} label="CV interest" value={cvDownloads} note={`${cvRate}% of unique visitors`} />
+            <Metric icon={MessageSquare} label="Conversations" value={contactMessages} note={`${contactRate}% contact rate`} />
+          </div>
+
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
+            <div className="rounded-2xl border border-white/10 bg-dark-card/45 p-6 lg:col-span-3">
+              <div className="mb-6 flex items-start justify-between gap-4">
+                <div>
+                  <h3 className="flex items-center gap-2 text-lg font-semibold text-white"><BarChart3 className="h-5 w-5 text-primary" aria-hidden="true" /> Audience pulse</h3>
+                  <p className="mt-1 text-sm text-gray-400">How visitors are behaving when they reach the portfolio.</p>
+                </div>
+                <span className="text-xs text-gray-500">All logged visits</span>
+              </div>
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <div>
+                  <div className="mb-3 flex justify-between text-sm"><span className="text-gray-300">New visitors</span><span className="font-semibold text-primary">{newVisitors}</span></div>
+                  <div className="h-2 rounded-full bg-white/10"><div className="h-full rounded-full bg-primary" style={{ width: `${visitorLogs.length ? Math.max((newVisitors / visitorLogs.length) * 100, 4) : 0}%` }} /></div>
+                  <p className="mt-2 text-xs text-gray-500">First-time visitor notifications</p>
+                </div>
+                <div>
+                  <div className="mb-3 flex justify-between text-sm"><span className="text-gray-300">Returning visits</span><span className="font-semibold text-primary">{returningVisits}</span></div>
+                  <div className="h-2 rounded-full bg-white/10"><div className="h-full rounded-full bg-accent" style={{ width: `${visitorLogs.length ? Math.max((returningVisits / visitorLogs.length) * 100, 4) : 0}%` }} /></div>
+                  <p className="mt-2 text-xs text-gray-500">Repeat sessions from known IDs</p>
+                </div>
+              </div>
+              <div className="mt-7 border-t border-white/10 pt-5 text-sm text-gray-300">
+                <span className="text-primary font-semibold">{visitorCount ? (visitorLogs.length / visitorCount).toFixed(1) : '0.0'}×</span> average logged visits per unique visitor
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-white/10 bg-dark-card/45 p-6 lg:col-span-2">
+              <div className="mb-6">
+                <h3 className="text-lg font-semibold text-white">Conversion snapshot</h3>
+                <p className="mt-1 text-sm text-gray-400">Interest signals compared with unique reach.</p>
+              </div>
+              <div className="space-y-5">
+                <div className="flex items-center justify-between border-b border-white/10 pb-4"><span className="text-sm text-gray-300">CV download rate</span><strong className="text-2xl text-primary">{cvRate}%</strong></div>
+                <div className="flex items-center justify-between border-b border-white/10 pb-4"><span className="text-sm text-gray-300">Contact rate</span><strong className="text-2xl text-primary">{contactRate}%</strong></div>
+                <div className="flex items-center justify-between"><span className="text-sm text-gray-300">Total notifications</span><strong className="text-2xl text-white">{logs.length}</strong></div>
+              </div>
+              <p className="mt-6 text-xs leading-5 text-gray-500">Rates use unique visitor IDs as the denominator. They are directional signals, not a replacement for a full analytics platform.</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <div className="rounded-2xl border border-white/10 bg-dark-card/45 p-6"><h3 className="mb-5 text-lg font-semibold text-white">Top locations</h3><RankedList items={locations} empty="Location data is not available yet." /></div>
+            <div className="rounded-2xl border border-white/10 bg-dark-card/45 p-6"><h3 className="mb-5 text-lg font-semibold text-white">Devices</h3><RankedList items={devices} empty="Device data is not available yet." /></div>
+          </div>
+
+          <div>
+            <div className="mb-5 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+              <div><h3 className="text-xl font-semibold text-white">Activity log</h3><p className="mt-1 text-sm text-gray-400">Readable notification records with full client context.</p></div>
+              <div className="flex flex-wrap gap-2" role="group" aria-label="Filter activity">
+                {filters.map(([key, label, count]) => (
+                  <button key={key} type="button" aria-pressed={filter === key} onClick={() => setFilter(key)} className={`rounded-full border px-3 py-1.5 text-xs transition-colors focus:outline-none focus:ring-2 focus:ring-primary/60 ${filter === key ? 'border-primary bg-primary text-dark-bg' : 'border-white/10 bg-white/5 text-gray-300 hover:border-primary/40 hover:text-white'}`}>
+                    {label} <span className={filter === key ? 'text-dark-bg/70' : 'text-gray-500'}>({count})</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="grid gap-5">
+              {visibleLogs.map((log) => (
+                <article key={log.id} className="glass rounded-2xl border border-primary/20 p-6 md:p-7">
+                  <div className="mb-4 flex flex-wrap justify-between gap-2"><h3 className="text-lg font-bold text-primary">{labels[log.type] || log.type}</h3><span className="text-xs text-gray-400">{formatDate(log.createdAt)}</span></div>
+                  {renderPayload(log)}
+                </article>
+              ))}
+              {!visibleLogs.length && <p className="rounded-2xl border border-white/10 py-10 text-center text-sm text-gray-500">No records match this filter.</p>}
+            </div>
+          </div>
+        </>
       )}
     </section>
   );
