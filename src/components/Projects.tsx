@@ -61,26 +61,30 @@ export default function Projects({ projects }: { projects: Project[] }) {
                 )}
                 
                 <div className="p-6 flex flex-col flex-grow relative">
-                  <div className="flex justify-between items-start mb-3">
-                    <h3 className="text-xl font-bold group-hover:text-primary transition-colors">{project.projectName}</h3>
-                    <div className="flex flex-col items-end gap-2">
-                      {project.category && (
-                        <span className="text-[10px] px-2.5 py-1 bg-primary/10 text-primary border border-primary/20 rounded-full font-bold uppercase tracking-wider">
-                          {project.category}
-                        </span>
-                      )}
-                      {project.status && (
-                        <span
-                          title={project.status === 'testing' ? 'Join the testing group first' : undefined}
-                          className="inline-flex items-center gap-1 text-[10px] px-2.5 py-1 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-full font-bold uppercase tracking-wider"
-                        >
-                          {project.status.replaceAll('-', ' ')}
-                          {project.status === 'testing' && <CircleAlert className="w-3 h-3" aria-hidden="true" />}
-                        </span>
-                      )}
-                    </div>
+                  <h3 className="text-2xl font-bold leading-tight group-hover:text-primary transition-colors">
+                    {project.projectName}
+                  </h3>
+
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    {project.category && (
+                      <span className="text-[10px] px-2.5 py-1 bg-primary/10 text-primary border border-primary/20 rounded-full font-bold uppercase tracking-wider">
+                        {project.category}
+                      </span>
+                    )}
+                    {project.status && (
+                      <span
+                        title={project.status === 'testing' ? 'Join the testing group first' : undefined}
+                        className="inline-flex max-w-full items-center gap-1 text-[10px] px-2.5 py-1 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-full font-bold uppercase tracking-wider"
+                      >
+                        {project.status.replaceAll('-', ' ')}
+                        {project.status === 'testing' && <CircleAlert className="w-3 h-3 shrink-0" aria-hidden="true" />}
+                      </span>
+                    )}
                   </div>
-                  <p className="text-gray-400 mb-6 flex-grow text-sm leading-relaxed line-clamp-3">{project.projectDescription}</p>
+
+                  <p className="text-gray-400 mb-6 flex-grow break-words text-sm leading-relaxed line-clamp-3">
+                    {project.projectDescription}
+                  </p>
 
                   <div className="mb-5">
                     <span className="text-sm font-semibold text-white mb-2 block">My Contribution:</span>
