@@ -23,7 +23,7 @@ export default function Skills({ skills }: { skills: Skill[] }) {
   return (
     <section 
       id="skills" 
-      className="py-24 relative bg-dark-bg bg-fixed bg-cover bg-center"
+      className="py-24 relative bg-dark-bg md:bg-fixed bg-cover bg-center"
       style={{ backgroundImage: 'url("/backgrounds/skills_bg.webp")' }}
     >
       <div className="absolute inset-0 bg-dark-bg/90"></div>

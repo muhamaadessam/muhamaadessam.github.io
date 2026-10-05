@@ -2,54 +2,68 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Only the portfolio owner may write content or read private data.
+    // Replace the placeholder with your Firebase Auth UID
+    // (Firebase Console -> Authentication -> Users -> User UID) before deploying.
+    function isOwner() {
+      return request.auth != null && request.auth.uid in ['REPLACE_WITH_ADMIN_UID'];
+    }
+
     match /config/{document=**} {
       allow read: if false;
-      allow write: if request.auth != null;
+      allow write: if isOwner();
     }
 
     match /projects/{document=**} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow write: if isOwner();
     }
 
     match /skills/{document=**} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow write: if isOwner();
     }
 
     match /experiences/{document=**} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow write: if isOwner();
     }
 
     match /fun_facts/{document=**} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow write: if isOwner();
     }
 
     match /portfolio/{document=**} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow write: if isOwner();
     }
 
-    match /stats/{document=**} {
+    // Visitors write anonymous counters. Only the known stats documents can be
+    // written, existing fields can never be removed, and total counters can
+    // only grow, so nobody can wipe or reset the stats from the browser.
+    match /stats/{statId} {
       allow read: if true;
-      allow create, update: if true;
-      allow delete: if request.auth != null;
+      allow create: if statId in ['visitors', 'cv_downloads', 'events', 'project_events'];
+      allow update: if statId in ['visitors', 'cv_downloads', 'events', 'project_events'] &&
+        request.resource.data.keys().hasAll(resource.data.keys()) &&
+        request.resource.data.get('total_visites', 0) >= resource.data.get('total_visites', 0) &&
+        request.resource.data.get('count', 0) >= resource.data.get('count', 0);
+      allow delete: if isOwner();
     }
 
     match /telegram_logs/{document} {
-      allow read, delete: if request.auth != null;
+      allow read, delete: if isOwner();
     }
-    
+
     match /messages/{document=**} {
-      allow create: if 
+      allow create: if
         request.resource.data.keys().hasAll(['name', 'email', 'message', 'createdAt', 'read']) &&
         request.resource.data.name is string && request.resource.data.name.size() > 0 && request.resource.data.name.size() < 100 &&
         request.resource.data.email is string && request.resource.data.email.matches('^.+@.+\\..+$') &&
         request.resource.data.message is string && request.resource.data.message.size() > 0 && request.resource.data.message.size() < 5000 &&
         request.resource.data.read == false;
-      allow read, update, delete: if request.auth != null;
+      allow read, update, delete: if isOwner();
     }
   }
 }

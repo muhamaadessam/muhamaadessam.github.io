@@ -31,12 +31,15 @@ function calculateDuration(start: string, end: string | null): string {
   const years = Math.floor(totalMonths / 12);
   const months = totalMonths % 12;
   
+  const yearLabel = `${years} ${years === 1 ? 'yr' : 'yrs'}`;
+  const monthLabel = `${months} ${months === 1 ? 'mo' : 'mos'}`;
+
   if (years === 0) {
-    return `${months} mos`;
+    return monthLabel;
   } else if (months === 0) {
-    return `${years} yrs`;
+    return yearLabel;
   }
-  return `${years} yrs ${months} mos`;
+  return `${yearLabel} ${monthLabel}`;
 }
 
 export default function Experience({ experiences }: { experiences: ExperienceType[] }) {
@@ -56,7 +59,7 @@ export default function Experience({ experiences }: { experiences: ExperienceTyp
   return (
     <section 
       id="experience" 
-      className="py-24 relative bg-dark-bg bg-fixed bg-cover bg-center"
+      className="py-24 relative bg-dark-bg md:bg-fixed bg-cover bg-center"
       style={{ backgroundImage: 'url("/backgrounds/experience_bg.webp")' }}
     >
       <div className="absolute inset-0 bg-dark-bg/85"></div>

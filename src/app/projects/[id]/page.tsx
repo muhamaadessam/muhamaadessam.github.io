@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { getProjectById, getProjects } from '@/lib/services';
+import { getPortfolioData, getProjectById, getProjects } from '@/lib/services';
 import ProjectDetailsClient from './ProjectDetailsClient';
 
 type ProjectPageProps = {
@@ -43,7 +43,7 @@ export async function generateMetadata({ params }: ProjectPageProps): Promise<Me
 
 export default async function ProjectDetailsPage({ params }: ProjectPageProps) {
   const { id } = await params;
-  const project = await getProjectById(id);
+  const [project, portfolio] = await Promise.all([getProjectById(id), getPortfolioData()]);
 
-  return <ProjectDetailsClient project={project} projectId={id} />;
+  return <ProjectDetailsClient project={project} projectId={id} portfolio={portfolio} />;
 }
