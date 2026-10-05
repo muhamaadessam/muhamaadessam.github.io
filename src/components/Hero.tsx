@@ -46,7 +46,7 @@ export default function Hero({ data }: { data: PortfolioData | null }) {
         >
           <h1 className="text-5xl md:text-7xl font-bold text-white mb-5 tracking-tight leading-[1.08]">
             {data?.name || 'Muhammad Essam'}
-            <span className="text-primary block mt-3">Flutter Developer</span>
+            <span className="text-primary block mt-3">{data?.jop_title?.trim() || 'Flutter Developer'}</span>
           </h1>
 
           <p className="text-gray-300 mb-6 max-w-xl mx-auto lg:mx-0 text-lg leading-relaxed">
