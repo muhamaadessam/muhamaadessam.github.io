@@ -2,8 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { FcGoogle } from 'react-icons/fc';
 import { auth } from '@/lib/firebase';
-import { signInWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
+import { isAdmin } from '@/lib/admin';
+import { FirebaseError } from 'firebase/app';
+import { GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
 
 export default function AdminLogin() {
   const router = useRouter();
@@ -12,10 +15,16 @@ export default function AdminLogin() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
 
+  // Every sign-in method ends here: admins go to the dashboard, any other
+  // account (e.g. an unrelated Google account) is signed out again.
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (isAdmin(user)) {
         router.push('/admin/dashboard');
+      } else if (user) {
+        await signOut(auth);
+        setError(`This account is not authorized (UID: ${user.uid})`);
+        setLoading(false);
       } else {
         setLoading(false);
       }
@@ -30,9 +39,23 @@ export default function AdminLogin() {
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      router.push('/admin/dashboard');
     } catch {
       setError('Invalid email or password');
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    setError('');
+    setLoading(true);
+
+    try {
+      await signInWithPopup(auth, new GoogleAuthProvider());
+    } catch (err) {
+      const code = err instanceof FirebaseError ? err.code : '';
+      if (code !== 'auth/popup-closed-by-user' && code !== 'auth/cancelled-popup-request') {
+        setError('Google sign-in failed. Please try again.');
+      }
       setLoading(false);
     }
   };
@@ -83,6 +106,22 @@ export default function AdminLogin() {
             {loading ? 'Authenticating...' : 'Sign In'}
           </button>
         </form>
+
+        <div className="flex items-center gap-4 my-6">
+          <div className="h-px flex-1 bg-white/10" />
+          <span className="text-xs uppercase tracking-widest text-gray-500">or</span>
+          <div className="h-px flex-1 bg-white/10" />
+        </div>
+
+        <button
+          type="button"
+          onClick={handleGoogleLogin}
+          disabled={loading}
+          className="w-full flex items-center justify-center gap-3 bg-white text-gray-900 font-semibold py-3 px-4 rounded-xl hover:bg-gray-100 transition-colors disabled:opacity-50"
+        >
+          <FcGoogle className="text-xl" aria-hidden="true" />
+          Continue with Google
+        </button>
       </div>
     </div>
   );
