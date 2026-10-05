@@ -7,11 +7,19 @@ import { useRouter } from 'next/navigation';
 
 export default function Projects({ projects }: { projects: Project[] }) {
   const router = useRouter();
+  // Featured projects first; Array.prototype.sort is stable, so the existing order is kept otherwise.
+  const sortedProjects = [...projects].sort((a, b) => Number(Boolean(b.isFeatured)) - Number(Boolean(a.isFeatured)));
+  const isTesting = (project: Project) => project.status?.toLowerCase() === 'testing';
+  const canJoinTesting = (project: Project) => isTesting(project) && Boolean(project.testingGroupLink?.startsWith('https://'));
+  const openProject = (project: Project) => {
+    trackProjectEvent('project_click', project.id, project.projectName || project.id);
+    router.push(`/projects/${project.id}`);
+  };
 
   return (
     <section 
       id="projects" 
-      className="py-24 relative bg-dark-bg bg-fixed bg-cover bg-center"
+      className="py-24 relative bg-dark-bg md:bg-fixed bg-cover bg-center"
       style={{ backgroundImage: 'url("/backgrounds/projects_bg.webp")' }}
     >
       <div className="absolute inset-0 bg-dark-bg/90"></div>
@@ -23,13 +31,13 @@ export default function Projects({ projects }: { projects: Project[] }) {
           transition={{ duration: 0.6 }}
           className="mb-16 text-center"
         >
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Featured Projects</h2>
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">Projects</h2>
           <div className="h-1 w-20 bg-primary mx-auto rounded-full" />
         </motion.div>
 
         {projects.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {projects.map((project, index) => (
+            {sortedProjects.map((project, index) => (
               <motion.div
                 key={project.id}
                 initial={{ opacity: 0, y: 30 }}
@@ -37,11 +45,17 @@ export default function Projects({ projects }: { projects: Project[] }) {
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 whileHover={{ y: -10 }}
-                onClick={() => {
-                  trackProjectEvent('project_click', project.id, project.projectName || project.id);
-                  router.push(`/projects/${project.id}`);
+                onClick={() => openProject(project)}
+                onKeyDown={(e) => {
+                  if (e.target === e.currentTarget && (e.key === 'Enter' || e.key === ' ')) {
+                    e.preventDefault();
+                    openProject(project);
+                  }
                 }}
-                className="cursor-pointer glass rounded-2xl overflow-hidden group flex flex-col h-full hover:border-primary/50 hover:shadow-[0_0_25px_rgba(102,252,241,0.15)] transition-all duration-500"
+                role="link"
+                tabIndex={0}
+                aria-label={`View ${project.projectName} case study`}
+                className="cursor-pointer glass rounded-2xl overflow-hidden group flex flex-col h-full hover:border-primary/50 hover:shadow-[0_0_25px_rgba(102,252,241,0.15)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-all duration-500"
               >
                 {project.projectImage && (
                   <div className="w-full h-48 overflow-hidden relative bg-black/40">
@@ -73,11 +87,11 @@ export default function Projects({ projects }: { projects: Project[] }) {
                     )}
                     {project.status && (
                       <span
-                        title={project.status === 'testing' ? 'Join the testing group first' : undefined}
+                        title={isTesting(project) ? 'Join the testing group first' : undefined}
                         className="inline-flex max-w-full items-center gap-1 text-[10px] px-2.5 py-1 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-full font-bold uppercase tracking-wider"
                       >
                         {project.status.replaceAll('-', ' ')}
-                        {project.status === 'testing' && <CircleAlert className="w-3 h-3 shrink-0" aria-hidden="true" />}
+                        {isTesting(project) && <CircleAlert className="w-3 h-3 shrink-0" aria-hidden="true" />}
                       </span>
                     )}
                   </div>
@@ -86,14 +100,16 @@ export default function Projects({ projects }: { projects: Project[] }) {
                     {project.projectDescription}
                   </p>
 
-                  <div className="mb-5">
-                    <span className="text-sm font-semibold text-white mb-2 block">My Contribution:</span>
-                    <ul className="text-sm text-gray-300 space-y-1 list-disc list-inside">
-                      {project.myContribution?.slice(0, 4).map((cont, idx) => (
-                        <li key={idx}>{cont}</li>
-                      ))}
-                    </ul>
-                  </div>
+                  {project.myContribution && project.myContribution.length > 0 && (
+                    <div className="mb-5">
+                      <span className="text-sm font-semibold text-white mb-2 block">My Contribution:</span>
+                      <ul className="text-sm text-gray-300 space-y-1 list-disc list-inside">
+                        {project.myContribution.slice(0, 4).map((cont, idx) => (
+                          <li key={idx}>{cont}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                   
                   {project.techStack && project.techStack.length > 0 && (
                     <div className="flex flex-wrap gap-2 mb-6">
@@ -110,9 +126,9 @@ export default function Projects({ projects }: { projects: Project[] }) {
                     </div>
                   )}
                   
-                  {(project.status === 'testing' && project.testingGroupLink?.startsWith('https://') || project.links?.length > 0) && (
+                  {(canJoinTesting(project) || project.links?.length > 0) && (
                     <div className="flex flex-wrap gap-2 mt-auto pt-4 border-t border-white/10">
-                      {project.status === 'testing' && project.testingGroupLink?.startsWith('https://') && (
+                      {canJoinTesting(project) && (
                         <a
                           href={project.testingGroupLink}
                           target="_blank"
@@ -128,7 +144,7 @@ export default function Projects({ projects }: { projects: Project[] }) {
                           <span>Join Testing Group</span>
                         </a>
                       )}
-                      {project.links.map((lnk, i) => (
+                      {project.links?.map((lnk, i) => (
                         <a 
                           key={i}
                           href={lnk.link} 

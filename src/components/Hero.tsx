@@ -5,6 +5,7 @@ import { FileText, ChevronRight } from 'lucide-react';
 import { FaGithub, FaLinkedin } from 'react-icons/fa';
 import { PortfolioData, incrementCvDownloadCount, trackPortfolioEvent } from '@/lib/services';
 import Image from 'next/image';
+import { CV_DOWNLOAD_URL, GITHUB_URL, LINKEDIN_URL } from '@/lib/constants';
 
 export default function Hero({ data }: { data: PortfolioData | null }) {
   const handleDownloadCV = () => {
@@ -52,36 +53,25 @@ export default function Hero({ data }: { data: PortfolioData | null }) {
             Flutter Developer with 3+ years of experience building and shipping production mobile applications for Android and iOS.
           </p>
 
-          <div className="flex flex-wrap justify-center lg:justify-start gap-2 mb-6">
-            {['Flutter', 'Dart', 'BLoC', 'Clean Architecture', 'Firebase', 'REST APIs', 'Production Apps'].map((keyword) => (
+          <div className="flex flex-wrap justify-center lg:justify-start gap-2">
+            {['Flutter', 'Dart', 'BLoC', 'Clean Architecture', 'Firebase', 'REST APIs'].map((keyword) => (
               <span key={keyword} className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs text-gray-300">
                 {keyword}
               </span>
             ))}
           </div>
 
-          <p className="text-sm md:text-base text-primary mb-10 font-semibold">
-            3+ Years Experience <span className="text-gray-500">|</span> Production Apps <span className="text-gray-500">|</span> Android &amp; iOS
-          </p>
-
-          <div className="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start flex-wrap">
+          <div className="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start flex-wrap mt-10">
             <a
               href="#projects"
               className="px-8 py-4 bg-primary text-white font-medium rounded-2xl hover:bg-primary-dark hover:scale-105 transition-all flex items-center justify-center gap-4 w-full sm:w-auto min-w-[200px]"
             >
-              <span className="whitespace-nowrap">View Production Apps</span>
+              <span className="whitespace-nowrap">View Projects</span>
               <ChevronRight className="w-5 h-5" />
             </a>
 
             <a
-              href="#contact"
-              className="px-8 py-4 bg-dark-card text-white font-medium rounded-2xl hover:bg-gray-700 hover:scale-105 transition-all flex items-center justify-center gap-4 border border-white/5 w-full sm:w-auto min-w-[200px]"
-            >
-              <span className="whitespace-nowrap">Contact Me</span>
-            </a>
-
-            <a
-              href="https://drive.google.com/uc?export=download&id=11R3XbF-0bTpnFe4wCdOYy9Qgw4ISQKEc"
+              href={CV_DOWNLOAD_URL}
               target="_blank"
               rel="noreferrer"
               onClick={handleDownloadCV}
@@ -91,28 +81,28 @@ export default function Hero({ data }: { data: PortfolioData | null }) {
               <span className="whitespace-nowrap">Download CV</span>
             </a>
 
-            <a
-              href={data?.linkedin || "https://www.linkedin.com/in/muhammadessam159/"}
-              target="_blank"
-              rel="noreferrer"
-              onClick={() => trackPortfolioEvent('external_link_click', 'linkedin')}
-              className="px-8 py-4 bg-dark-card text-white font-medium rounded-2xl hover:bg-gray-700 hover:scale-105 transition-all flex items-center justify-center gap-4 border border-white/5 w-full sm:w-auto min-w-[200px]"
-            >
-              <FaLinkedin className="w-5 h-5 text-white" />
-              <span className="whitespace-nowrap">LinkedIn</span>
-            </a>
-
-            <a
-              href={data?.github || "https://github.com/muhamaadessam"}
-              target="_blank"
-              rel="noreferrer"
-              onClick={() => trackPortfolioEvent('external_link_click', 'github')}
-              aria-label="View Muhammad Essam's GitHub profile"
-              className="px-5 py-4 text-gray-300 hover:text-white transition-colors flex items-center justify-center gap-3"
-            >
-              <FaGithub className="w-6 h-6" />
-              <span>GitHub</span>
-            </a>
+            <div className="flex items-center gap-3">
+              <a
+                href={data?.linkedin || LINKEDIN_URL}
+                target="_blank"
+                rel="noreferrer"
+                onClick={() => trackPortfolioEvent('external_link_click', 'linkedin')}
+                aria-label="View Muhammad Essam's LinkedIn profile"
+                className="w-14 h-14 rounded-2xl bg-dark-card border border-white/5 text-gray-300 hover:text-white hover:border-primary/50 transition-colors flex items-center justify-center"
+              >
+                <FaLinkedin className="w-6 h-6" />
+              </a>
+              <a
+                href={data?.github || GITHUB_URL}
+                target="_blank"
+                rel="noreferrer"
+                onClick={() => trackPortfolioEvent('external_link_click', 'github')}
+                aria-label="View Muhammad Essam's GitHub profile"
+                className="w-14 h-14 rounded-2xl bg-dark-card border border-white/5 text-gray-300 hover:text-white hover:border-primary/50 transition-colors flex items-center justify-center"
+              >
+                <FaGithub className="w-6 h-6" />
+              </a>
+            </div>
           </div>
         </motion.div>
 

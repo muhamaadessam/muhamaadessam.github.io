@@ -69,13 +69,11 @@ export default function NotFound() {
           className="mt-8"
         >
           <h2 className="text-3xl md:text-5xl font-bold mb-6 tracking-tight">
-            Lost in the <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-red-600">Matrix</span>
+            Page <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-red-600">Not Found</span>
           </h2>
           <div className="glass px-6 py-4 rounded-xl border-white/5 mb-10 max-w-lg mx-auto">
-            <p className="text-gray-400 font-mono text-sm md:text-base">
-              &gt; Error: Exception in routing thread.
-              <br />
-              &gt; The page you are looking for has been deleted, moved, or never existed in this dimension.
+            <p className="text-gray-400 text-sm md:text-base">
+              The page you&apos;re looking for doesn&apos;t exist or has been moved.
             </p>
           </div>
         </motion.div>
@@ -89,7 +87,7 @@ export default function NotFound() {
             <div className="absolute inset-0 w-full h-full -mt-1 rounded-lg opacity-30 bg-gradient-to-b from-transparent via-transparent to-primary"></div>
             <div className="relative flex items-center gap-3">
               <Home className="w-5 h-5 text-primary group-hover:animate-bounce" />
-              <span>Return to Base</span>
+              <span>Back to Home</span>
             </div>
           </Link>
         </motion.div>
