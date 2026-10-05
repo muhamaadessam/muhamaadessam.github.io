@@ -6,7 +6,7 @@ service cloud.firestore {
     // Replace the placeholder with your Firebase Auth UID
     // (Firebase Console -> Authentication -> Users -> User UID) before deploying.
     function isOwner() {
-      return request.auth != null && request.auth.uid in ['REPLACE_WITH_ADMIN_UID'];
+      return request.auth != null && request.auth.uid in ['x4BowypLZRSJ3ptp8CbFuafSFjj1'];
     }
 
     match /config/{document=**} {
