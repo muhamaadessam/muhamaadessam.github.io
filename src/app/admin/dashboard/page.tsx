@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { auth } from '@/lib/firebase';
+import { isAdmin } from '@/lib/admin';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import ProjectsManager from '@/components/admin/ProjectsManager';
 import SkillsManager from '@/components/admin/SkillsManager';
@@ -37,7 +38,8 @@ export default function AdminDashboard() {
   useEffect(() => {
     let mounted = true;
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (!user) {
+      if (!isAdmin(user)) {
+        if (user) await signOut(auth);
         router.push('/admin');
       } else {
         setLoading(false);

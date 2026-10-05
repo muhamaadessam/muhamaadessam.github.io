@@ -3,6 +3,7 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     // Only the portfolio owner (Firebase Auth UID) may write content or read private data.
+    // Keep in sync with ADMIN_UIDS in src/lib/admin.ts.
     function isOwner() {
       return request.auth != null && request.auth.uid in ['x4BowypLZRSJ3ptp8CbFuafSFjj1'];
     }
