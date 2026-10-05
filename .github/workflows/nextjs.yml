@@ -3,6 +3,9 @@ name: Deploy Next.js site to Pages
 on:
   push:
     branches: ["main"]
+  # Build pull requests too, so a broken build shows up before merge. Deploy is skipped for them.
+  pull_request:
+    branches: ["main"]
   workflow_dispatch:
   # Rebuild daily so content edited from the admin dashboard (Firestore) goes live.
   schedule:
@@ -14,7 +17,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: "pages"
+  group: ${{ github.event_name == 'pull_request' && format('pages-pr-{0}', github.ref) || 'pages' }}
   cancel-in-progress: false
 
 jobs:
@@ -22,21 +25,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
-          node-version: "20"
+          node-version: "24"
       - name: Install dependencies
         run: npm ci
       - name: Build with Next.js
         run: npm run build
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: ./out
 
   deploy:
+    if: github.event_name != 'pull_request'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -45,4 +49,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
