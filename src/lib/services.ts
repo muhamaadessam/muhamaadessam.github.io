@@ -1,4 +1,4 @@
-import { collection, doc, getDoc, getDocs, setDoc, increment } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, setDoc, updateDoc, increment, serverTimestamp } from 'firebase/firestore';
 import { db } from './firebase';
 
 export interface LinkModel {
@@ -195,46 +195,35 @@ export async function trackVisitor(): Promise<void> {
     let visitorId = localStorage.getItem('visitor_id');
     if (isIgnoredVisitor(visitorId)) return;
 
-    let isNewVisitor = false;
-
     if (!visitorId) {
       visitorId = Date.now().toString();
       localStorage.setItem('visitor_id', visitorId);
-      isNewVisitor = true;
     }
 
-    const docRef = doc(db, 'stats', 'visitors');
-    const snapshot = await getDoc(docRef);
+    // Each visitor has its own document so stats/visitors stays small; it only
+    // keeps the totals. The legacy stats/visitors.users map is read-only now and
+    // is used to carry over visit counts recorded before this change.
+    const statsRef = doc(db, 'stats', 'visitors');
+    const visitorRef = doc(db, 'visitors', visitorId);
+    const [statsSnapshot, visitorSnapshot] = await Promise.all([getDoc(statsRef), getDoc(visitorRef)]);
+    const statsData = statsSnapshot.data() || {};
+    const legacyVisits = Number(statsData.users?.[visitorId]) || 0;
+    const previousVisits = visitorSnapshot.exists() ? Number(visitorSnapshot.data().visits) || 0 : legacyVisits;
+    const isNewVisitor = previousVisits === 0;
 
-    let totalUnique = 1;
-    let totalVisits = 1;
-
-    if (snapshot.exists()) {
-      const data = snapshot.data();
-      const users = data.users || {};
-      const currentCount = users[visitorId] || 0;
-
-      isNewVisitor = currentCount === 0;
-      totalUnique = isNewVisitor ? (data.total_visitors || 0) + 1 : (data.total_visitors || 0);
-      totalVisits = (data.total_visites || 0) + 1;
-
-      await setDoc(docRef, {
-        total_visitors: isNewVisitor ? increment(1) : Object.keys(users).length,
-        total_visites: increment(1),
-        users: {
-          ...users,
-          [visitorId]: currentCount + 1,
-        }
-      }, { merge: true });
+    if (visitorSnapshot.exists()) {
+      await updateDoc(visitorRef, { visits: increment(1), lastSeen: serverTimestamp() });
     } else {
-      await setDoc(docRef, {
-        total_visitors: 1,
-        total_visites: 1,
-        users: {
-          [visitorId]: 1,
-        }
-      });
+      await setDoc(visitorRef, { visits: legacyVisits + 1, firstSeen: serverTimestamp(), lastSeen: serverTimestamp() });
     }
+
+    await setDoc(statsRef, {
+      total_visitors: increment(isNewVisitor ? 1 : 0),
+      total_visites: increment(1),
+    }, { merge: true });
+
+    const totalUnique = (Number(statsData.total_visitors) || 0) + (isNewVisitor ? 1 : 0);
+    const totalVisits = (Number(statsData.total_visites) || 0) + 1;
 
     try {
       const apiEndpoint = process.env.NEXT_PUBLIC_CONTACT_ENDPOINT 

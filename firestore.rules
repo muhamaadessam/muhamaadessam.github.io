@@ -2,9 +2,7 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Only the portfolio owner may write content or read private data.
-    // Replace the placeholder with your Firebase Auth UID
-    // (Firebase Console -> Authentication -> Users -> User UID) before deploying.
+    // Only the portfolio owner (Firebase Auth UID) may write content or read private data.
     function isOwner() {
       return request.auth != null && request.auth.uid in ['x4BowypLZRSJ3ptp8CbFuafSFjj1'];
     }
@@ -50,6 +48,22 @@ service cloud.firestore {
         request.resource.data.get('total_visites', 0) >= resource.data.get('total_visites', 0) &&
         request.resource.data.get('count', 0) >= resource.data.get('count', 0);
       allow delete: if isOwner();
+    }
+
+    // One document per anonymous visitor. A visitor can read its own document
+    // by ID, create it once, and then only increment its visit count by one.
+    match /visitors/{visitorId} {
+      allow get: if true;
+      allow list, delete: if isOwner();
+      allow create: if
+        request.resource.data.keys().hasOnly(['visits', 'firstSeen', 'lastSeen']) &&
+        request.resource.data.visits is int && request.resource.data.visits >= 1 &&
+        request.resource.data.firstSeen == request.time &&
+        request.resource.data.lastSeen == request.time;
+      allow update: if
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['visits', 'lastSeen']) &&
+        request.resource.data.visits == resource.data.visits + 1 &&
+        request.resource.data.lastSeen == request.time;
     }
 
     match /telegram_logs/{document} {

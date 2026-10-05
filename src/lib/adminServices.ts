@@ -37,8 +37,9 @@ export async function getTelegramLogs(): Promise<TelegramLog[]> {
 
 export async function getPortfolioStats(): Promise<PortfolioStats> {
   try {
-    const [visitorsSnapshot, downloadsSnapshot, eventsSnapshot, projectEventsSnapshot, projectsSnapshot] = await Promise.all([
+    const [visitorsSnapshot, visitorDocsSnapshot, downloadsSnapshot, eventsSnapshot, projectEventsSnapshot, projectsSnapshot] = await Promise.all([
       getDoc(doc(db, 'stats', 'visitors')),
+      getDocs(collection(db, 'visitors')),
       getDoc(doc(db, 'stats', 'cv_downloads')),
       getDoc(doc(db, 'stats', 'events')),
       getDoc(doc(db, 'stats', 'project_events')),
@@ -46,9 +47,18 @@ export async function getPortfolioStats(): Promise<PortfolioStats> {
     ]);
 
     const visitorsData = visitorsSnapshot.data() || {};
-    const users = visitorsData.users && typeof visitorsData.users === 'object' ? visitorsData.users : {};
-    const visitors = Object.entries(users)
-      .map(([id, visits]) => ({ id, visits: Number(visits) || 0 }))
+    // Visitors recorded before per-visitor documents live in the legacy users map;
+    // a visitor document already includes any legacy visits, so it takes precedence.
+    const legacyUsers = visitorsData.users && typeof visitorsData.users === 'object' ? visitorsData.users : {};
+    const visitCounts: Record<string, number> = {};
+    Object.entries(legacyUsers).forEach(([id, visits]) => {
+      visitCounts[id] = Number(visits) || 0;
+    });
+    visitorDocsSnapshot.docs.forEach((item) => {
+      visitCounts[item.id] = Number(item.data().visits) || 0;
+    });
+    const visitors = Object.entries(visitCounts)
+      .map(([id, visits]) => ({ id, visits }))
       .sort((a, b) => b.visits - a.visits);
 
     const projectNames = Object.fromEntries(projectsSnapshot.docs.map((item) => {
