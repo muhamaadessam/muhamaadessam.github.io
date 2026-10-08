@@ -1,0 +1,125 @@
+{
+  "v": 3,
+  "layout": "files",
+  "createdOnFiles": {
+    "v": 1,
+    "at": "2026-10-08T12:00:00Z"
+  },
+  "title": "Muhammad Essam",
+  "namespace": "Essam",
+  "libraries": [
+    {
+      "name": "react",
+      "version": "18"
+    },
+    {
+      "name": "react-dom",
+      "version": "18"
+    },
+    {
+      "name": "essam-site",
+      "version": "1.0.0",
+      "global": "EssamSite",
+      "file": "components/lib/essam-site.js"
+    }
+  ],
+  "sections": {},
+  "groups": [
+    "Logos",
+    "Backgrounds",
+    "Photo"
+  ],
+  "assetGroups": {
+    "Logos": {
+      "name": "Logos",
+      "tile": "l",
+      "order": [
+        "essamLogo.webp",
+        "essamLogoBorder.webp",
+        "essamLogoWithText.webp"
+      ],
+      "files": {
+        "essamLogo.webp": {
+          "name": "essamLogo.webp",
+          "blob": "50452ba355ab1e0a1b13a2dd2034f60a",
+          "size": 28638,
+          "type": "image/webp"
+        },
+        "essamLogoBorder.webp": {
+          "name": "essamLogoBorder.webp",
+          "blob": "14b1b206b54f9de9e725b8863fe75d9e",
+          "size": 21780,
+          "type": "image/webp"
+        },
+        "essamLogoWithText.webp": {
+          "name": "essamLogoWithText.webp",
+          "blob": "910ae005b67a49bb5bf45fc585383464",
+          "size": 21668,
+          "type": "image/webp"
+        }
+      }
+    },
+    "Backgrounds": {
+      "name": "Backgrounds",
+      "tile": "l",
+      "order": [
+        "about_bg.webp",
+        "experience_bg.webp",
+        "projects_bg.webp",
+        "skills_bg.webp"
+      ],
+      "files": {
+        "about_bg.webp": {
+          "name": "about_bg.webp",
+          "blob": "80e6aea9e58ce1ee726a244b6c395b21",
+          "size": 38348,
+          "type": "image/webp"
+        },
+        "experience_bg.webp": {
+          "name": "experience_bg.webp",
+          "blob": "6743346858a9be657a5c60b3d8e9be92",
+          "size": 42634,
+          "type": "image/webp"
+        },
+        "projects_bg.webp": {
+          "name": "projects_bg.webp",
+          "blob": "f178a22b9064a8eacc34b56cdcacdad6",
+          "size": 50486,
+          "type": "image/webp"
+        },
+        "skills_bg.webp": {
+          "name": "skills_bg.webp",
+          "blob": "2a8919cdf2d91130ef9dc99786f53891",
+          "size": 45858,
+          "type": "image/webp"
+        }
+      }
+    },
+    "Photo": {
+      "name": "Photo",
+      "tile": "l",
+      "order": [
+        "profilePic.webp"
+      ],
+      "files": {
+        "profilePic.webp": {
+          "name": "profilePic.webp",
+          "blob": "6184a92497f97c3efd9787d5219195d3",
+          "size": 30654,
+          "type": "image/webp"
+        }
+      }
+    }
+  },
+  "blobs": {},
+  "docs": {
+    "readme": "project/README.md",
+    "sections": []
+  },
+  "lastChange": {
+    "by": "Muhammad Essam",
+    "at": "2026-10-08T17:00:00Z",
+    "via": "Claude Code",
+    "note": "Built the real site components into components/lib/essam-site.js; uploaded backgrounds and profile photo; all pending items closed."
+  }
+}

@@ -1,0 +1,26 @@
+<!-- @dsCard group="Sections" height=520 subtitle="Name, email and message" -->
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  body { margin: 0; padding: 24px; background: var(--surface-page); }
+  .wrap { max-width: 640px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+  ReactDOM.createRoot(document.getElementById('root')).render(
+    React.createElement('div', { className: 'wrap' },
+      React.createElement(Essam.ContactForm, {
+        idPrefix: 'preview',
+        status: 'idle',
+        statusMessage: '',
+        onSubmit: function () {}
+      })
+    )
+  );
+</script>
+</body>
+</html>

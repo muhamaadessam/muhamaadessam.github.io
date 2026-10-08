@@ -26,10 +26,10 @@ export default function Projects({ projects }: { projects: Project[] }) {
       <div className="absolute inset-0 bg-dark-bg/90"></div>
       <div className="container mx-auto px-6 relative z-10">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 1, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.4 }}
           className="mb-16 text-center"
         >
           <h2 className="text-3xl md:text-4xl font-bold mb-4">Projects</h2>
@@ -41,11 +41,13 @@ export default function Projects({ projects }: { projects: Project[] }) {
             {sortedProjects.map((project, index) => (
               <motion.div
                 key={project.id}
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 1, y: 16 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                whileHover={{ y: -10 }}
+                transition={{ duration: 0.4, delay: (index % 3) * 0.06 }}
+                whileHover={{ y: -4 }}
+                whileFocus={{ y: -4 }}
+                whileTap={{ scale: 0.99 }}
                 onClick={() => openProject(project)}
                 onKeyDown={(e) => {
                   if (e.target === e.currentTarget && (e.key === 'Enter' || e.key === ' ')) {
@@ -56,7 +58,7 @@ export default function Projects({ projects }: { projects: Project[] }) {
                 role="link"
                 tabIndex={0}
                 aria-label={`View ${project.projectName} case study`}
-                className="cursor-pointer glass rounded-2xl overflow-hidden group flex flex-col h-full hover:border-primary/50 hover:shadow-[0_0_25px_rgba(102,252,241,0.15)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-all duration-500"
+                className="cursor-pointer glass rounded-2xl overflow-hidden group flex flex-col h-full hover:border-primary/50 hover:shadow-[0_0_25px_rgba(102,252,241,0.15)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-[border-color,box-shadow] duration-200"
               >
                 {project.projectImage && (
                   <div className="w-full h-48 overflow-hidden relative bg-black/40">
@@ -66,9 +68,9 @@ export default function Projects({ projects }: { projects: Project[] }) {
                       alt={project.projectName} 
                       loading={index < 3 ? 'eager' : 'lazy'}
                       decoding="async"
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-90 group-hover:opacity-100"
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 group-focus-visible:scale-105 opacity-90 group-hover:opacity-100"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end justify-center pb-4">
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity duration-200 flex items-end justify-center pb-4">
                       <span className="text-white text-sm font-bold tracking-widest uppercase bg-black/50 px-4 py-1.5 rounded-full backdrop-blur-md border border-white/20">
                         Read Case Study
                       </span>

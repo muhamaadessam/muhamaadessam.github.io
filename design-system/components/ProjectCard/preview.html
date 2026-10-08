@@ -1,0 +1,29 @@
+<!-- @dsCard group="Surfaces" height=340 subtitle="Project tile" -->
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  body { margin: 0; padding: 24px; background: var(--surface-page); }
+  .wrap { max-width: 360px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+  ReactDOM.createRoot(document.getElementById('root')).render(
+    React.createElement('div', { className: 'wrap' },
+      React.createElement(Essam.ProjectCard, {
+        title: 'Sample project',
+        description: 'Sample description of what the project does and the part the author built. Replace with real copy.',
+        tags: ['Flutter', 'Firebase'],
+        links: [
+          { label: 'View on GitHub', href: '#' },
+          { label: 'Live demo', href: '#' }
+        ]
+      })
+    )
+  );
+</script>
+</body>
+</html>

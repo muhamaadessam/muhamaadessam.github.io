@@ -1,0 +1,23 @@
+<!-- @dsCard group="Sections" height=420 subtitle="Questions and answers" -->
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  body { margin: 0; background: var(--surface-page); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+  ReactDOM.createRoot(document.getElementById('root')).render(
+    React.createElement(Essam.Faq, {
+      items: [
+        { question: 'Sample question one?', answer: 'Sample answer to the first question.' },
+        { question: 'Sample question two?', answer: 'Sample answer to the second question.' }
+      ]
+    })
+  );
+</script>
+</body>
+</html>

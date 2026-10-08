@@ -1,0 +1,21 @@
+<!-- @dsCard group="Actions" height=120 subtitle="Primary and secondary" -->
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  body { margin: 0; padding: 24px; background: var(--surface-page); display: flex; flex-wrap: wrap; gap: 16px; align-items: center; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+  ReactDOM.createRoot(document.getElementById('root')).render(
+    React.createElement(React.Fragment, null,
+      React.createElement(Essam.Button, { variant: 'primary', href: '#' }, 'View Projects'),
+      React.createElement(Essam.Button, { variant: 'secondary', href: '#' }, 'Download CV')
+    )
+  );
+</script>
+</body>
+</html>

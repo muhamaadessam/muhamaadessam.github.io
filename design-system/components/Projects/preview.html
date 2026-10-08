@@ -1,0 +1,23 @@
+<!-- @dsCard group="Sections" height=700 subtitle="Project grid" -->
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  body { margin: 0; background: var(--surface-page); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+  ReactDOM.createRoot(document.getElementById('root')).render(
+    React.createElement(Essam.Projects, {
+      items: [
+        { title: 'Sample project one', description: 'Sample description of the project.', tags: ['Flutter', 'Firebase'], links: [{ label: 'GitHub', href: '#' }] },
+        { title: 'Sample project two', description: 'Sample description of the project.', tags: ['Dart'], links: [{ label: 'Live demo', href: '#' }] }
+      ]
+    })
+  );
+</script>
+</body>
+</html>

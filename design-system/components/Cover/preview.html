@@ -1,0 +1,41 @@
+<!-- @dsCard height=288 -->
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  html, body { margin: 0; padding: 0; background: var(--surface-page); }
+  svg { display: block; width: 960px; height: 288px; }
+  .ink { fill: var(--text); font-family: var(--font-mono); }
+  .name { font-size: 80px; font-weight: 700; }
+  .tagline { font-size: 13px; fill: var(--gray-300); font-family: var(--font-mono); }
+  .primary { fill: var(--primary); }
+  .primary-dark { fill: var(--primary-dark); }
+  .card { fill: var(--surface-card); }
+  .accent-dot { fill: var(--accent-light); }
+</style>
+</head>
+<body>
+<!-- Derivation
+     Blocks: primary (480–720 × 0–288), primary-dark (720–960 × 0–144), surface-card (720–960 × 144–288) — brand, brand-dark, dark card.
+     Arrangement: three blocks on the right, flush modular grid; the name sits left of x=480.
+     Pattern: a 24px dot grid (space-6 pitch) in accent-light on the card block — precise, developer-toned, matches the hero's 24px grid.
+     Scales: space-6 pitch, radius-full unused (square system), name 80px / leading 76px. -->
+<svg viewBox="0 0 960 288" xmlns="http://www.w3.org/2000/svg">
+  <rect x="0" y="0" width="960" height="288" style="fill: var(--surface-page)"/>
+  <rect class="primary" x="480" y="0" width="240" height="288"/>
+  <rect class="primary-dark" x="720" y="0" width="240" height="144"/>
+  <rect class="card" x="720" y="144" width="240" height="144"/>
+  <g class="accent-dot">
+    <circle cx="744" cy="168" r="2"/><circle cx="768" cy="168" r="2"/><circle cx="792" cy="168" r="2"/><circle cx="816" cy="168" r="2"/><circle cx="840" cy="168" r="2"/><circle cx="864" cy="168" r="2"/><circle cx="888" cy="168" r="2"/><circle cx="912" cy="168" r="2"/><circle cx="936" cy="168" r="2"/>
+    <circle cx="744" cy="192" r="2"/><circle cx="768" cy="192" r="2"/><circle cx="792" cy="192" r="2"/><circle cx="816" cy="192" r="2"/><circle cx="840" cy="192" r="2"/><circle cx="864" cy="192" r="2"/><circle cx="888" cy="192" r="2"/><circle cx="912" cy="192" r="2"/><circle cx="936" cy="192" r="2"/>
+    <circle cx="744" cy="216" r="2"/><circle cx="768" cy="216" r="2"/><circle cx="792" cy="216" r="2"/><circle cx="816" cy="216" r="2"/><circle cx="840" cy="216" r="2"/><circle cx="864" cy="216" r="2"/><circle cx="888" cy="216" r="2"/><circle cx="912" cy="216" r="2"/><circle cx="936" cy="216" r="2"/>
+    <circle cx="744" cy="240" r="2"/><circle cx="768" cy="240" r="2"/><circle cx="792" cy="240" r="2"/><circle cx="816" cy="240" r="2"/><circle cx="840" cy="240" r="2"/><circle cx="864" cy="240" r="2"/><circle cx="888" cy="240" r="2"/><circle cx="912" cy="240" r="2"/><circle cx="936" cy="240" r="2"/>
+    <circle cx="744" cy="264" r="2"/><circle cx="768" cy="264" r="2"/><circle cx="792" cy="264" r="2"/><circle cx="816" cy="264" r="2"/><circle cx="840" cy="264" r="2"/><circle cx="864" cy="264" r="2"/><circle cx="888" cy="264" r="2"/><circle cx="912" cy="264" r="2"/><circle cx="936" cy="264" r="2"/>
+  </g>
+  <text class="ink name" x="24" y="152">Muhammad</text>
+  <text class="ink name" x="24" y="228">Essam</text>
+  <text class="tagline" x="24" y="260">Flutter developer · Android and iOS</text>
+</svg>
+</body>
+</html>

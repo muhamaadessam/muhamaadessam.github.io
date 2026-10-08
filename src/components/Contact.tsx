@@ -58,10 +58,10 @@ export default function Contact({ data }: { data: PortfolioData | null }) {
       <div className="absolute inset-0 bg-dark-bg/90"></div>
       <div className="container mx-auto px-6 relative z-10">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 1, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.4 }}
           className="mb-16 text-center"
         >
           <h2 className="text-3xl md:text-4xl font-bold mb-4">Get In Touch</h2>
@@ -90,10 +90,10 @@ export default function Contact({ data }: { data: PortfolioData | null }) {
 
         <div className="max-w-2xl mx-auto">
           <motion.form 
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 1, y: 12 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.4 }}
             onSubmit={handleSubmit} 
             className="glass p-8 md:p-10 rounded-2xl flex flex-col gap-6"
           >

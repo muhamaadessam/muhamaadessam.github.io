@@ -1,0 +1,26 @@
+<!-- @dsCard group="Navigation" height=150 subtitle="Floating header" -->
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  body { margin: 0; padding: 24px; background: var(--surface-page); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+  ReactDOM.createRoot(document.getElementById('root')).render(
+    React.createElement(Essam.Navbar, {
+      brand: 'Muhammad Essam',
+      homeHref: '#',
+      links: [
+        { label: 'About', href: '#about' },
+        { label: 'Projects', href: '#projects' },
+        { label: 'Contact', href: '#contact' }
+      ]
+    })
+  );
+</script>
+</body>
+</html>

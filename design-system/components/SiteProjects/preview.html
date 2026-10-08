@@ -1,0 +1,31 @@
+<!-- @dsCard group="Built from the site" height=900 subtitle="Projects, from src/components/Projects.tsx" -->
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  body { margin: 0; font-family: var(--font-mono); background: var(--surface-page); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+  ReactDOM.createRoot(document.getElementById('root')).render(
+    React.createElement(EssamSite.SiteProjects, {
+      projects: [{
+        id: 'sample-project',
+        projectName: 'Sample project',
+        projectDescription: 'Sample description of the project and its main goal.',
+        projectImage: '',
+        techStack: ['Flutter', 'Firebase'],
+        keyFeaturesAndBenefits: ['Sample feature one', 'Sample feature two'],
+        links: [{ title: 'GitHub', link: '#' }],
+        category: 'Mobile',
+        status: 'Live',
+        isFeatured: true
+      }]
+    })
+  );
+</script>
+</body>
+</html>

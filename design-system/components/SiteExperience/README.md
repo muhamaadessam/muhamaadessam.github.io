@@ -1,0 +1,1 @@
+The site's real Experience section, built from src/components/Experience.tsx. Takes `experiences` in the Experience data shape from src/lib/services.ts. Duration is calculated from `startDate` and `endDate` by the component itself.

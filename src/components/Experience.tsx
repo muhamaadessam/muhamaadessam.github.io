@@ -44,15 +44,15 @@ function calculateDuration(start: string, end: string | null): string {
 
 export default function Experience({ experiences }: { experiences: ExperienceType[] }) {
   const containerVariants = {
-    hidden: { opacity: 0 },
+    hidden: { opacity: 1 },
     visible: {
       opacity: 1,
-      transition: { staggerChildren: 0.2 }
+      transition: { staggerChildren: 0.06 }
     }
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, x: -20 },
+    hidden: { opacity: 1, x: -12 },
     visible: { opacity: 1, x: 0 }
   };
 
@@ -65,10 +65,10 @@ export default function Experience({ experiences }: { experiences: ExperienceTyp
       <div className="absolute inset-0 bg-dark-bg/85"></div>
       <div className="container mx-auto px-6 relative z-10">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 1, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.4 }}
           className="mb-16 text-center"
         >
           <h2 className="text-3xl md:text-4xl font-bold mb-4">Experience</h2>

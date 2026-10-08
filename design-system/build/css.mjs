@@ -1,0 +1,12 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { createRequire } from 'node:module';
+const project = '/Users/muhammadessam/Projects/Muhammad Essam';
+const req = createRequire(path.join(project, 'package.json'));
+const postcss = (await import(req.resolve('postcss'))).default;
+const tailwind = (await import(path.join(project, 'node_modules/@tailwindcss/postcss/dist/index.mjs'))).default;
+const file = path.join(project, 'src/app/globals.css');
+const input = fs.readFileSync(file, 'utf8');
+const result = await postcss([tailwind({ base: project })]).process(input, { from: file });
+fs.writeFileSync(path.join(process.cwd(), 'site.css'), result.css);
+console.log('css bytes', result.css.length, 'has </style', /<\/style/i.test(result.css), 'has <!--', result.css.includes('<!--'));

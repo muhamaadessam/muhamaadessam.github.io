@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Fira_Code } from 'next/font/google';
 import './globals.css';
 import JsonLd from '@/components/JsonLd';
+import MotionProvider from '@/components/MotionProvider';
 import { DEFAULT_DESCRIPTION, DEFAULT_TITLE, KNOWS_ABOUT, PERSON_ID, PERSON_NAME, SITE_NAME, SITE_URL, WEBSITE_ID } from '@/lib/seo';
 
 const firaCode = Fira_Code({ subsets: ['latin'] });
@@ -75,7 +76,7 @@ export default function RootLayout({
     <html lang="en" className="dark" data-scroll-behavior="smooth" suppressHydrationWarning>
       <body className={`${firaCode.className} antialiased selection:bg-primary/30 selection:text-primary-dark`}>
         <JsonLd data={siteSchema} />
-        {children}
+        <MotionProvider>{children}</MotionProvider>
       </body>
     </html>
   );

@@ -1,6 +1,5 @@
 'use client';
 
-import { motion } from 'framer-motion';
 import { FileText, ChevronRight } from 'lucide-react';
 import { FaGithub, FaLinkedin } from 'react-icons/fa';
 import { PortfolioData, incrementCvDownloadCount, trackPortfolioEvent } from '@/lib/services';
@@ -41,11 +40,11 @@ export default function Hero({ data }: { data: PortfolioData | null }) {
         {/* Rendered visible in the server HTML: this block holds the LCP element, so it must not wait for JS to fade in. */}
         <div className="flex-1 text-center lg:text-left order-1">
           <h1 className="text-5xl md:text-7xl font-bold text-white mb-5 tracking-tight leading-[1.08]">
-            {data?.name || 'Muhammad Essam'}
-            <span className="text-primary block mt-3">{data?.jop_title?.trim() || 'Flutter Developer'}</span>
+            <span className="hero-name block">{data?.name || 'Muhammad Essam'}</span>
+            <span className="hero-title text-primary block mt-3">{data?.jop_title?.trim() || 'Flutter Developer'}</span>
           </h1>
 
-          <p className="text-gray-300 mb-6 max-w-xl mx-auto lg:mx-0 text-lg leading-relaxed">
+          <p className="hero-description text-gray-300 mb-6 max-w-xl mx-auto lg:mx-0 text-lg leading-relaxed">
             Flutter Developer with 3+ years of experience building and shipping production mobile applications for Android and iOS.
           </p>
 
@@ -57,13 +56,13 @@ export default function Hero({ data }: { data: PortfolioData | null }) {
             ))}
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start flex-wrap mt-10">
+          <div className="hero-actions flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start flex-wrap mt-10">
             <a
               href="#projects"
-              className="px-8 py-4 bg-primary text-white font-medium rounded-2xl hover:bg-primary-dark hover:scale-105 transition-all flex items-center justify-center gap-4 w-full sm:w-auto min-w-[200px]"
+              className="hero-button group px-8 py-4 bg-primary text-white font-medium rounded-2xl hover:bg-primary-dark flex items-center justify-center gap-4 w-full sm:w-auto min-w-[200px]"
             >
               <span className="whitespace-nowrap">View Projects</span>
-              <ChevronRight className="w-5 h-5" />
+              <ChevronRight className="w-5 h-5 transition-transform duration-200 group-hover:translate-x-1 group-focus-visible:translate-x-1" />
             </a>
 
             <a
@@ -71,7 +70,7 @@ export default function Hero({ data }: { data: PortfolioData | null }) {
               target="_blank"
               rel="noreferrer"
               onClick={handleDownloadCV}
-              className="px-8 py-4 bg-dark-card text-white font-medium rounded-2xl hover:bg-gray-700 hover:scale-105 transition-all flex items-center justify-center gap-4 border border-white/5 w-full sm:w-auto min-w-[200px]"
+              className="hero-button px-8 py-4 bg-dark-card text-white font-medium rounded-2xl hover:bg-gray-700 flex items-center justify-center gap-4 border border-white/5 w-full sm:w-auto min-w-[200px]"
             >
               <FileText className="w-5 h-5 text-gray-300" />
               <span className="whitespace-nowrap">Download CV</span>
@@ -103,13 +102,12 @@ export default function Hero({ data }: { data: PortfolioData | null }) {
         </div>
 
         {/* Right Content - Image */}
-        <motion.div
-          className="flex-1 flex justify-center items-center order-2 mt-4 lg:mt-0 mb-12 lg:mb-0 w-full"
-          initial={{ scale: 0.9 }}
-          animate={{ scale: 1 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-        >
+        <div className="hero-portrait flex-1 flex justify-center items-center order-2 mt-4 lg:mt-0 mb-12 lg:mb-0 w-full">
           <div className="relative w-60 h-60 sm:w-80 sm:h-80 lg:w-96 lg:h-96 flex items-center justify-center">
+            <svg className="portrait-frame absolute inset-0 w-full h-full text-primary pointer-events-none" viewBox="0 0 100 100" fill="none" aria-hidden="true">
+              <circle cx="50" cy="50" r="48" stroke="currentColor" strokeOpacity="0.15" strokeWidth="0.3" />
+              <circle className="portrait-stroke" cx="50" cy="50" r="48" pathLength="1" stroke="currentColor" strokeWidth="0.6" strokeLinecap="round" />
+            </svg>
             {/* Simple Glow Blob Behind */}
             <div className="absolute inset-0 bg-gradient-to-tr from-primary to-accent opacity-30 blur-2xl rounded-full" />
 
@@ -125,7 +123,7 @@ export default function Hero({ data }: { data: PortfolioData | null }) {
               />
             </div>
           </div>
-        </motion.div>
+        </div>
       </div>
     </section>
   );

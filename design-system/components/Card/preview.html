@@ -1,0 +1,27 @@
+<!-- @dsCard group="Surfaces" height=180 subtitle="Glass panel" -->
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  body { margin: 0; padding: 24px; background: var(--surface-page); }
+  .card-wrap { max-width: 360px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+  ReactDOM.createRoot(document.getElementById('root')).render(
+    React.createElement('div', { className: 'card-wrap' },
+      React.createElement(Essam.Card, { title: 'Sample heading' },
+        'Sample body text to show the panel. Replace with real content.',
+        React.createElement('div', { style: { display: 'flex', gap: '8px', marginTop: '16px', flexWrap: 'wrap' } },
+          React.createElement(Essam.Tag, null, 'Tag one'),
+          React.createElement(Essam.Tag, null, 'Tag two')
+        )
+      )
+    )
+  );
+</script>
+</body>
+</html>

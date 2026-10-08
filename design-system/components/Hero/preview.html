@@ -1,0 +1,25 @@
+<!-- @dsCard group="Sections" height=460 subtitle="Landing block" -->
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  body { margin: 0; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+  ReactDOM.createRoot(document.getElementById('root')).render(
+    React.createElement(Essam.Hero, {
+      name: 'Muhammad Essam',
+      role: 'Flutter Developer',
+      lead: 'Flutter Developer with 3+ years of experience building and shipping production mobile applications for Android and iOS.',
+      keywords: ['Flutter', 'Dart', 'BLoC', 'Clean Architecture', 'Firebase', 'REST APIs'],
+      primaryAction: { label: 'View Projects', href: '#' },
+      secondaryAction: { label: 'Download CV', href: '#' }
+    })
+  );
+</script>
+</body>
+</html>

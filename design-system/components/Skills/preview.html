@@ -1,0 +1,23 @@
+<!-- @dsCard group="Sections" height=420 subtitle="Skill groups" -->
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  body { margin: 0; background: var(--surface-page); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+  ReactDOM.createRoot(document.getElementById('root')).render(
+    React.createElement(Essam.Skills, {
+      groups: [
+        { title: 'Mobile', skills: ['Flutter', 'Dart', 'Android', 'iOS'] },
+        { title: 'Architecture', skills: ['BLoC', 'Clean Architecture', 'REST APIs'] }
+      ]
+    })
+  );
+</script>
+</body>
+</html>

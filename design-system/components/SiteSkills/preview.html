@@ -1,0 +1,23 @@
+<!-- @dsCard group="Built from the site" height=520 subtitle="Skills, from src/components/Skills.tsx" -->
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  body { margin: 0; font-family: var(--font-mono); background: var(--surface-page); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+  ReactDOM.createRoot(document.getElementById('root')).render(
+    React.createElement(EssamSite.SiteSkills, {
+      skills: [
+        { id: 'sample-mobile', title: 'Mobile', skills: ['Flutter', 'Dart', 'Android', 'iOS'] },
+        { id: 'sample-arch', title: 'Architecture', skills: ['BLoC', 'Clean Architecture', 'REST APIs'] }
+      ]
+    })
+  );
+</script>
+</body>
+</html>

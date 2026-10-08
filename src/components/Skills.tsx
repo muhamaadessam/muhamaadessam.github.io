@@ -6,17 +6,17 @@ import { Code2 } from 'lucide-react';
 
 export default function Skills({ skills }: { skills: Skill[] }) {
   const containerVariants = {
-    hidden: { opacity: 0 },
+    hidden: { opacity: 1 },
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1
+        staggerChildren: 0.06
       }
     }
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
+    hidden: { opacity: 1, y: 12 },
     visible: { opacity: 1, y: 0 }
   };
 
@@ -29,10 +29,10 @@ export default function Skills({ skills }: { skills: Skill[] }) {
       <div className="absolute inset-0 bg-dark-bg/90"></div>
       <div className="container mx-auto px-6 relative z-10">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 1, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.4 }}
           className="mb-16 text-center"
         >
           <h2 className="text-3xl md:text-4xl font-bold mb-4">My Skills</h2>
@@ -51,8 +51,8 @@ export default function Skills({ skills }: { skills: Skill[] }) {
               <motion.div 
                 key={skillGroup.id} 
                 variants={itemVariants}
-                whileHover={{ y: -5, scale: 1.02 }}
-                className="glass p-6 rounded-2xl flex flex-col items-start gap-4 transition-all duration-300 hover:border-primary/50"
+                whileHover={{ y: -3 }}
+                className="group glass p-6 rounded-2xl flex flex-col items-start gap-4 transition-colors duration-200 hover:border-primary/50"
               >
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary transition-colors duration-300">

@@ -1,0 +1,27 @@
+<!-- @dsCard group="Sections" height=560 subtitle="Intro panel" -->
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  body { margin: 0; background: var(--surface-page); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+  ReactDOM.createRoot(document.getElementById('root')).render(
+    React.createElement(Essam.About, {
+      lead: 'Building mobile apps people',
+      emphasis: 'actually use',
+      paragraphs: [
+        'Sample paragraph one. Describe the work, the years of experience and the kind of products built.',
+        'Sample paragraph two. Describe how the work is done and who the author works with.'
+      ],
+      highlightsTitle: 'What I bring',
+      highlights: ['Production Flutter apps', 'Clean Architecture', 'BLoC state management', 'Firebase backends']
+    })
+  );
+</script>
+</body>
+</html>

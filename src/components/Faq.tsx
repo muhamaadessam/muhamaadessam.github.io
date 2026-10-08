@@ -13,7 +13,7 @@ export default function Faq({ items }: { items: FaqItem[] }) {
           {items.map((item) => (
             <div key={item.question} className="glass rounded-2xl p-6">
               <dt className="text-lg font-semibold text-white mb-2">{item.question}</dt>
-              <dd className="text-gray-300 leading-relaxed">{item.answer}</dd>
+              <dd className="text-gray-300 leading-relaxed break-words">{item.answer}</dd>
             </div>
           ))}
         </dl>

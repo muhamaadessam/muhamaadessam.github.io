@@ -1,0 +1,25 @@
+<!-- @dsCard group="Sections" height=420 subtitle="Site footer" -->
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  body { margin: 0; background: var(--surface-page); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+  ReactDOM.createRoot(document.getElementById('root')).render(
+    React.createElement(Essam.Footer, {
+      brand: 'Muhammad Essam',
+      about: 'Sample footer line about the author and what they build.',
+      links: [{ label: 'About Me', href: '#' }, { label: 'Projects', href: '#' }, { label: 'Contact', href: '#' }],
+      contacts: [{ label: 'john@example.com', href: 'mailto:john@example.com', icon: '@' }, { label: '+00 000 000 000', href: 'tel:+000000000', icon: '#' }],
+      socials: [{ label: 'GitHub', href: '#', icon: 'GH' }, { label: 'LinkedIn', href: '#', icon: 'in' }],
+      copyright: '© 2026 Sample Name. All rights reserved.'
+    })
+  );
+</script>
+</body>
+</html>

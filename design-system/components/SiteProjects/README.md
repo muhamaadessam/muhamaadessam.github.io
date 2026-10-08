@@ -1,0 +1,1 @@
+The site's real Projects section, built from src/components/Projects.tsx. Takes `projects` in the Project data shape from src/lib/services.ts. Featured projects sort first. Projects with status "testing" show the join-testing link.

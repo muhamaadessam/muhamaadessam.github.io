@@ -1,0 +1,22 @@
+<!-- @dsCard group="Surfaces" height=88 subtitle="Keyword pill" -->
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  body { margin: 0; padding: 24px; background: var(--surface-page); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+  ReactDOM.createRoot(document.getElementById('root')).render(
+    React.createElement('div', { style: { display: 'flex', flexWrap: 'wrap', gap: '8px' } },
+      ['Flutter', 'Dart', 'BLoC', 'Clean Architecture', 'Firebase'].map(function (label) {
+        return React.createElement(Essam.Tag, { key: label }, label);
+      })
+    )
+  );
+</script>
+</body>
+</html>
