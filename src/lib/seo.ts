@@ -16,3 +16,27 @@ export function serializeJsonLd(data: unknown): string {
 export function projectUrl(id: string): string {
   return `${SITE_URL}/projects/${encodeURIComponent(id)}`;
 }
+
+const STORE_OPERATING_SYSTEMS: [host: string, os: string][] = [
+  ['play.google.com', 'Android'],
+  ['appgallery.huawei.com', 'Android'],
+  ['apps.apple.com', 'iOS'],
+  ['apps.microsoft.com', 'Windows'],
+];
+
+// Derives the platforms an app runs on from its store links, e.g. "Android, iOS".
+export function operatingSystemsFromLinks(links: string[]): string | undefined {
+  const systems = new Set<string>();
+  for (const link of links) {
+    let host: string;
+    try {
+      host = new URL(link).hostname;
+    } catch {
+      continue;
+    }
+    for (const [storeHost, os] of STORE_OPERATING_SYSTEMS) {
+      if (host === storeHost) systems.add(os);
+    }
+  }
+  return systems.size > 0 ? [...systems].join(', ') : undefined;
+}
