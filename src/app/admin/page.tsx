@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { FcGoogle } from 'react-icons/fc';
-import { auth } from '@/lib/firebase';
+import { auth } from '@/lib/firebaseAuth';
 import { isAdmin } from '@/lib/admin';
 import { FirebaseError } from 'firebase/app';
 import { GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';

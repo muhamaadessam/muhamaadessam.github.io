@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { CircleAlert, ExternalLink, UsersRound } from 'lucide-react';
 import { Project, trackProjectEvent } from '@/lib/services';
 import { useRouter } from 'next/navigation';
+import { optimizedImageUrl } from '@/lib/images';
 
 export default function Projects({ projects }: { projects: Project[] }) {
   const router = useRouter();
@@ -61,9 +62,10 @@ export default function Projects({ projects }: { projects: Project[] }) {
                   <div className="w-full h-48 overflow-hidden relative bg-black/40">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img 
-                      src={project.projectImage} 
+                      src={optimizedImageUrl(project.projectImage, 800)} 
                       alt={project.projectName} 
                       loading={index < 3 ? 'eager' : 'lazy'}
+                      decoding="async"
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-90 group-hover:opacity-100"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end justify-center pb-4">
