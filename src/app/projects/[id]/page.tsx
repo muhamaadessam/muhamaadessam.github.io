@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { getPortfolioData, getProjectById, getProjects } from '@/lib/services';
 import JsonLd from '@/components/JsonLd';
-import { PERSON_ID, SITE_NAME, SITE_URL, projectUrl } from '@/lib/seo';
+import { PERSON_ID, SITE_NAME, SITE_URL, operatingSystemsFromLinks, projectUrl } from '@/lib/seo';
 import ProjectDetailsClient from './ProjectDetailsClient';
 
 type ProjectPageProps = {
@@ -55,6 +55,8 @@ export default async function ProjectDetailsPage({ params }: ProjectPageProps) {
   const [project, portfolio] = await Promise.all([getProjectById(id), getPortfolioData()]);
 
   const url = projectUrl(id);
+  const links = project?.links?.map((link) => link.link).filter(Boolean) ?? [];
+  const operatingSystem = operatingSystemsFromLinks(links);
   const schema = project
     ? {
         '@context': 'https://schema.org',
@@ -66,11 +68,12 @@ export default async function ProjectDetailsPage({ params }: ProjectPageProps) {
             description: project.overview || project.projectDescription,
             url,
             applicationCategory: 'MobileApplication',
+            ...(operatingSystem ? { operatingSystem } : {}),
             ...(project.projectImage ? { image: project.projectImage } : {}),
             ...(project.techStack?.length ? { keywords: project.techStack.join(', ') } : {}),
             ...(project.keyFeaturesAndBenefits?.length ? { featureList: project.keyFeaturesAndBenefits } : {}),
             author: { '@id': PERSON_ID },
-            ...(project.links?.length ? { sameAs: project.links.map((link) => link.link).filter(Boolean) } : {}),
+            ...(links.length ? { sameAs: links } : {}),
           },
           {
             '@type': 'BreadcrumbList',
