@@ -1,4 +1,4 @@
-export const SITE_URL = 'https://muhamaadessam.github.io';
+export const SITE_URL = 'https://muhammadessam.me';
 export const SITE_NAME = 'Muhammad Essam Portfolio';
 export const PERSON_NAME = 'Muhammad Essam';
 export const PERSON_ID = `${SITE_URL}/#person`;

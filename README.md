@@ -2,7 +2,7 @@
 
 Professional portfolio for Muhammad Essam, a Flutter Developer focused on production-ready Android and iOS applications.
 
-Live site: https://muhamaadessam.github.io/
+Live site: https://muhammadessam.me/
 
 ## About
 
@@ -86,6 +86,6 @@ The `/visitor` and `/cv-download` endpoints are derived from this URL by replaci
 
 ## Contact
 
-- Portfolio: https://muhamaadessam.github.io/
+- Portfolio: https://muhammadessam.me/
 - LinkedIn: https://www.linkedin.com/in/muhammadessam159/
 - GitHub: https://github.com/muhamaadessam
