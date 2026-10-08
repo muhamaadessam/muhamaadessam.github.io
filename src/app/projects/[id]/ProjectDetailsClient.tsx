@@ -4,10 +4,11 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { PortfolioData, Project, trackProjectEvent } from '@/lib/services';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, ExternalLink, Code2, LayoutDashboard, Sparkles, Database, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeft, ExternalLink, Code2, Database, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import TiltSurface from '@/components/TiltSurface';
 
 export default function ProjectDetailsClient({ project, projectId, portfolio }: { project: Project | null; projectId: string; portfolio: PortfolioData | null }) {
   const router = useRouter();
@@ -122,7 +123,7 @@ export default function ProjectDetailsClient({ project, projectId, portfolio }: 
           <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] opacity-20"></div>
         </div>
 
-        <div className="container mx-auto px-6 relative z-10 pt-36">
+        <div className="project-detail container max-w-6xl mx-auto px-6 relative z-10 pt-32 md:pt-36">
           <Link
             href="/#projects"
             className="inline-flex items-center gap-2 mb-8 text-sm font-medium text-gray-300 hover:text-primary transition-colors group"
@@ -131,84 +132,55 @@ export default function ProjectDetailsClient({ project, projectId, portfolio }: 
             Back to projects
           </Link>
 
-          {/* Hero Content */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start mb-32">
-          
-            {/* Text content - Order 2 on mobile, Order 1 on large screens */}
-            <motion.div
-              initial={{ opacity: 0, x: -40 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-              className="lg:col-span-6 order-2 lg:order-1 flex flex-col"
-            >
-              <div className="flex items-center gap-3 mb-6">
-                <span className="inline-flex items-center gap-1.5 px-4 py-1.5 glass text-primary border border-primary/30 rounded-full text-sm font-bold uppercase tracking-widest shadow-[0_0_15px_rgba(102,252,241,0.2)]">
-                  <Sparkles className="w-4 h-4" />
-                  {project.category}
-                </span>
-                {project.status && (
-                  <span className="inline-flex items-center px-4 py-1.5 glass text-blue-400 border border-blue-500/30 rounded-full text-sm font-bold uppercase tracking-widest">
-                    {project.status.replaceAll('-', ' ')}
-                  </span>
-                )}
-              </div>
-            
-              <h1 className="text-5xl md:text-7xl font-extrabold mb-8 tracking-tight leading-tight">
-                {project.projectName}
-              </h1>
-            
-              <div className="glass p-8 rounded-2xl border-white/5 shadow-xl mb-10 space-y-8">
-                <div>
-                  <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2"><Sparkles className="w-5 h-5 text-primary"/> Overview</h2>
-                  <p className="text-lg text-gray-300 leading-relaxed font-light">
-                    {project.overview || project.projectDescription}
-                  </p>
-                </div>
-              
-                {project.challenge && (
-                  <div>
-                    <h2 className="text-2xl font-bold text-white mb-4">Challenge</h2>
-                    <p className="text-lg text-gray-300 leading-relaxed font-light">{project.challenge}</p>
-                  </div>
-                )}
-              
-                {project.solution && (
-                  <div>
-                    <h2 className="text-2xl font-bold text-white mb-4">Solution</h2>
-                    <p className="text-lg text-gray-300 leading-relaxed font-light">{project.solution}</p>
-                  </div>
-                )}
-              
-                <div>
-                  <h2 className="text-2xl font-bold text-white mb-4">My Role</h2>
-                  <p className="text-lg text-gray-300 leading-relaxed font-medium mb-3 text-primary">
-                    {project.myRole || 'Flutter Developer'}
-                  </p>
-                  <ul className="list-disc list-inside space-y-2 text-gray-300 font-light text-lg">
-                    {project.myContribution?.map((cont, idx) => (
-                      <li key={idx}>{cont}</li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
+          <header className="project-intro mb-8 md:mb-10">
+            <div className="flex flex-wrap items-center gap-3 mb-4 text-sm font-medium">
+              {project.category && <span className="text-primary">{project.category}</span>}
+              {project.status && <span className="rounded-full border border-white/15 px-3 py-1 text-gray-300">{project.status.replaceAll('-', ' ')}</span>}
+            </div>
+            <h1 className="detail-title text-4xl sm:text-5xl lg:text-7xl font-bold tracking-tight leading-[1.15] break-words">
+              <span>{project.projectName}</span>
+            </h1>
+          </header>
 
+          <div className="project-summary grid grid-cols-1 md:grid-cols-12 items-center gap-8 lg:gap-12 border-y border-white/10 py-8 md:py-10 mb-12 md:mb-16">
+            {project.projectImage && (
+              <motion.div
+                initial={{ scale: 0.92, rotateY: -16 }}
+                animate={{ scale: 1, rotateY: 0 }}
+                transition={{ duration: 0.8, delay: 0.2 }}
+                className="md:col-span-5 min-w-0 [perspective:1200px]"
+              >
+                <TiltSurface className="rounded-2xl overflow-hidden border border-white/15 bg-dark-card shadow-xl">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={project.projectImage} alt={project.projectName} loading="eager" className="w-full max-h-80 lg:max-h-96 object-contain" />
+                </TiltSurface>
+              </motion.div>
+            )}
+            <div className={`${project.projectImage ? 'md:col-span-7' : 'md:col-span-12'} min-w-0`}>
+              <h2 className="detail-heading">Overview</h2>
+              <p className="detail-copy text-lg leading-relaxed text-gray-200 max-w-[60ch]">
+                {project.overview || project.projectDescription}
+              </p>
+            </div>
+            {(project.status?.toLowerCase() === 'testing' || Boolean(project.links?.length)) && (
+            <div className="project-actions md:col-span-12 flex flex-col gap-5 border-t border-white/10 pt-6">
                 {project.status?.toLowerCase() === 'testing' && (
-                  <div className="mb-8 p-4 glass border border-blue-500/30 rounded-xl bg-blue-500/5">
-                    <p className="text-blue-200 text-sm">
+                  <div className="max-w-[75ch]">
+                    <p className="text-blue-200 text-sm leading-relaxed">
                       <strong>Note:</strong> This application is currently available through Google Play Closed Testing. 
                       Join the tester group first using the button below, then you can access the Play Store installation link.
                     </p>
                   </div>
                 )}
 
-              <div className="flex flex-wrap items-center gap-4 mb-10">
+              <div className="flex flex-wrap items-center gap-3">
                 {project.status?.toLowerCase() === 'testing' && project.testingGroupLink?.startsWith('https://') && (
                   <a
                     href={project.testingGroupLink}
                     target="_blank"
                     rel="noreferrer"
                     onClick={() => trackProjectEvent('external_link_click', project.id, project.projectName || project.id, 'Join Testing Group')}
-                    className="px-8 py-4 font-bold rounded-xl transition-all duration-300 flex items-center gap-2 hover:scale-105 shadow-lg bg-blue-500 text-white hover:bg-blue-400"
+                    className="px-5 py-3 text-sm font-semibold rounded-xl transition-all duration-300 flex items-center gap-2 hover:-translate-y-1 shadow-lg bg-blue-500 text-white hover:bg-blue-400"
                   >
                     <ExternalLink className="w-5 h-5" />
                     Join Testing Group
@@ -221,7 +193,7 @@ export default function ProjectDetailsClient({ project, projectId, portfolio }: 
                     target="_blank" 
                     rel="noreferrer" 
                     onClick={() => trackProjectEvent('external_link_click', project.id, project.projectName || project.id, lnk.title || 'Visit Project')}
-                    className={`px-8 py-4 font-bold rounded-xl transition-all duration-300 flex items-center gap-2 hover:scale-105 shadow-lg ${i === 0 ? 'bg-primary text-dark-bg hover:bg-primary-dark hover:shadow-primary/30' : 'glass text-white border border-white/10 hover:border-primary/50 hover:bg-white/5'}`}
+                    className={`px-5 py-3 text-sm font-semibold rounded-xl transition-all duration-300 flex items-center gap-2 hover:-translate-y-1 shadow-lg ${i === 0 ? 'bg-primary text-dark-bg hover:bg-primary-dark hover:shadow-primary/30' : 'glass text-white border border-white/10 hover:border-primary/50 hover:bg-white/5'}`}
                   >
                     {lnk.title?.toLowerCase().includes('github') || lnk.title?.toLowerCase().includes('source') ? (
                       <Code2 className="w-5 h-5" />
@@ -233,67 +205,47 @@ export default function ProjectDetailsClient({ project, projectId, portfolio }: 
                 ))}
               </div>
 
-              {project.techStack && project.techStack.length > 0 && (
-                <div className="mb-10">
-                  <h2 className="text-2xl font-bold text-white mb-4">Technical Implementation</h2>
-                  <div className="flex flex-wrap gap-2.5">
-                    {project.techStack.map((tech, idx) => (
-                      <motion.span 
-                        key={tech} 
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.4 + (idx * 0.1) }}
-                        className="text-sm px-5 py-2 rounded-full glass border border-white/10 text-gray-200 font-medium hover:border-primary/40 hover:text-primary transition-colors cursor-default"
-                      >
-                        {tech}
-                      </motion.span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {project.keyFeaturesAndBenefits && project.keyFeaturesAndBenefits.length > 0 && (
-                <div>
-                  <h2 className="text-2xl font-bold text-white mb-4">Features</h2>
-                  <ul className="list-disc list-inside space-y-2 text-gray-300">
-                    {project.keyFeaturesAndBenefits.map((feature, idx) => (
-                      <motion.li 
-                        key={idx}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.5 + (idx * 0.1) }}
-                      >
-                        {feature}
-                      </motion.li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </motion.div>
-
-            {/* Image content - Order 1 on mobile, Order 2 on large screens */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, rotateY: 10 }}
-              animate={{ opacity: 1, scale: 1, rotateY: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="lg:col-span-6 order-1 lg:order-2 relative perspective-1000"
-            >
-              <div className="absolute -inset-4 bg-gradient-to-tr from-primary via-accent-light to-accent rounded-[2rem] blur-2xl opacity-10"></div>
-              <div className="glass rounded-[2rem] relative overflow-hidden border border-white/20 shadow-2xl transform transition-transform duration-500 hover:scale-[1.02] hover:-rotate-1">
-                <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent"></div>
-                <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
-                {project.projectImage && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img 
-                    src={project.projectImage} 
-                    alt={project.projectName} 
-                    loading="eager"
-                    className="w-full h-auto object-cover rounded-xl shadow-inner max-h-[800px]"
-                  />
-                )}
-              </div>
-            </motion.div>
+            </div>
+            )}
           </div>
+
+          {(project.challenge || project.solution) && (
+            <div className={`grid grid-cols-1 ${project.challenge && project.solution ? 'md:grid-cols-2' : ''} gap-8 lg:gap-12 mb-12 md:mb-16`}>
+              {project.challenge && <section className="detail-section min-w-0"><h2 className="detail-heading">Challenge</h2><p className="detail-copy">{project.challenge}</p></section>}
+              {project.solution && <section className="detail-section min-w-0"><h2 className="detail-heading">Solution</h2><p className="detail-copy">{project.solution}</p></section>}
+            </div>
+          )}
+
+          <div className={`project-story grid grid-cols-1 ${project.techStack?.length ? 'md:grid-cols-2' : ''} gap-10 lg:gap-16 mb-12 md:mb-16`}>
+            <section className="detail-section min-w-0">
+              <h2 className="detail-heading">My Role</h2>
+              <p className="text-primary font-medium text-lg mb-5">{project.myRole || 'Flutter Developer'}</p>
+              <ul className="detail-list space-y-3 list-disc pl-5 marker:text-primary">
+                {project.myContribution?.map((contribution, index) => <li key={index}>{contribution}</li>)}
+              </ul>
+            </section>
+            {project.techStack && project.techStack.length > 0 && (
+              <section className="detail-section min-w-0">
+                <h2 className="detail-heading">Technical Implementation</h2>
+                <div className="flex flex-wrap gap-2.5">
+                  {project.techStack.map((tech, index) => (
+                    <motion.span key={tech} initial={{ y: 12 }} whileInView={{ y: 0 }} viewport={{ once: true }} transition={{ delay: (index % 4) * 0.06 }} className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm leading-relaxed text-gray-200 break-words max-w-full">
+                      {tech}
+                    </motion.span>
+                  ))}
+                </div>
+              </section>
+            )}
+          </div>
+
+          {project.keyFeaturesAndBenefits && project.keyFeaturesAndBenefits.length > 0 && (
+            <section className="detail-section border-t border-white/10 pt-8 mb-12 md:mb-16">
+              <h2 className="detail-heading">Features</h2>
+              <ul className="detail-list grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-3 list-disc pl-5 marker:text-primary">
+                {project.keyFeaturesAndBenefits.map((feature, index) => <li key={index}>{feature}</li>)}
+              </ul>
+            </section>
+          )}
 
           {/* Screenshots Section */}
           {hasScreenshots && (
@@ -306,12 +258,9 @@ export default function ProjectDetailsClient({ project, projectId, portfolio }: 
             >
               <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div>
             
-              <div className="pt-16 mb-12 flex flex-col items-center text-center">
-                <div className="inline-flex items-center justify-center p-4 rounded-2xl glass mb-6 border border-primary/20 text-primary">
-                  <LayoutDashboard className="w-8 h-8" />
-                </div>
-                <h2 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight">Project Gallery</h2>
-                <p className="text-gray-400 max-w-2xl text-lg font-light">A closer look at the interfaces and features built for this project.</p>
+              <div className="pt-10 mb-8">
+                <h2 className="detail-heading">Project Gallery</h2>
+                <p className="detail-copy text-gray-300 max-w-2xl">A closer look at the interfaces and features built for this project.</p>
               </div>
             
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
@@ -321,7 +270,7 @@ export default function ProjectDetailsClient({ project, projectId, portfolio }: 
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    transition={{ delay: index * 0.1, duration: 0.6 }}
+                    transition={{ delay: (index % 4) * 0.08, duration: 0.6 }}
                     onClick={() => setSelectedScreenshotIndex(index)}
                     className="group relative rounded-2xl overflow-hidden glass aspect-[9/16] cursor-pointer border border-white/10 hover:border-primary/50 transition-all duration-300 shadow-lg hover:shadow-[0_0_20px_rgba(102,252,241,0.2)] hover:-translate-y-2 bg-black/40"
                   >

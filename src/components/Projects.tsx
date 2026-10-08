@@ -1,17 +1,18 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import { CircleAlert, ExternalLink, UsersRound } from 'lucide-react';
+import { motion, useReducedMotion } from 'framer-motion';
+import { ArrowUpRight, CircleAlert } from 'lucide-react';
 import { Project, trackProjectEvent } from '@/lib/services';
 import { useRouter } from 'next/navigation';
 import { optimizedImageUrl } from '@/lib/images';
+import TiltSurface from '@/components/TiltSurface';
 
 export default function Projects({ projects }: { projects: Project[] }) {
   const router = useRouter();
+  const reducedMotion = useReducedMotion();
   // Featured projects first; Array.prototype.sort is stable, so the existing order is kept otherwise.
   const sortedProjects = [...projects].sort((a, b) => Number(Boolean(b.isFeatured)) - Number(Boolean(a.isFeatured)));
   const isTesting = (project: Project) => project.status?.toLowerCase() === 'testing';
-  const canJoinTesting = (project: Project) => isTesting(project) && Boolean(project.testingGroupLink?.startsWith('https://'));
   const openProject = (project: Project) => {
     trackProjectEvent('project_click', project.id, project.projectName || project.id);
     router.push(`/projects/${project.id}`);
@@ -39,14 +40,14 @@ export default function Projects({ projects }: { projects: Project[] }) {
         {projects.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {sortedProjects.map((project, index) => (
-              <motion.div
+              <TiltSurface
                 key={project.id}
-                initial={{ opacity: 1, y: 16 }}
+                initial={{ opacity: 1, y: 60, rotateX: 0 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: (index % 3) * 0.06 }}
-                whileHover={{ y: -4 }}
-                whileFocus={{ y: -4 }}
+                viewport={{ once: true, amount: 0.12 }}
+                transition={{ duration: 0.7, delay: (index % 3) * 0.09 }}
+                whileHover={{ y: -12 }}
+                whileFocus={{ y: -12 }}
                 whileTap={{ scale: 0.99 }}
                 onClick={() => openProject(project)}
                 onKeyDown={(e) => {
@@ -58,10 +59,10 @@ export default function Projects({ projects }: { projects: Project[] }) {
                 role="link"
                 tabIndex={0}
                 aria-label={`View ${project.projectName} case study`}
-                className="cursor-pointer glass rounded-2xl overflow-hidden group flex flex-col h-full hover:border-primary/50 hover:shadow-[0_0_25px_rgba(102,252,241,0.15)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-[border-color,box-shadow] duration-200"
+                className="project-card cursor-pointer glass rounded-2xl overflow-hidden group flex flex-col h-full hover:border-primary/50 hover:shadow-[0_24px_48px_rgba(0,0,0,0.35)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-[border-color,box-shadow] duration-200"
               >
                 {project.projectImage && (
-                  <div className="w-full h-48 overflow-hidden relative bg-black/40">
+                  <motion.div initial={false} whileInView={{ clipPath: ['inset(0% 0% 35% 0%)', 'inset(0% 0% 0% 0%)'] }} viewport={{ once: true }} transition={{ duration: reducedMotion ? 0 : 0.8, delay: reducedMotion ? 0 : (index % 3) * 0.09 }} className="w-full h-48 shrink-0 overflow-hidden relative bg-black/40">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img 
                       src={optimizedImageUrl(project.projectImage, 800)} 
@@ -75,15 +76,15 @@ export default function Projects({ projects }: { projects: Project[] }) {
                         Read Case Study
                       </span>
                     </div>
-                  </div>
+                  </motion.div>
                 )}
                 
-                <div className="p-6 flex flex-col flex-grow relative">
-                  <h3 className="text-2xl font-bold leading-tight group-hover:text-primary transition-colors">
+                <div className="p-6 flex flex-col flex-grow gap-3 relative">
+                  <h3 className="text-2xl font-bold leading-tight line-clamp-2 group-hover:text-primary transition-colors">
                     {project.projectName}
                   </h3>
 
-                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     {project.category && (
                       <span className="text-[10px] px-2.5 py-1 bg-primary/10 text-primary border border-primary/20 rounded-full font-bold uppercase tracking-wider">
                         {project.category}
@@ -100,74 +101,16 @@ export default function Projects({ projects }: { projects: Project[] }) {
                     )}
                   </div>
 
-                  <p className="text-gray-400 mb-6 flex-grow break-words text-sm leading-relaxed line-clamp-3">
+                  <p className="text-gray-300 break-words text-base leading-relaxed line-clamp-2">
                     {project.projectDescription}
                   </p>
 
-                  {project.myContribution && project.myContribution.length > 0 && (
-                    <div className="mb-5">
-                      <span className="text-sm font-semibold text-white mb-2 block">My Contribution:</span>
-                      <ul className="text-sm text-gray-300 space-y-1 list-disc list-inside">
-                        {project.myContribution.slice(0, 4).map((cont, idx) => (
-                          <li key={idx}>{cont}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                  
-                  {project.techStack && project.techStack.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mb-6">
-                      {project.techStack.slice(0, 4).map(tech => (
-                        <span key={tech} className="text-[11px] px-2.5 py-1 rounded-md bg-white/5 border border-white/10 text-gray-300 font-medium tracking-wide">
-                          {tech}
-                        </span>
-                      ))}
-                      {project.techStack.length > 4 && (
-                        <span className="text-[11px] px-2.5 py-1 rounded-md bg-white/5 border border-white/10 text-gray-500 font-medium">
-                          +{project.techStack.length - 4} more
-                        </span>
-                      )}
-                    </div>
-                  )}
-                  
-                  {(canJoinTesting(project) || project.links?.length > 0) && (
-                    <div className="flex flex-wrap gap-2 mt-auto pt-4 border-t border-white/10">
-                      {canJoinTesting(project) && (
-                        <a
-                          href={project.testingGroupLink}
-                          target="_blank"
-                          rel="noreferrer"
-                          title="Join the testing group first"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            trackProjectEvent('external_link_click', project.id, project.projectName || project.id, 'Join Testing Group');
-                          }}
-                          className="z-10 relative flex items-center gap-1.5 px-3.5 py-1.5 bg-blue-500 text-[11px] font-bold text-white rounded-full hover:bg-blue-400 transition-colors"
-                        >
-                          <UsersRound className="w-3.5 h-3.5" aria-hidden="true" />
-                          <span>Join Testing Group</span>
-                        </a>
-                      )}
-                      {project.links?.map((lnk, i) => (
-                        <a 
-                          key={i}
-                          href={lnk.link} 
-                          target="_blank" 
-                          rel="noreferrer" 
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            trackProjectEvent('external_link_click', project.id, project.projectName || project.id, lnk.title || 'Live Demo');
-                          }}
-                          className="z-10 relative flex items-center gap-1.5 px-3.5 py-1.5 bg-black/40 hover:bg-primary text-[11px] font-bold text-gray-300 hover:text-dark-bg rounded-full border border-white/10 hover:border-primary transition-all duration-300 shadow-sm"
-                        >
-                          <span>{lnk.title || 'Live Demo'}</span>
-                          <ExternalLink className="w-3 h-3" />
-                        </a>
-                      ))}
-                    </div>
-                  )}
+                  <span className="mt-auto pt-4 border-t border-white/10 flex items-center justify-between text-sm font-medium text-primary">
+                    View Project
+                    <ArrowUpRight className="w-5 h-5 transition-transform duration-200 group-hover:translate-x-1 group-hover:-translate-y-1 group-focus-visible:translate-x-1 group-focus-visible:-translate-y-1" aria-hidden="true" />
+                  </span>
                 </div>
-              </motion.div>
+              </TiltSurface>
             ))}
           </div>
         ) : (

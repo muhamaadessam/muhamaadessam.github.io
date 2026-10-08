@@ -53,21 +53,72 @@ body {
 .hero-name,
 .hero-title,
 .hero-description,
-.hero-actions,
-.hero-portrait {
+.hero-actions {
   animation: hero-arrive 650ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .hero-title { animation-delay: 80ms; }
 .hero-description { animation-delay: 140ms; }
 .hero-actions { animation-delay: 200ms; }
-.hero-portrait { animation-delay: 100ms; }
+.hero-line { display: block; overflow: clip; padding-bottom: 0.08em; }
+.hero-name { animation-name: name-arrive; animation-duration: 950ms; }
+.hero-title { animation-name: name-arrive; animation-duration: 1100ms; animation-delay: 130ms; }
+
+.hero-wordmark {
+  position: absolute;
+  bottom: 3%;
+  left: 2%;
+  font-size: clamp(8rem, 26vw, 32rem);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(144, 202, 249, 0.1);
+  pointer-events: none;
+}
+
+.tilt-surface { position: relative; transform-style: preserve-3d; }
+.surface-light {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 300ms;
+  z-index: 30;
+}
+.portrait-stage { border-radius: 50%; }
+.portrait-photo { transform: translateZ(35px); }
+.portrait-chip {
+  position: absolute;
+  z-index: 35;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 18px;
+  background: #282c33;
+  border: 1px solid rgba(144, 202, 249, 0.4);
+  border-radius: 12px;
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.25);
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+  transform: translateZ(70px);
+  animation: chip-arrive 1s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.portrait-chip span { color: var(--color-primary); font-size: 20px; }
+.chip-flutter { top: 8%; left: -8%; animation-delay: 300ms; }
+.chip-dart { bottom: 9%; left: -3%; animation-delay: 420ms; }
+.chip-bloc { right: -8%; top: 58%; animation-delay: 540ms; }
+.scroll-track { display: grid; place-items: center; width: 28px; height: 38px; border: 1px solid rgba(144,202,249,0.4); border-radius: 20px; }
+.scroll-track svg { animation: scroll-nudge 1.5s ease-in-out; }
 
 .portrait-frame { transform: rotate(-90deg); }
 .portrait-stroke {
   stroke-dasharray: 0.72 1;
   animation: portrait-draw 800ms cubic-bezier(0.16, 1, 0.3, 1) 160ms both;
 }
+.portrait-frame { animation: frame-arrive 1200ms cubic-bezier(0.16, 1, 0.3, 1) both; }
 
 .hero-button {
   transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1), background-color 200ms;
@@ -79,10 +130,173 @@ body {
   outline-offset: 5px;
 }
 
-.project-entry { animation: project-arrive 300ms ease-out; }
+.project-entry::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: var(--color-dark-bg);
+  box-shadow: -8px 0 0 var(--color-primary);
+  pointer-events: none;
+  animation: curtain-reveal 700ms cubic-bezier(0.76, 0, 0.24, 1) forwards;
+}
+
+.detail-title > span {
+  display: inline-block;
+  animation: detail-title-arrive 900ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.detail-heading {
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: -0.02em;
+  margin-bottom: 1.25rem;
+  text-wrap: balance;
+}
+.detail-heading::after {
+  content: '';
+  display: block;
+  width: 2.5rem;
+  height: 2px;
+  margin-top: 0.75rem;
+  background: var(--color-primary);
+  transform-origin: left;
+}
+.detail-copy,
+.detail-list {
+  font-size: 1rem;
+  line-height: 1.8;
+  color: #d1d5db;
+  overflow-wrap: anywhere;
+}
+.detail-copy { max-width: 70ch; }
+.project-summary .detail-copy { font-size: 1.125rem; line-height: 1.75; }
+
+@keyframes detail-title-arrive {
+  from { clip-path: inset(0 18% 0 0); transform: translateY(22px); }
+  to { clip-path: inset(0 0 0 0); transform: translateY(0); }
+}
+
+@keyframes detail-line-arrive {
+  from { transform: scaleX(0.1); }
+  to { transform: scaleX(1); }
+}
+
+.section-heading h2 { text-wrap: balance; letter-spacing: -0.03em; }
+.about-statement { text-wrap: balance; }
+.about-emphasis {
+  background: linear-gradient(var(--color-primary), var(--color-primary)) left bottom / 100% 2px no-repeat;
+  padding-bottom: 0.12em;
+}
+.timeline-node {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  top: 8px;
+  left: -34px;
+  border-radius: 50%;
+  border: 2px solid var(--color-primary);
+  background: var(--color-dark-bg);
+  transition: background-color 200ms, transform 200ms;
+}
+@media (min-width: 768px) { .timeline-node { left: -46px; } }
+.timeline-track::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--color-primary);
+  transform-origin: top;
+}
+.skill-group { transition: border-color 250ms, background-color 250ms; }
+.skill-tag { transition: color 180ms, background-color 180ms, border-color 180ms; }
+.faq-disclosure summary { list-style: none; }
+.faq-disclosure summary::-webkit-details-marker { display: none; }
+.faq-disclosure[open] .faq-answer { animation: faq-answer-arrive 250ms ease-out; }
+
+@media (hover: hover) {
+  .experience-entry:hover .timeline-node { background: var(--color-primary); }
+  .skill-group:hover { border-color: rgba(66,165,245,0.5); background-color: rgba(51,56,66,0.65); }
+  .skill-tag:hover { color: white; background-color: rgba(66,165,245,0.15); border-color: rgba(66,165,245,0.5); }
+  .contact-link:hover svg { transform: translateY(-3px); }
+}
+.contact-link svg { transition: transform 200ms; }
+
+@keyframes faq-answer-arrive {
+  from { transform: translateY(-8px); }
+  to { transform: translateY(0); }
+}
+@keyframes timeline-draw {
+  from { transform: scaleY(0.05); }
+  to { transform: scaleY(1); }
+}
+@keyframes emphasis-draw {
+  from { background-size: 10% 2px; }
+  to { background-size: 100% 2px; }
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .timeline-track::after {
+      animation: timeline-draw linear both;
+      animation-timeline: view();
+      animation-range: entry 0% exit 100%;
+    }
+    .about-emphasis {
+      animation: emphasis-draw linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 100%;
+    }
+    .detail-heading::after {
+      animation: detail-line-arrive linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 100%;
+    }
+    main > section:not(.hero-scene) h2 {
+      animation: heading-reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 100%;
+    }
+  }
+}
 
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
-  .hero-button:hover { transform: translateY(-3px); }
+  .hero-button:hover { transform: translateY(-5px) scale(1.025); }
+  .tilt-surface:hover > .surface-light { opacity: 1; }
+}
+
+@media (max-width: 640px) {
+  .portrait-chip { padding: 10px 12px; font-size: 12px; gap: 10px; }
+  .chip-flutter { left: -3%; }
+  .chip-bloc { right: -3%; }
+}
+
+@keyframes name-arrive {
+  from { transform: translateY(65%) rotate(3deg); }
+  to { transform: translateY(0) rotate(0); }
+}
+
+@keyframes chip-arrive {
+  from { transform: translate3d(0, 55px, 0) rotate(-12deg); }
+  to { transform: translate3d(0, 0, 70px) rotate(0); }
+}
+
+@keyframes frame-arrive {
+  from { transform: rotate(-180deg) scale(0.85); }
+  to { transform: rotate(-90deg) scale(1); }
+}
+
+@keyframes scroll-nudge {
+  0%, 100% { transform: translateY(-4px); }
+  50% { transform: translateY(4px); }
+}
+
+@keyframes heading-reveal {
+  from { clip-path: inset(0 24% 0 0); transform: translateX(-24px); }
+  to { clip-path: inset(0 0 0 0); transform: translateX(0); }
+}
+
+@keyframes curtain-reveal {
+  to { transform: translateX(105%); visibility: hidden; }
 }
 
 @keyframes hero-arrive {
@@ -95,11 +309,6 @@ body {
   to { stroke-dashoffset: 0; }
 }
 
-@keyframes project-arrive {
-  from { opacity: 0.85; }
-  to { opacity: 1; }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .hero-name,
   .hero-title,
@@ -107,10 +316,14 @@ body {
   .hero-actions,
   .hero-portrait,
   .portrait-stroke,
-  .project-entry {
+  .portrait-frame,
+  .portrait-chip,
+  .scroll-track svg,
+  .detail-title > span {
     animation: none;
   }
 
+  .project-entry::before { display: none; }
   .reading-progress { display: none; }
   *,
   *::before,

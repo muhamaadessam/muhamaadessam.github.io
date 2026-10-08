@@ -52,7 +52,13 @@ export default async function Home() {
     },
     {
       question: `How can I contact ${name}?`,
-      answer: `Use the contact form on this site, or reach out through LinkedIn (${portfolio?.linkedin || 'https://www.linkedin.com/in/muhammadessam159/'}) or GitHub (${portfolio?.github || 'https://github.com/muhamaadessam'}).`,
+      answer: 'Have a project in mind? Send me a message through the contact form, or connect with me on LinkedIn or GitHub.',
+      answerContent: <>
+        Have a project in mind? Send me a message through the{' '}
+        <a href="#contact" className="text-primary underline underline-offset-4 hover:text-white">contact form</a>, or connect with me on{' '}
+        <a href={portfolio?.linkedin || 'https://www.linkedin.com/in/muhammadessam159/'} target="_blank" rel="noreferrer" className="text-primary underline underline-offset-4 hover:text-white">LinkedIn</a> or{' '}
+        <a href={portfolio?.github || 'https://github.com/muhamaadessam'} target="_blank" rel="noreferrer" className="text-primary underline underline-offset-4 hover:text-white">GitHub</a>.
+      </>,
     },
   ];
 

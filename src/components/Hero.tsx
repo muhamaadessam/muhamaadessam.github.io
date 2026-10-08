@@ -1,18 +1,28 @@
 'use client';
 
-import { FileText, ChevronRight } from 'lucide-react';
+import { FileText, ChevronRight, ArrowDown } from 'lucide-react';
+import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
+import { useRef } from 'react';
+import TiltSurface from '@/components/TiltSurface';
 import { FaGithub, FaLinkedin } from 'react-icons/fa';
 import { PortfolioData, incrementCvDownloadCount, trackPortfolioEvent } from '@/lib/services';
 import Image from 'next/image';
 import { CV_DOWNLOAD_URL, GITHUB_URL, LINKEDIN_URL } from '@/lib/constants';
 
 export default function Hero({ data }: { data: PortfolioData | null }) {
+  const section = useRef<HTMLElement>(null);
+  const reducedMotion = useReducedMotion();
+  const { scrollYProgress } = useScroll({ target: section, offset: ['start start', 'end start'] });
+  const textY = useTransform(scrollYProgress, [0, 1], [0, -100]);
+  const portraitY = useTransform(scrollYProgress, [0, 1], [0, 140]);
+  const portraitRotate = useTransform(scrollYProgress, [0, 1], [0, -12]);
+  const backdropX = useTransform(scrollYProgress, [0, 1], ['0%', '-18%']);
   const handleDownloadCV = () => {
     incrementCvDownloadCount();
   };
 
   return (
-    <section className="min-h-screen flex items-center justify-center relative overflow-hidden bg-dark-bg pt-20">
+    <section ref={section} className="hero-scene min-h-svh flex items-center justify-center relative overflow-hidden bg-dark-bg pt-28 pb-48 lg:pb-24 lg:pt-32">
       {/* Tech Background Pattern */}
       <div className="absolute inset-0 z-0 opacity-20">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
@@ -33,15 +43,16 @@ export default function Hero({ data }: { data: PortfolioData | null }) {
       {/* Gradients to fade edges */}
       <div className="absolute inset-0 z-0 bg-gradient-to-r from-dark-bg via-transparent to-dark-bg pointer-events-none"></div>
       <div className="absolute inset-0 z-0 bg-gradient-to-b from-dark-bg via-transparent to-dark-bg pointer-events-none"></div>
+      <motion.div aria-hidden="true" className="hero-wordmark" style={{ x: reducedMotion ? 0 : backdropX }}>ESSAM</motion.div>
 
       <div className="container mx-auto px-6 relative z-10 flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
 
         {/* Left Content (Text) */}
         {/* Rendered visible in the server HTML: this block holds the LCP element, so it must not wait for JS to fade in. */}
-        <div className="flex-1 text-center lg:text-left order-1">
+        <motion.div className="flex-1 min-w-0 text-center lg:text-left order-1" style={{ y: reducedMotion ? 0 : textY }}>
           <h1 className="text-5xl md:text-7xl font-bold text-white mb-5 tracking-tight leading-[1.08]">
-            <span className="hero-name block">{data?.name || 'Muhammad Essam'}</span>
-            <span className="hero-title text-primary block mt-3">{data?.jop_title?.trim() || 'Flutter Developer'}</span>
+            <span className="hero-line"><span className="hero-name block">{data?.name || 'Muhammad Essam'}</span></span>
+            <span className="hero-line mt-3"><span className="hero-title text-primary block">{data?.jop_title?.trim() || 'Flutter Developer'}</span></span>
           </h1>
 
           <p className="hero-description text-gray-300 mb-6 max-w-xl mx-auto lg:mx-0 text-lg leading-relaxed">
@@ -99,20 +110,21 @@ export default function Hero({ data }: { data: PortfolioData | null }) {
               </a>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Right Content - Image */}
-        <div className="hero-portrait flex-1 flex justify-center items-center order-2 mt-4 lg:mt-0 mb-12 lg:mb-0 w-full">
-          <div className="relative w-60 h-60 sm:w-80 sm:h-80 lg:w-96 lg:h-96 flex items-center justify-center">
+        <motion.div className="flex-1 min-w-0 flex justify-center items-center order-2 mt-4 lg:mt-0 w-full" style={{ y: reducedMotion ? 0 : portraitY, rotate: reducedMotion ? 0 : portraitRotate }}>
+          <TiltSurface className="hero-portrait portrait-stage relative w-64 h-64 sm:w-80 sm:h-80 lg:w-[420px] lg:h-[420px] flex items-center justify-center">
             <svg className="portrait-frame absolute inset-0 w-full h-full text-primary pointer-events-none" viewBox="0 0 100 100" fill="none" aria-hidden="true">
               <circle cx="50" cy="50" r="48" stroke="currentColor" strokeOpacity="0.15" strokeWidth="0.3" />
               <circle className="portrait-stroke" cx="50" cy="50" r="48" pathLength="1" stroke="currentColor" strokeWidth="0.6" strokeLinecap="round" />
+              <circle cx="50" cy="50" r="43" stroke="currentColor" strokeOpacity="0.3" strokeWidth="0.3" strokeDasharray="1 3" />
             </svg>
             {/* Simple Glow Blob Behind */}
             <div className="absolute inset-0 bg-gradient-to-tr from-primary to-accent opacity-30 blur-2xl rounded-full" />
 
             {/* Image Container */}
-            <div className="relative w-[85%] h-[85%] overflow-hidden border-4 border-primary/30 shadow-[0_0_30px_rgba(66,165,245,0.2)] glass rounded-full z-10 hover:border-primary/60 transition-colors duration-300">
+            <div className="portrait-photo relative w-[85%] h-[85%] overflow-hidden border-4 border-primary/30 shadow-[0_0_30px_rgba(66,165,245,0.2)] glass rounded-full z-10 hover:border-primary/60 transition-colors duration-300">
               <Image
                 src="/profilePic.webp"
                 alt={data?.name || 'Muhammad Essam'}
@@ -122,9 +134,15 @@ export default function Hero({ data }: { data: PortfolioData | null }) {
                 className="object-cover object-top pt-[10px]"
               />
             </div>
-          </div>
-        </div>
+            <span className="portrait-chip chip-flutter" aria-hidden="true">Flutter <span>↗</span></span>
+            <span className="portrait-chip chip-dart" aria-hidden="true">Dart <span>{'{ }'}</span></span>
+            <span className="portrait-chip chip-bloc" aria-hidden="true">BLoC <span>⌘</span></span>
+          </TiltSurface>
+        </motion.div>
       </div>
+      <a href="#about" className="hero-scroll absolute bottom-6 left-1/2 -translate-x-1/2 inline-flex items-center gap-3 text-xs text-gray-300">
+        <span className="scroll-track"><ArrowDown size={14} /></span> Scroll to explore
+      </a>
     </section>
   );
 }

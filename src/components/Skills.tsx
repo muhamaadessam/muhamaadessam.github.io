@@ -2,24 +2,8 @@
 
 import { motion } from 'framer-motion';
 import { Skill } from '@/lib/services';
-import { Code2 } from 'lucide-react';
 
 export default function Skills({ skills }: { skills: Skill[] }) {
-  const containerVariants = {
-    hidden: { opacity: 1 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.06
-      }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 1, y: 12 },
-    visible: { opacity: 1, y: 0 }
-  };
-
   return (
     <section 
       id="skills" 
@@ -27,49 +11,33 @@ export default function Skills({ skills }: { skills: Skill[] }) {
       style={{ backgroundImage: 'url("/backgrounds/skills_bg.webp")' }}
     >
       <div className="absolute inset-0 bg-dark-bg/90"></div>
-      <div className="container mx-auto px-6 relative z-10">
+      <div className="container max-w-6xl mx-auto px-6 relative z-10">
         <motion.div
           initial={{ opacity: 1, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.4 }}
-          className="mb-16 text-center"
+          className="section-heading mb-12"
         >
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">My Skills</h2>
-          <div className="h-1 w-20 bg-primary mx-auto rounded-full" />
+          <h2 className="text-3xl md:text-5xl font-bold mb-4">My Skills</h2>
+          <div className="h-0.5 w-16 bg-primary rounded-full" />
         </motion.div>
 
         {skills.length > 0 ? (
-          <motion.div 
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto"
-          >
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {skills.map((skillGroup) => (
-              <motion.div 
-                key={skillGroup.id} 
-                variants={itemVariants}
-                whileHover={{ y: -3 }}
-                className="group glass p-6 rounded-2xl flex flex-col items-start gap-4 transition-colors duration-200 hover:border-primary/50"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary transition-colors duration-300">
-                    <Code2 className="w-5 h-5" />
-                  </div>
-                  <h4 className="font-medium text-xl text-primary">{skillGroup.title}</h4>
-                </div>
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {skillGroup.skills.map((s, idx) => (
-                    <span key={idx} className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-sm text-gray-300">
-                      {s}
-                    </span>
+              <section key={skillGroup.id} className="skill-group rounded-2xl bg-dark-card/40 border border-white/10 p-6">
+                <h3 className="text-xl font-semibold text-white mb-5">{skillGroup.title}</h3>
+                <div className="flex flex-wrap gap-2.5">
+                  {skillGroup.skills.map((skill, index) => (
+                    <motion.span key={skill} initial={{ y: 16 }} whileInView={{ y: 0 }} viewport={{ once: true }} transition={{ delay: (index % 4) * 0.06 }} className="skill-tag px-3 py-2 border border-white/10 rounded-lg text-sm text-gray-200">
+                      {skill}
+                    </motion.span>
                   ))}
                 </div>
-              </motion.div>
+              </section>
             ))}
-          </motion.div>
+          </div>
         ) : (
           <div className="text-center text-gray-400">No skills found.</div>
         )}

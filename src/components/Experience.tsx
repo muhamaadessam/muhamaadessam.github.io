@@ -43,19 +43,6 @@ function calculateDuration(start: string, end: string | null): string {
 }
 
 export default function Experience({ experiences }: { experiences: ExperienceType[] }) {
-  const containerVariants = {
-    hidden: { opacity: 1 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.06 }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 1, x: -12 },
-    visible: { opacity: 1, x: 0 }
-  };
-
   return (
     <section 
       id="experience" 
@@ -63,33 +50,32 @@ export default function Experience({ experiences }: { experiences: ExperienceTyp
       style={{ backgroundImage: 'url("/backgrounds/experience_bg.webp")' }}
     >
       <div className="absolute inset-0 bg-dark-bg/85"></div>
-      <div className="container mx-auto px-6 relative z-10">
+      <div className="container max-w-6xl mx-auto px-6 relative z-10">
         <motion.div
           initial={{ opacity: 1, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.4 }}
-          className="mb-16 text-center"
+          className="section-heading mb-12"
         >
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Experience</h2>
-          <div className="h-1 w-20 bg-primary mx-auto rounded-full" />
+          <h2 className="text-3xl md:text-5xl font-bold mb-4">Experience</h2>
+          <div className="h-0.5 w-16 bg-primary rounded-full" />
         </motion.div>
 
         {experiences.length > 0 ? (
-          <motion.div 
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            className="max-w-4xl mx-auto space-y-8 relative"
-          >
+          <div className="experience-timeline relative pl-7 md:pl-10">
+            <span className="timeline-track absolute left-0 top-2 bottom-0 w-px bg-white/15" aria-hidden="true" />
             {experiences.map((exp) => (
               <motion.div 
                 key={exp.id} 
-                variants={itemVariants}
-                className="relative group"
+                initial={{ x: 24 }}
+                whileInView={{ x: 0 }}
+                viewport={{ once: true, amount: 0.15 }}
+                transition={{ duration: 0.6 }}
+                className="experience-entry relative group grid grid-cols-1 md:grid-cols-[15rem_1fr] gap-5 md:gap-10 pb-12 mb-10 border-b border-white/10 last:border-0 last:mb-0 last:pb-0"
               >
-                <div className="glass p-6 md:p-8 rounded-2xl transition-all duration-300 hover:border-primary/50 relative shadow-lg">
+                <span className="timeline-node" aria-hidden="true" />
+                <div>
                   <div className="mb-4">
                     <h3 className="font-bold text-xl md:text-2xl text-white">{exp.title}</h3>
                     <div className="text-primary font-medium text-base md:text-lg mt-1 flex items-center gap-2 flex-wrap">
@@ -110,9 +96,11 @@ export default function Experience({ experiences }: { experiences: ExperienceTyp
                     <span className="mx-2">•</span> {exp.location}
                   </div>
 
-                  <ul className="space-y-2 mb-6">
+                </div>
+                <div className="min-w-0">
+                  <ul className="space-y-3 mb-6">
                     {exp.description?.map((point, idx) => (
-                      <li key={idx} className="text-gray-300 text-sm md:text-base flex gap-3">
+                      <li key={idx} className="text-gray-300 text-base flex gap-3">
                         <span className="text-primary mt-1">▸</span>
                         <span className="leading-relaxed">{point}</span>
                       </li>
@@ -122,7 +110,7 @@ export default function Experience({ experiences }: { experiences: ExperienceTyp
                   {exp.skills && exp.skills.length > 0 && (
                     <div className="flex flex-wrap gap-2 pt-4 border-t border-white/5">
                       {exp.skills.map((skill, idx) => (
-                        <span key={idx} className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-xs text-gray-300 font-medium hover:bg-white/10 hover:text-white transition-colors">
+                        <span key={idx} className="skill-tag px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-sm text-gray-300 font-medium">
                           {skill}
                         </span>
                       ))}
@@ -131,7 +119,7 @@ export default function Experience({ experiences }: { experiences: ExperienceTyp
                 </div>
               </motion.div>
             ))}
-          </motion.div>
+          </div>
         ) : (
           <div className="text-center text-gray-400">No experience records found.</div>
         )}

@@ -16,7 +16,7 @@ export default function Footer({ data }: { data: PortfolioData | null }) {
       {/* Background decoration */}
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-64 bg-primary/5 rounded-[100%] blur-3xl pointer-events-none"></div>
       
-      <div className="container mx-auto px-6 relative z-10">
+      <div className="container max-w-6xl mx-auto px-6 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
           
           {/* Brand/About */}
