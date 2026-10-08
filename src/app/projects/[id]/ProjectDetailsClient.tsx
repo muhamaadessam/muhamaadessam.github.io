@@ -6,7 +6,6 @@ import { PortfolioData, Project, trackProjectEvent } from '@/lib/services';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, ExternalLink, Code2, Database, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
-import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import TiltSurface from '@/components/TiltSurface';
 
@@ -107,7 +106,6 @@ export default function ProjectDetailsClient({ project, projectId, portfolio }: 
   return (
     <>
       <main className="min-h-screen bg-dark-bg text-white pb-32">
-        <Header />
       
         {/* Premium Dynamic Background */}
         <div className="absolute top-0 inset-x-0 h-[70vh] z-0 overflow-hidden">
@@ -123,7 +121,7 @@ export default function ProjectDetailsClient({ project, projectId, portfolio }: 
           <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] opacity-20"></div>
         </div>
 
-        <div className="project-detail container max-w-6xl mx-auto px-6 relative z-10 pt-32 md:pt-36">
+        <div className="project-detail container max-w-6xl mx-auto px-6 relative z-10 pt-12 md:pt-16">
           <Link
             href="/#projects"
             className="inline-flex items-center gap-2 mb-8 text-sm font-medium text-gray-300 hover:text-primary transition-colors group"
@@ -152,7 +150,7 @@ export default function ProjectDetailsClient({ project, projectId, portfolio }: 
               >
                 <TiltSurface className="rounded-2xl overflow-hidden border border-white/15 bg-dark-card shadow-xl">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={project.projectImage} alt={project.projectName} loading="eager" className="w-full max-h-80 lg:max-h-96 object-contain" />
+                  <img src={project.projectImage} alt={project.projectName} loading="eager" className="block w-full h-80 lg:h-96 object-cover" />
                 </TiltSurface>
               </motion.div>
             )}
