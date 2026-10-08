@@ -132,14 +132,14 @@ export default function ProjectDetailsClient({ project, projectId, portfolio }: 
           </Link>
 
           {/* Hero Content */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center mb-32">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start mb-32">
           
             {/* Text content - Order 2 on mobile, Order 1 on large screens */}
             <motion.div
               initial={{ opacity: 0, x: -40 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, ease: "easeOut" }}
-              className="lg:col-span-6 order-2 lg:order-1 flex flex-col justify-center"
+              className="lg:col-span-6 order-2 lg:order-1 flex flex-col"
             >
               <div className="flex items-center gap-3 mb-6">
                 <span className="inline-flex items-center gap-1.5 px-4 py-1.5 glass text-primary border border-primary/30 rounded-full text-sm font-bold uppercase tracking-widest shadow-[0_0_15px_rgba(102,252,241,0.2)]">
