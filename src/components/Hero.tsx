@@ -38,12 +38,8 @@ export default function Hero({ data }: { data: PortfolioData | null }) {
       <div className="container mx-auto px-6 relative z-10 flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
 
         {/* Left Content (Text) */}
-        <motion.div
-          className="flex-1 text-center lg:text-left order-1"
-          initial={{ opacity: 0, x: -50 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8 }}
-        >
+        {/* Rendered visible in the server HTML: this block holds the LCP element, so it must not wait for JS to fade in. */}
+        <div className="flex-1 text-center lg:text-left order-1">
           <h1 className="text-5xl md:text-7xl font-bold text-white mb-5 tracking-tight leading-[1.08]">
             {data?.name || 'Muhammad Essam'}
             <span className="text-primary block mt-3">{data?.jop_title?.trim() || 'Flutter Developer'}</span>
@@ -104,13 +100,13 @@ export default function Hero({ data }: { data: PortfolioData | null }) {
               </a>
             </div>
           </div>
-        </motion.div>
+        </div>
 
         {/* Right Content - Image */}
         <motion.div
           className="flex-1 flex justify-center items-center order-2 mt-4 lg:mt-0 mb-12 lg:mb-0 w-full"
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
+          initial={{ scale: 0.9 }}
+          animate={{ scale: 1 }}
           transition={{ duration: 0.8, delay: 0.2 }}
         >
           <div className="relative w-60 h-60 sm:w-80 sm:h-80 lg:w-96 lg:h-96 flex items-center justify-center">
