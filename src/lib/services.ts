@@ -177,15 +177,10 @@ export async function getPortfolioData(): Promise<PortfolioData | null> {
   }
 }
 
-const IGNORED_VISITOR_IDS = new Set(['1777640653418', '1777681421611', '1783389357146']);
 type PortfolioEvent = 'page_view' | 'project_click' | 'cv_download' | 'contact_submit' | 'external_link_click';
 
 export function toAnalyticsKey(value: string): string {
   return value.trim().replace(/[^\p{L}\p{N}]+/gu, '_').replace(/^_+|_+$/g, '').slice(0, 80) || 'unknown';
-}
-
-function isIgnoredVisitor(visitorId: string | null): boolean {
-  return visitorId !== null && IGNORED_VISITOR_IDS.has(visitorId);
 }
 
 export async function trackVisitor(): Promise<void> {
@@ -193,8 +188,6 @@ export async function trackVisitor(): Promise<void> {
     if (typeof window === 'undefined') return;
 
     let visitorId = localStorage.getItem('visitor_id');
-    if (isIgnoredVisitor(visitorId)) return;
-
     if (!visitorId) {
       visitorId = Date.now().toString();
       localStorage.setItem('visitor_id', visitorId);
@@ -255,9 +248,6 @@ export async function trackPortfolioEvent(event: PortfolioEvent, target = 'site'
   try {
     if (typeof window === 'undefined') return;
 
-    const visitorId = localStorage.getItem('visitor_id');
-    if (isIgnoredVisitor(visitorId)) return;
-
     const safeTarget = toAnalyticsKey(target);
     await setDoc(doc(db, 'stats', 'events'), {
       [event]: increment(1),
@@ -278,9 +268,6 @@ export async function trackProjectEvent(
 
   try {
     if (typeof window === 'undefined') return;
-
-    const visitorId = localStorage.getItem('visitor_id');
-    if (isIgnoredVisitor(visitorId)) return;
 
     const projectKey = toAnalyticsKey(projectId);
     const fields: Record<string, unknown> = { [`project_${projectKey}_name`]: projectName };
@@ -304,7 +291,6 @@ export async function trackProjectEvent(
 export async function incrementCvDownloadCount(): Promise<void> {
   try {
     const visitorId = typeof window !== 'undefined' ? localStorage.getItem('visitor_id') : null;
-    if (isIgnoredVisitor(visitorId)) return;
 
     const statsDoc = doc(db, 'stats', 'cv_downloads');
     await setDoc(statsDoc, {
