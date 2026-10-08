@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { getPortfolioData, getProjectById, getProjects } from '@/lib/services';
 import JsonLd from '@/components/JsonLd';
-import { PERSON_ID, SITE_NAME, SITE_URL, operatingSystemsFromLinks, projectUrl } from '@/lib/seo';
+import { PERSON_ID, SITE_NAME, SITE_URL, SOCIAL_DESCRIPTION_LIMIT, operatingSystemsFromLinks, projectUrl, truncateText } from '@/lib/seo';
 import ProjectDetailsClient from './ProjectDetailsClient';
 
 type ProjectPageProps = {
@@ -27,24 +27,25 @@ export async function generateMetadata({ params }: ProjectPageProps): Promise<Me
     };
   }
 
+  const socialDescription = truncateText(project.projectDescription, SOCIAL_DESCRIPTION_LIMIT);
   const image = project.projectImage ? [{ url: project.projectImage, alt: project.projectName }] : undefined;
 
   return {
     title: project.projectName,
-    description: project.projectDescription,
+    description: truncateText(project.projectDescription, 160),
     alternates: { canonical: `/projects/${encodeURIComponent(id)}` },
     openGraph: {
       type: 'article',
       url: `/projects/${encodeURIComponent(id)}`,
       siteName: SITE_NAME,
       title: `${project.projectName} | Muhammad Essam`,
-      description: project.projectDescription,
+      description: socialDescription,
       images: image,
     },
     twitter: {
       card: 'summary_large_image',
       title: `${project.projectName} | Muhammad Essam`,
-      description: project.projectDescription,
+      description: socialDescription,
       images: project.projectImage ? [project.projectImage] : undefined,
     },
   };
