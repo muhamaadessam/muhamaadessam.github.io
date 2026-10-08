@@ -1,31 +1,39 @@
 import type { Metadata } from 'next';
 import { Fira_Code } from 'next/font/google';
 import './globals.css';
+import JsonLd from '@/components/JsonLd';
+import { DEFAULT_DESCRIPTION, DEFAULT_TITLE, KNOWS_ABOUT, PERSON_ID, PERSON_NAME, SITE_NAME, SITE_URL, WEBSITE_ID } from '@/lib/seo';
 
 const firaCode = Fira_Code({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://muhamaadessam.github.io'),
-  title: 'Muhammad Essam | Flutter Developer | Mobile Application Engineer',
-  description: 'Flutter Developer with 3+ years experience building production Android and iOS applications using Flutter, Dart, BLoC, Firebase, and Clean Architecture.',
+  metadataBase: new URL(SITE_URL),
+  title: { default: DEFAULT_TITLE, template: '%s | Muhammad Essam' },
+  description: DEFAULT_DESCRIPTION,
+  applicationName: SITE_NAME,
   keywords: ['Muhammad Essam', 'Flutter Developer', 'Mobile Application Engineer', 'Dart', 'BLoC', 'Clean Architecture', 'Firebase', 'Android', 'iOS'],
-  authors: [{ name: 'Muhammad Essam' }],
-  creator: 'Muhammad Essam',
+  authors: [{ name: PERSON_NAME, url: SITE_URL }],
+  creator: PERSON_NAME,
+  category: 'technology',
+  alternates: { canonical: '/' },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, 'max-image-preview': 'large', 'max-snippet': -1, 'max-video-preview': -1 },
+  },
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://muhamaadessam.github.io/',
-    title: 'Muhammad Essam | Flutter Developer | Mobile Application Engineer',
-    description: 'Flutter Developer with 3+ years experience building production Android and iOS applications using Flutter, Dart, BLoC, Firebase, and Clean Architecture.',
-    siteName: 'Muhammad Essam Portfolio',
-    images: [{ url: '/opengraph-image.png' }],
+    url: '/',
+    title: DEFAULT_TITLE,
+    description: DEFAULT_DESCRIPTION,
+    siteName: SITE_NAME,
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Muhammad Essam | Flutter Developer | Mobile Application Engineer',
-    description: 'Flutter Developer with 3+ years experience building production Android and iOS applications using Flutter, Dart, BLoC, Firebase, and Clean Architecture.',
+    title: DEFAULT_TITLE,
+    description: DEFAULT_DESCRIPTION,
     creator: '@muhammadessam',
-    images: ['/twitter-image.png'],
   },
 };
 
@@ -34,26 +42,39 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const personSchema = {
+  const siteSchema = {
     '@context': 'https://schema.org',
-    '@type': 'Person',
-    name: 'Muhammad Essam',
-    jobTitle: 'Flutter Developer',
-    url: 'https://muhamaadessam.github.io/',
-    sameAs: [
-      'https://github.com/muhamaadessam',
-      'https://www.linkedin.com/in/muhammadessam159/',
+    '@graph': [
+      {
+        '@type': 'Person',
+        '@id': PERSON_ID,
+        name: PERSON_NAME,
+        jobTitle: 'Flutter Developer',
+        description: DEFAULT_DESCRIPTION,
+        url: `${SITE_URL}/`,
+        image: `${SITE_URL}/profilePic.webp`,
+        sameAs: [
+          'https://github.com/muhamaadessam',
+          'https://www.linkedin.com/in/muhammadessam159/',
+        ],
+        knowsAbout: KNOWS_ABOUT,
+      },
+      {
+        '@type': 'WebSite',
+        '@id': WEBSITE_ID,
+        url: `${SITE_URL}/`,
+        name: SITE_NAME,
+        description: DEFAULT_DESCRIPTION,
+        inLanguage: 'en',
+        publisher: { '@id': PERSON_ID },
+      },
     ],
-    knowsAbout: ['Flutter', 'Dart', 'BLoC', 'Clean Architecture', 'Firebase', 'REST APIs', 'Android', 'iOS'],
   };
 
   return (
     <html lang="en" className="dark" data-scroll-behavior="smooth" suppressHydrationWarning>
       <body className={`${firaCode.className} antialiased selection:bg-primary/30 selection:text-primary-dark`}>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }}
-        />
+        <JsonLd data={siteSchema} />
         {children}
       </body>
     </html>
