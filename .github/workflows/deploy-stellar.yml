@@ -138,9 +138,11 @@ jobs:
       - name: Smoke test
         run: |
           sleep 20
-          curl -fsS -o /dev/null -w 'home: %{http_code}\n' https://muhammadessam.me/
+          home="$(curl -fsS -w '\n%{http_code}' https://muhammadessam.me/)"
+          [[ "${home##*$'\n'}" == '200' ]]
           curl -fsS -o /dev/null -w 'robots: %{http_code}\n' https://muhammadessam.me/robots.txt
           build_id="$(cat deploy/stellar/.next/BUILD_ID)"
+          [[ "$home" == *"$build_id"* ]]
           manifest="deploy/stellar/.next/static/$build_id/_buildManifest.js"
           asset_hash="$(sha256sum "$manifest" | cut -d' ' -f1)"
           deployed_hash="$(curl -fsS "https://muhammadessam.me/_next/static/$build_id/_buildManifest.js" | sha256sum | cut -d' ' -f1)"
