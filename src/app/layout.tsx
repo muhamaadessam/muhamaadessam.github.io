@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Fira_Code } from 'next/font/google';
 import './globals.css';
 import JsonLd from '@/components/JsonLd';
+import VisitorTracker from '@/components/VisitorTracker';
 import MotionProvider from '@/components/MotionProvider';
 import { DEFAULT_DESCRIPTION, DEFAULT_TITLE, KNOWS_ABOUT, PERSON_ID, PERSON_NAME, SITE_NAME, SITE_URL, WEBSITE_ID } from '@/lib/seo';
 
@@ -77,6 +78,7 @@ export default function RootLayout({
       <body className={`${firaCode.className} antialiased selection:bg-primary/30 selection:text-primary-dark`}>
         <JsonLd data={siteSchema} />
         <MotionProvider>{children}</MotionProvider>
+        <VisitorTracker />
       </body>
     </html>
   );

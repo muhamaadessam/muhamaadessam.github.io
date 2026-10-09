@@ -38,33 +38,25 @@ service cloud.firestore {
       allow write: if isOwner();
     }
 
-    // Visitors write anonymous counters. Only the known stats documents can be
-    // written, existing fields can never be removed, and total counters can
-    // only grow, so nobody can wipe or reset the stats from the browser.
+    // Analytics are written by the server service account, never by browsers.
     match /stats/{statId} {
-      allow read: if true;
-      allow create: if statId in ['visitors', 'cv_downloads', 'events', 'project_events'];
-      allow update: if statId in ['visitors', 'cv_downloads', 'events', 'project_events'] &&
-        request.resource.data.keys().hasAll(resource.data.keys()) &&
-        request.resource.data.get('total_visites', 0) >= resource.data.get('total_visites', 0) &&
-        request.resource.data.get('count', 0) >= resource.data.get('count', 0);
-      allow delete: if isOwner();
+      allow read: if isOwner();
+      allow write: if false;
     }
 
-    // One document per anonymous visitor. A visitor can read its own document
-    // by ID, create it once, and then only increment its visit count by one.
     match /visitors/{visitorId} {
-      allow get: if true;
-      allow list, delete: if isOwner();
-      allow create: if
-        request.resource.data.keys().hasOnly(['visits', 'firstSeen', 'lastSeen']) &&
-        request.resource.data.visits is int && request.resource.data.visits >= 1 &&
-        request.resource.data.firstSeen == request.time &&
-        request.resource.data.lastSeen == request.time;
-      allow update: if
-        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['visits', 'lastSeen']) &&
-        request.resource.data.visits == resource.data.visits + 1 &&
-        request.resource.data.lastSeen == request.time;
+      allow read: if isOwner();
+      allow write: if false;
+    }
+
+    match /visitor_sessions/{sessionId} {
+      allow read: if isOwner();
+      allow write: if false;
+    }
+
+    match /visitor_events/{eventId} {
+      allow read: if isOwner();
+      allow write: if false;
     }
 
     match /telegram_logs/{document} {

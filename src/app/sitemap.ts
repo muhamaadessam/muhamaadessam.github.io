@@ -3,6 +3,7 @@ import { getProjects } from '@/lib/services';
 import { SITE_URL, projectUrl } from '@/lib/seo';
 
 export const dynamic = 'force-static';
+export const revalidate = 86400;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const projects = await getProjects();

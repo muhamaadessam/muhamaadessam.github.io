@@ -6,11 +6,13 @@ import Experience from '@/components/Experience';
 import Projects from '@/components/Projects';
 import Contact from '@/components/Contact';
 import Footer from '@/components/Footer';
-import VisitorTracker from '@/components/VisitorTracker';
 import Faq, { FaqItem } from '@/components/Faq';
 import JsonLd from '@/components/JsonLd';
 import { DEFAULT_DESCRIPTION, KNOWS_ABOUT, PERSON_ID, PERSON_NAME, SITE_URL, WEBSITE_ID, projectUrl } from '@/lib/seo';
 import { getExperiences, getPortfolioData, getProjects, getSkills } from '@/lib/services';
+
+// Preserve the daily content refresh previously provided by the Pages rebuild.
+export const revalidate = 86400;
 
 export default async function Home() {
   const [portfolio, projects, experiences, skills] = await Promise.all([
@@ -108,7 +110,6 @@ export default async function Home() {
   return (
     <main className="min-h-screen flex flex-col">
       <JsonLd data={pageSchema} />
-      <VisitorTracker />
       <Header />
       <Hero data={portfolio} />
       <About />

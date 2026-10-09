@@ -8,6 +8,9 @@ type ProjectPageProps = {
   params: Promise<{ id: string }>;
 };
 
+// Preserve the daily content refresh previously provided by the Pages rebuild.
+export const revalidate = 86400;
+
 export async function generateStaticParams() {
   const projects = await getProjects();
 
