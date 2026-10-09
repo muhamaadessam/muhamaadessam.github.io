@@ -41,7 +41,7 @@ async function record(event: TrackingEvent, request: Request) {
     const device = deviceInfo(request.headers.get('user-agent') || '');
     const sessionData = firstSessionEvent ? {
       visitorId: event.visitorId, source: event.source, firstTouch: event.firstTouch, ...geography, ...device,
-      language: event.language, timezone: event.timezone, screen: event.screen, startedAt: now,
+      language: event.language, timezone: event.timezone, screen: event.screen, startedAt: now, pageViewCounted: false,
     } : session.data;
     const analytics: Record<string, number> = {};
     if (firstSessionEvent) {
@@ -67,17 +67,22 @@ async function record(event: TrackingEvent, request: Request) {
     let visitorTotalsWrite = -1;
     if (event.event === 'page_view') analytics.pageViews = 1;
     // Visits and the Telegram notice count sessions, not every page view inside one.
-    if (event.event === 'page_view' && firstSessionEvent) {
-      const visitor = await readDocument(visitorPath);
-      const totals = visitor.updateTime ? { data: {} as Record<string, unknown> } : await readDocument('stats/visitors');
-      const legacy = totals.data.users as Record<string, number> | undefined;
-      const visits = Number(visitor.data.visits ?? legacy?.[event.visitorId]) || 0;
-      const isNewVisitor = visits === 0;
-      sessionData.firstTouch = visitor.data.firstTouch || event.firstTouch;
-      writes.push(writeDocument(visitorPath, { ...visitor.data, visits: visits + 1, firstSeen: visitor.data.firstSeen || new Date(now), lastSeen: new Date(now), firstTouch: visitor.data.firstTouch || event.firstTouch }, visitor));
-      visitorTotalsWrite = writes.length;
-      writes.push(incrementFields('stats/visitors', { total_visitors: isNewVisitor ? 1 : 0, total_visites: 1 }));
-      notification = { visitorId: event.visitorId, sessionId: event.sessionId, isNewVisitor, source: sessionData.source, firstTouch: visitor.data.firstTouch || event.firstTouch, country: sessionData.country, city: sessionData.city, region: sessionData.region, device: sessionData.device, browser: sessionData.browser, os: sessionData.os, screen: sessionData.screen, language: sessionData.language, timezone: sessionData.timezone, path: event.path };
+    if (event.event === 'page_view') {
+      const countVisit = firstSessionEvent || sessionData.pageViewCounted === false;
+      analytics.pageViews = 1;
+      sessionData.pageViewCounted = true;
+      if (countVisit) {
+        const visitor = await readDocument(visitorPath);
+        const totals = visitor.updateTime ? { data: {} as Record<string, unknown> } : await readDocument('stats/visitors');
+        const legacy = totals.data.users as Record<string, number> | undefined;
+        const visits = Number(visitor.data.visits ?? legacy?.[event.visitorId]) || 0;
+        const isNewVisitor = visits === 0;
+        sessionData.firstTouch = visitor.data.firstTouch || event.firstTouch;
+        writes.push(writeDocument(visitorPath, { ...visitor.data, visits: visits + 1, firstSeen: visitor.data.firstSeen || new Date(now), lastSeen: new Date(now), firstTouch: visitor.data.firstTouch || event.firstTouch }, visitor));
+        visitorTotalsWrite = writes.length;
+        writes.push(incrementFields('stats/visitors', { total_visitors: isNewVisitor ? 1 : 0, total_visites: 1 }));
+        notification = { visitorId: event.visitorId, sessionId: event.sessionId, isNewVisitor, source: sessionData.source, firstTouch: visitor.data.firstTouch || event.firstTouch, country: sessionData.country, city: sessionData.city, region: sessionData.region, device: sessionData.device, browser: sessionData.browser, os: sessionData.os, screen: sessionData.screen, language: sessionData.language, timezone: sessionData.timezone, path: event.path };
+      }
     }
     if (!['engagement', 'section_view'].includes(event.event)) {
       writes.push(incrementFields('stats/events', { [event.event]: 1, [`${event.event}_${toAnalyticsKey(event.target)}`]: 1 }));

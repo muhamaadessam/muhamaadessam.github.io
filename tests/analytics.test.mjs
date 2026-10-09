@@ -146,6 +146,24 @@ test('engagement and section reach count per session, project/CV counters remain
   assert.equal(db.docs.get(`visitor_sessions/${first.sessionId}`).data.durationMs, 3000);
 });
 
+test('visitor totals and notifications count once on the first page view, even when another event created the session', async () => {
+  const db = storage();
+  const api = route(db);
+  const first = event();
+  assert.equal(await api.send({ ...first, eventId: randomUUID(), event: 'section_view', target: 'projects' }), 204);
+  assert.equal(db.docs.get(`visitor_sessions/${first.sessionId}`).data.pageViewCounted, false);
+  const secondPage = randomUUID();
+  assert.deepEqual(await Promise.all([
+    api.send(first),
+    api.send({ ...first, pageId: secondPage, eventId: secondPage, path: '/projects/1' }),
+  ]), [204, 204]);
+  assert.equal(db.docs.get('stats/visitors').data.total_visites, 1);
+  assert.equal(db.docs.get(`visitors/${first.visitorId}`).data.visits, 1);
+  assert.equal(db.docs.get('stats/analytics').data.pageViews, 2);
+  assert.equal(db.docs.get(`visitor_sessions/${first.sessionId}`).data.pageViewCounted, true);
+  assert.equal(api.notifications.length, 1);
+});
+
 test('route rejects cross-origin, DNT, invalid bodies, exhausted sessions and storage failures safely', async () => {
   const db = storage();
   const api = route(db);
