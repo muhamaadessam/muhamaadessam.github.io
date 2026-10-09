@@ -16,9 +16,12 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
       - name: Setup Node
         uses: actions/setup-node@v7
         with:
@@ -31,10 +34,32 @@ jobs:
         run: npx tsc --noEmit
       - name: Tests
         run: node --test tests/*.test.mjs
+      - name: Guard cPanel dependency changes
+        env:
+          DEPLOY_BASE: ${{ github.event.before }}
+        run: |
+          base="$DEPLOY_BASE"
+          if [[ -z "$base" || "$base" =~ ^0+$ ]]; then base="$(git rev-parse HEAD^)"; fi
+          git cat-file -e "${base}^{commit}"
+          if ! git diff --quiet "$base" "$GITHUB_SHA" -- package.json package-lock.json; then
+            echo 'Dependency files changed. Update the cPanel Node environment explicitly before deploying.' >&2
+            exit 1
+          fi
       - name: Build release bundle
         env:
           NEXT_PUBLIC_CONTACT_ENDPOINT: ${{ vars.NEXT_PUBLIC_CONTACT_ENDPOINT }}
         run: bash scripts/package-stellar.sh
+      - name: Validate Stellar settings
+        env:
+          STELLAR_HOST: ${{ secrets.STELLAR_HOST }}
+          STELLAR_USER: ${{ secrets.STELLAR_USER }}
+          STELLAR_PORT: ${{ secrets.STELLAR_PORT }}
+          STELLAR_APP_DIR: ${{ vars.STELLAR_APP_DIR }}
+        run: |
+          [[ "$STELLAR_HOST" == 'server144.web-hosting.com' ]]
+          [[ "$STELLAR_USER" == 'konobbue' ]]
+          [[ "$STELLAR_PORT" =~ ^[0-9]{1,5}$ ]]
+          [[ "$STELLAR_APP_DIR" == '/home/konobbue/portfolio-app' ]]
       - name: Prepare SSH
         env:
           STELLAR_SSH_KEY: ${{ secrets.STELLAR_SSH_KEY }}
@@ -44,6 +69,40 @@ jobs:
           printf '%s\n' "$STELLAR_SSH_KEY" > ~/.ssh/stellar_key
           chmod 600 ~/.ssh/stellar_key
           printf '%s\n' "$STELLAR_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+          ssh-keygen -y -f ~/.ssh/stellar_key >/dev/null
+          ssh-keygen -F "[${STELLAR_HOST}]:${STELLAR_PORT}" -f ~/.ssh/known_hosts >/dev/null
+      - name: Check SSH tools and app root
+        env:
+          STELLAR_HOST: ${{ secrets.STELLAR_HOST }}
+          STELLAR_PORT: ${{ secrets.STELLAR_PORT }}
+          STELLAR_USER: ${{ secrets.STELLAR_USER }}
+        run: |
+          ssh -i ~/.ssh/stellar_key -p "$STELLAR_PORT" -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
+            "$STELLAR_USER@$STELLAR_HOST" \
+            'test -d /home/konobbue/portfolio-app && test -f /home/konobbue/portfolio-app/app.js && command -v tar >/dev/null && command -v unzip >/dev/null'
+      - name: Check deployed dependency fingerprint
+        env:
+          STELLAR_HOST: ${{ secrets.STELLAR_HOST }}
+          STELLAR_PORT: ${{ secrets.STELLAR_PORT }}
+          STELLAR_USER: ${{ secrets.STELLAR_USER }}
+        run: |
+          expected="$(sha256sum package-lock.json | cut -d' ' -f1)"
+          deployed="$(ssh -i ~/.ssh/stellar_key -p "$STELLAR_PORT" -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
+            "$STELLAR_USER@$STELLAR_HOST" 'cat /home/konobbue/.portfolio-app-dependency-sha256 2>/dev/null || true')"
+          if [[ -n "$deployed" && "$deployed" != "$expected" ]]; then
+            echo 'cPanel Node dependencies do not match this release; refusing upload.' >&2
+            exit 1
+          fi
+      - name: Back up current release
+        env:
+          STELLAR_HOST: ${{ secrets.STELLAR_HOST }}
+          STELLAR_PORT: ${{ secrets.STELLAR_PORT }}
+          STELLAR_USER: ${{ secrets.STELLAR_USER }}
+        run: |
+          ssh -i ~/.ssh/stellar_key -p "$STELLAR_PORT" -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
+            "$STELLAR_USER@$STELLAR_HOST" \
+            'set -eu; tar -czf /home/konobbue/portfolio-app-previous.tar.gz.new --exclude=./.next/cache --exclude=./tmp --exclude=./stderr.log --exclude=./.htaccess --exclude=./node_modules -C /home/konobbue/portfolio-app .; mv /home/konobbue/portfolio-app-previous.tar.gz.new /home/konobbue/portfolio-app-previous.tar.gz'
       - name: Upload to Stellar
         env:
           STELLAR_HOST: ${{ secrets.STELLAR_HOST }}
@@ -51,12 +110,22 @@ jobs:
           STELLAR_USER: ${{ secrets.STELLAR_USER }}
           STELLAR_APP_DIR: ${{ vars.STELLAR_APP_DIR }}
         run: |
-          # The app root keeps its env vars in cPanel, so only build output is replaced.
-          # Runtime-owned paths (cache, restart marker, logs, htaccess) are never deleted.
-          rsync -az --delete \
-            --exclude='/.next/cache' --exclude='/tmp' --exclude='/stderr.log' --exclude='/.htaccess' \
-            -e "ssh -i ~/.ssh/stellar_key -p ${STELLAR_PORT:-21098} -o StrictHostKeyChecking=yes" \
-            deploy/stellar/ "${STELLAR_USER}@${STELLAR_HOST}:${STELLAR_APP_DIR}/"
+          remote="$STELLAR_USER@$STELLAR_HOST"
+          ssh_opts="ssh -i ~/.ssh/stellar_key -p $STELLAR_PORT -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes"
+          if ssh -i ~/.ssh/stellar_key -p "$STELLAR_PORT" -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
+            "$remote" 'command -v rsync >/dev/null'; then
+            rsync -az \
+              --exclude='/.next/cache' --exclude='/.next/cache/***' \
+              --exclude='/tmp' --exclude='/tmp/***' --exclude='/stderr.log' \
+              --exclude='/.htaccess' --exclude='/node_modules' --exclude='/node_modules/***' \
+              -e "$ssh_opts" deploy/stellar/ "$remote:$STELLAR_APP_DIR/"
+          else
+            archive="portfolio-stellar-${GITHUB_SHA}.zip"
+            scp -i ~/.ssh/stellar_key -P "$STELLAR_PORT" -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
+              "deploy/portfolio-stellar.zip" "$remote:$STELLAR_APP_DIR/tmp/$archive"
+            ssh -i ~/.ssh/stellar_key -p "$STELLAR_PORT" -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
+              "$remote" "unzip -tq '$STELLAR_APP_DIR/tmp/$archive' && unzip -oq '$STELLAR_APP_DIR/tmp/$archive' -x '.next/cache' '.next/cache/*' 'tmp' 'tmp/*' 'stderr.log' '.htaccess' 'node_modules' 'node_modules/*' -d '$STELLAR_APP_DIR' && rm -f '$STELLAR_APP_DIR/tmp/$archive'"
+          fi
       - name: Restart app
         env:
           STELLAR_HOST: ${{ secrets.STELLAR_HOST }}
@@ -64,13 +133,29 @@ jobs:
           STELLAR_USER: ${{ secrets.STELLAR_USER }}
           STELLAR_APP_DIR: ${{ vars.STELLAR_APP_DIR }}
         run: |
-          ssh -i ~/.ssh/stellar_key -p "${STELLAR_PORT:-21098}" -o StrictHostKeyChecking=yes \
-            "${STELLAR_USER}@${STELLAR_HOST}" "mkdir -p '${STELLAR_APP_DIR}/tmp' && touch '${STELLAR_APP_DIR}/tmp/restart.txt'"
+          ssh -i ~/.ssh/stellar_key -p "$STELLAR_PORT" -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
+            "$STELLAR_USER@$STELLAR_HOST" 'touch /home/konobbue/portfolio-app/tmp/restart.txt'
       - name: Smoke test
         run: |
-          sleep 15
+          sleep 20
           curl -fsS -o /dev/null -w 'home: %{http_code}\n' https://muhammadessam.me/
           curl -fsS -o /dev/null -w 'robots: %{http_code}\n' https://muhammadessam.me/robots.txt
+          build_id="$(cat deploy/stellar/.next/BUILD_ID)"
+          manifest="deploy/stellar/.next/static/$build_id/_buildManifest.js"
+          asset_hash="$(sha256sum "$manifest" | cut -d' ' -f1)"
+          deployed_hash="$(curl -fsS "https://muhammadessam.me/_next/static/$build_id/_buildManifest.js" | sha256sum | cut -d' ' -f1)"
+          [[ "$asset_hash" == "$deployed_hash" ]]
+          echo 'build manifest: matches the deployed release'
+      - name: Record deployed dependency fingerprint
+        env:
+          STELLAR_HOST: ${{ secrets.STELLAR_HOST }}
+          STELLAR_PORT: ${{ secrets.STELLAR_PORT }}
+          STELLAR_USER: ${{ secrets.STELLAR_USER }}
+        run: |
+          sha="$(sha256sum package-lock.json | cut -d' ' -f1)"
+          ssh -i ~/.ssh/stellar_key -p "$STELLAR_PORT" -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
+            "$STELLAR_USER@$STELLAR_HOST" \
+            "printf '%s\\n' '$sha' > /home/konobbue/.portfolio-app-dependency-sha256.new && mv /home/konobbue/.portfolio-app-dependency-sha256.new /home/konobbue/.portfolio-app-dependency-sha256"
       - name: Remove SSH key
         if: always()
-        run: rm -f ~/.ssh/stellar_key
+        run: rm -f ~/.ssh/stellar_key ~/.ssh/known_hosts

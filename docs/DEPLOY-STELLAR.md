@@ -145,4 +145,32 @@ firebase deploy --only firestore:rules
 4. للرجوع: أوقف التطبيق وحده، استعد ZIP السابقة كاملة وإعداداتها وRestart؛ لا تمسح بيانات Firestore. rollback عبر DNS يحتاج النسخة `deploy/dns-before-stellar.txt` وخطة توافق rules؛ شهادة Origin غير موثوقة للمتصفح عند تعطيل Proxy.
 5. snapshot الحساب بعد الزيارة والإدارة: PMEM **164.65M/1G** مقابل **159.75M/1G** سابقًا، NPROC **26/200** مقابل **24/200**، Entry Processes **2/20** في الحالتين، faults **0**. ليس load test ولا قياس RSS خاصًا بالبورتفوليو.
 
+## Automatic deploy
+
+`.github/workflows/nextjs.yml` يعمل على Pull Requests إلى `main` والفحص اليدوي فقط. `.github/workflows/deploy-stellar.yml` يعمل على push إلى `main` أو تشغيل يدوي: يثبت Node 22، يشغل lint/typecheck/tests، يبني standalone بالحزمة نفسها، يحفظ نسخة release السابقة في `/home/konobbue/portfolio-app-previous.tar.gz`، ثم يرفع فوق جذر التطبيق ويعيد تشغيل Passenger ويفحص الصفحة وrobots وhash manifest من build الجديد. لو لم يتوفر `rsync` على Stellar يستخدم SCP للـZIP ثم `unzip`.
+
+الرفع لا يستخدم `--delete`؛ بذلك لا يحذف ملفات cPanel أو الملفات القديمة. يستثني `node_modules` و`.next/cache` و`tmp` و`stderr.log` و`.htaccess` في طريقي الرفع. تحديث الاعتمادات من `package.json` أو `package-lock.json` يوقف النشر عمدًا؛ يجب تحديث بيئة Node في cPanel بصورة منفصلة ثم إزالة هذا القيد بعد التحقق من symlink والهدف قبل السماح بتغيير modules آليًا. هذا يحافظ على symlink الذي قد ينشئه cPanel ولا يخلط اعتماديات التطبيقات الأخرى.
+
+يقارن workflow بصمة `package-lock.json` بآخر بصمة نُشرت في ملف مخفي خارج جذر الموقع؛ يمنع بذلك تجاوز قيد الاعتمادات في دفعة لاحقة. أول deploy يعتمد على ثبات ملفات الاعتمادات منذ النسخة الحالية، ثم يسجل بصمة البداية بعد نجاح smoke test. إذا حدثت تغييرات dependencies يدويًا، حدّث هذه البصمة بعد مراجعة modules العاملة قبل استئناف النشر.
+
+أضف إلى إعدادات المستودع هذه الأسماء فقط؛ لا تضع قيمها في ملفات Git أو logs:
+
+| نوع الإعداد | الاسم |
+| --- | --- |
+| Secret | `STELLAR_HOST` |
+| Secret | `STELLAR_USER` |
+| Secret | `STELLAR_PORT` |
+| Secret | `STELLAR_SSH_KEY` |
+| Secret | `STELLAR_KNOWN_HOSTS` |
+| Variable | `STELLAR_APP_DIR` |
+| Variable | `NEXT_PUBLIC_CONTACT_ENDPOINT` |
+
+تحقق من SSH host fingerprint عبر دعم Namecheap قبل اعتماد خرج `ssh-keyscan` في `STELLAR_KNOWN_HOSTS`. cPanel يعرض حاليًا صفحة Manage SSH بلا بصمة host؛ فلا تعتمد Trust-on-first-use. المنفذ الافتراضي لحسابات Namecheap shared هو 21098 وفق [دليل SSH الرسمي](https://www.namecheap.com/support/knowledgebase/article.aspx/1016/89/how-to-access-a-hosting-account-via-ssh/). عند تدوير المفتاح، أنشئ زوجًا جديدًا لهذا الغرض، خزّن الخاص محليًا بصلاحية 600، أضف العام وصرّح به في cPanel، اختبر دخوله وdry-run، ثم حدّث `STELLAR_SSH_KEY` و`STELLAR_KNOWN_HOSTS` في GitHub. بعد نجاح deploy بالمفتاح الجديد، ألغِ تفويض القديم في cPanel واحذف ملفه المحلي. لا تستخدم مفاتيح شخصية أو مفاتيح التطبيقات الأخرى.
+
+للرجوع أعد تشغيل آخر workflow ناجح لإصدار سابق من تبويب Actions، أو أعد أرشيف `portfolio-app-previous.tar.gz` إلى application root ثم المس `tmp/restart.txt`. إذا توقف الموقع، افحص آخر run و`stderr.log` من cPanel، أعد تشغيل `portfolio-app` فقط، ثم استعد الأرشيف السابق وأعد التشغيل. لإيقاف النشر السريع، افتح Actions → Deploy to Stellar → قائمة `…` → Disable workflow؛ الفحص على Pull Requests يبقى فعالًا.
+
+**حالة 10 أكتوبر 2026:** خيار SSH access في Manage Shell ظاهر غير مفعّل. يعرض cPanel كذلك مفاتيح نشر لتطبيقين آخرين؛ لا تستخدمها أو تعدلها. مدير الملفات يعرض `portfolio-app/node_modules` كمجلد بصلاحية 755، لكن لا يمكن فحص هدفه بـ`readlink` قبل تفعيل shell. workflow يستثني الاسم ويحافظ عليه إن كان symlink. صفحة cPanel لم تعرض بصمة SSH host؛ اطلبها من دعم Namecheap للتحقق من مفاتيح `ssh-keyscan` قبل اعتماد known-hosts.
+
+**تفعيل أول مرة يتطلب:** SSH access مفعّل للحساب، مفتاح نشر منفصل ومصرح به، إعدادات GitHub المذكورة، ومراجعة dry-run لقائمة الملفات قبل push. اضبط `NEXT_PUBLIC_CONTACT_ENDPOINT` على endpoint Vercel المستخدم في build الإنتاج الحالي: `https://portfolio-contact-api-muhammad-essam.vercel.app/api/contact`. لا تُرسل جلسة `deploy-check` من CI؛ smoke tests آلية تستخدم GET فقط ولا تنشئ بيانات analytics أو إشعار Telegram. بعد أول deploy، اتبع الاختبار اليدوي المتفق عليه في تقرير المراجعة مرة واحدة.
+
 أسرار الجهاز في `~/.config/portfolio-stellar` (directory 700/files 600)، و`/tmp/stellar-secrets` حُذف. gcloud OAuth الواسع ما زال فعالًا. لإلغائه بعد انتهاء أعمال الإدارة وبموافقة المستخدم: `gcloud auth revoke muhammad159e@gmail.com`. لم يُنفذ الإلغاء. دور حساب الخدمة المتحقق في المشروع هو datastore.user فقط؛ مفتاح Firebase Admin القديم ما زال موجودًا وغير معطل وفق metadata ولم يُدوّر.
