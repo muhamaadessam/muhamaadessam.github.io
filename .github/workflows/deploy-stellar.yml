@@ -80,7 +80,7 @@ jobs:
         run: |
           ssh -i ~/.ssh/stellar_key -p "$STELLAR_PORT" -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
             "$STELLAR_USER@$STELLAR_HOST" \
-            'test -d /home/konobbue/portfolio-app && test -f /home/konobbue/portfolio-app/app.js && command -v tar >/dev/null && command -v unzip >/dev/null'
+            'test -d /home/konobbue/portfolio-app && test -w /home/konobbue/portfolio-app && test -d /home/konobbue/portfolio-app/tmp && test -w /home/konobbue/portfolio-app/tmp && test -f /home/konobbue/portfolio-app/app.js && command -v tar >/dev/null && command -v unzip >/dev/null'
       - name: Check deployed dependency fingerprint
         env:
           STELLAR_HOST: ${{ secrets.STELLAR_HOST }}
