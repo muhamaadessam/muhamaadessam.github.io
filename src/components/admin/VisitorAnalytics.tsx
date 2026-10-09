@@ -47,7 +47,7 @@ export default function VisitorAnalytics({ analytics, visitors }: { analytics: V
         {splits.map(([label, counts]) => <section key={label} className="glass min-w-0 rounded-2xl border border-white/10 p-4">
           <h3 className="font-bold mb-3">{label}</h3>
           <div className="max-h-64 overflow-auto space-y-2">
-            {Object.entries(counts || {}).sort(([, a], [, b]) => b - a).map(([name, count]) => <div key={name} className="flex justify-between gap-3 text-sm"><span className="text-gray-300 break-all">{name}</span><span className="text-primary">{count} ({Math.round(count / Math.max(1, analytics.sessions || 0) * 100)}%)</span></div>)}
+            {Object.entries(counts || {}).sort(([, a], [, b]) => b - a).map(([name, count]) => <div key={name} className="flex justify-between gap-3 text-sm"><span className="text-gray-300 break-all">{label === 'Cities' ? name.replace(/ \/ Unknown$/, '') : name}</span><span className="text-primary">{count} ({Math.round(count / Math.max(1, analytics.sessions || 0) * 100)}%)</span></div>)}
             {!Object.keys(counts || {}).length && <p className="text-sm text-gray-500">No detailed data yet.</p>}
           </div>
         </section>)}

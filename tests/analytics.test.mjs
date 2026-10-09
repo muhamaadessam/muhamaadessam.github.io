@@ -221,3 +221,34 @@ test('parallel page views and section events preserve exact counters', async () 
   assert.equal(db.docs.get('stats/visitors').data.total_visites, 1);
   assert.equal(api.notifications.length, 1);
 });
+
+test('proxy origin, Cloudflare priority, placeholders and country-only sessions', async () => {
+  const db = storage();
+  const handler = loadTs('../src/app/api/track/route.ts', { '@/lib/analytics': analytics, '@/lib/analyticsServer': db, 'next/server': { after: () => {} } }, { process: { env: { SITE_ORIGIN: 'https://portfolio.test/' } } });
+  const request = (data, headers) => new Request('http://localhost:3000/api/track', { method: 'POST', headers: { origin: 'https://portfolio.test', 'content-type': 'application/json', ...headers }, body: JSON.stringify(data) });
+  const first = event();
+  const result = await handler.POST(request(first, { 'cf-ipcountry': 'EG', 'cf-ipcity': 'Cairo', 'cf-region-code': 'C', 'x-vercel-ip-country': 'US', 'x-vercel-ip-city': 'Boston' }));
+  assert.equal(result.status, 204);
+  assert.equal(result.headers.get('cache-control'), 'no-store');
+  assert.equal(db.docs.get(`visitor_sessions/${first.sessionId}`).data.country, 'EG');
+  assert.equal(db.docs.get(`visitor_sessions/${first.sessionId}`).data.city, 'Cairo');
+  const second = event();
+  await handler.POST(request(second, { 'cf-ipcountry': 'XX', 'cf-ipcity': 'T1', 'x-vercel-ip-country': 'EG' }));
+  assert.equal(db.docs.get(`visitor_sessions/${second.sessionId}`).data.city, '');
+  assert.equal(db.docs.get('stats/analytics').data.cities.EG, 1);
+  const rejected = await handler.POST(request(event(), { origin: 'https://other.test' }));
+  assert.equal(rejected.status, 403);
+  assert.equal(rejected.headers.get('cache-control'), 'no-store');
+  const invalid = await handler.POST(request({}, {}));
+  assert.equal(invalid.status, 400);
+  assert.equal(invalid.headers.get('cache-control'), 'no-store');
+});
+
+test('service account accepts literal backslash newlines from cPanel', async () => {
+  const { privateKey } = generateKeyPairSync('rsa', { modulusLength: 2048, privateKeyEncoding: { type: 'pkcs8', format: 'pem' }, publicKeyEncoding: { type: 'spki', format: 'pem' } });
+  const server = loadTs('../src/lib/analyticsServer.ts', { 'server-only': {} }, {
+    process: { env: { FIREBASE_PROJECT_ID: 'test', FIREBASE_CLIENT_EMAIL: 'test@example.com', FIREBASE_PRIVATE_KEY: privateKey.replaceAll('\n', '\\n') } },
+    fetch: async url => new Response(JSON.stringify(url.includes('oauth2') ? { access_token: 'test', expires_in: 3600 } : { writeResults: [] })),
+  });
+  await server.commitWrites([]);
+});
