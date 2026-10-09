@@ -1,0 +1,76 @@
+name: Deploy to Stellar
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# One deploy at a time; never cancel a half-finished upload.
+concurrency:
+  group: deploy-stellar
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+      - name: Install dependencies
+        run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Typecheck
+        run: npx tsc --noEmit
+      - name: Tests
+        run: node --test tests/*.test.mjs
+      - name: Build release bundle
+        env:
+          NEXT_PUBLIC_CONTACT_ENDPOINT: ${{ vars.NEXT_PUBLIC_CONTACT_ENDPOINT }}
+        run: bash scripts/package-stellar.sh
+      - name: Prepare SSH
+        env:
+          STELLAR_SSH_KEY: ${{ secrets.STELLAR_SSH_KEY }}
+          STELLAR_KNOWN_HOSTS: ${{ secrets.STELLAR_KNOWN_HOSTS }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$STELLAR_SSH_KEY" > ~/.ssh/stellar_key
+          chmod 600 ~/.ssh/stellar_key
+          printf '%s\n' "$STELLAR_KNOWN_HOSTS" > ~/.ssh/known_hosts
+      - name: Upload to Stellar
+        env:
+          STELLAR_HOST: ${{ secrets.STELLAR_HOST }}
+          STELLAR_PORT: ${{ secrets.STELLAR_PORT }}
+          STELLAR_USER: ${{ secrets.STELLAR_USER }}
+          STELLAR_APP_DIR: ${{ vars.STELLAR_APP_DIR }}
+        run: |
+          # The app root keeps its env vars in cPanel, so only build output is replaced.
+          # Runtime-owned paths (cache, restart marker, logs, htaccess) are never deleted.
+          rsync -az --delete \
+            --exclude='/.next/cache' --exclude='/tmp' --exclude='/stderr.log' --exclude='/.htaccess' \
+            -e "ssh -i ~/.ssh/stellar_key -p ${STELLAR_PORT:-21098} -o StrictHostKeyChecking=yes" \
+            deploy/stellar/ "${STELLAR_USER}@${STELLAR_HOST}:${STELLAR_APP_DIR}/"
+      - name: Restart app
+        env:
+          STELLAR_HOST: ${{ secrets.STELLAR_HOST }}
+          STELLAR_PORT: ${{ secrets.STELLAR_PORT }}
+          STELLAR_USER: ${{ secrets.STELLAR_USER }}
+          STELLAR_APP_DIR: ${{ vars.STELLAR_APP_DIR }}
+        run: |
+          ssh -i ~/.ssh/stellar_key -p "${STELLAR_PORT:-21098}" -o StrictHostKeyChecking=yes \
+            "${STELLAR_USER}@${STELLAR_HOST}" "mkdir -p '${STELLAR_APP_DIR}/tmp' && touch '${STELLAR_APP_DIR}/tmp/restart.txt'"
+      - name: Smoke test
+        run: |
+          sleep 15
+          curl -fsS -o /dev/null -w 'home: %{http_code}\n' https://muhammadessam.me/
+          curl -fsS -o /dev/null -w 'robots: %{http_code}\n' https://muhammadessam.me/robots.txt
+      - name: Remove SSH key
+        if: always()
+        run: rm -f ~/.ssh/stellar_key
