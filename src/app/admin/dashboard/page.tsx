@@ -9,6 +9,7 @@ import ProjectsManager from '@/components/admin/ProjectsManager';
 import SkillsManager from '@/components/admin/SkillsManager';
 import ExperienceManager from '@/components/admin/ExperienceManager';
 import MessageManager from '@/components/admin/MessageManager';
+import VisitorAnalytics from '@/components/admin/VisitorAnalytics';
 import TelegramLogManager from '@/components/admin/TelegramLogManager';
 import { getPortfolioStats, PortfolioStats } from '@/lib/adminServices';
 
@@ -227,6 +228,8 @@ export default function AdminDashboard() {
                 )}
               </section>
             )}
+
+            <VisitorAnalytics analytics={stats?.analytics || {}} visitors={stats?.visitors || []} />
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className="glass min-w-0 rounded-2xl border border-white/10 p-4 sm:p-6">

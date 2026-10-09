@@ -1,4 +1,4 @@
-import { collection, doc, setDoc, updateDoc, deleteDoc, addDoc, getDoc, getDocs, query, orderBy } from 'firebase/firestore';
+import { collection, doc, setDoc, updateDoc, deleteDoc, addDoc, getDoc, getDocs, query, orderBy, where, limit, startAfter, type QueryDocumentSnapshot } from 'firebase/firestore';
 import { db } from './firebase';
 import { Project, Skill, PortfolioData, Experience, Message, TelegramLogType, toAnalyticsKey } from './services';
 
@@ -9,6 +9,40 @@ export interface PortfolioStats {
   events: Record<string, number>;
   visitors: { id: string; visits: number }[];
   projectAnalytics: ProjectAnalytics[];
+  analytics: VisitorAnalyticsStats;
+}
+
+export interface VisitorAnalyticsStats {
+  sessions?: number;
+  homepageSessions?: number;
+  pageViews?: number;
+  durationMs?: number;
+  scrollDepth?: number;
+  sections?: Record<string, number>;
+  sources?: Record<string, number>;
+  referrers?: Record<string, number>;
+  companies?: Record<string, number>;
+  countries?: Record<string, number>;
+  cities?: Record<string, number>;
+  devices?: Record<string, number>;
+  browsers?: Record<string, number>;
+  operatingSystems?: Record<string, number>;
+}
+
+export interface VisitorTimelineEvent {
+  id: string;
+  sessionId: string;
+  event: string;
+  target: string;
+  path: string;
+  timestamp: string;
+  durationMs?: number;
+  scrollDepth?: number;
+}
+
+export async function getVisitorTimeline(visitorId: string, cursor?: QueryDocumentSnapshot) {
+  const snapshot = await getDocs(query(collection(db, 'visitor_events'), where('visitorId', '==', visitorId), orderBy('timestamp', 'desc'), ...(cursor ? [startAfter(cursor)] : []), limit(100)));
+  return { events: snapshot.docs.map(item => ({ id: item.id, ...item.data() })) as VisitorTimelineEvent[], cursor: snapshot.docs.length === 100 ? snapshot.docs.at(-1) : undefined };
 }
 
 export interface ProjectAnalytics {
@@ -37,13 +71,14 @@ export async function getTelegramLogs(): Promise<TelegramLog[]> {
 
 export async function getPortfolioStats(): Promise<PortfolioStats> {
   try {
-    const [visitorsSnapshot, visitorDocsSnapshot, downloadsSnapshot, eventsSnapshot, projectEventsSnapshot, projectsSnapshot] = await Promise.all([
+    const [visitorsSnapshot, visitorDocsSnapshot, downloadsSnapshot, eventsSnapshot, projectEventsSnapshot, projectsSnapshot, analyticsSnapshot] = await Promise.all([
       getDoc(doc(db, 'stats', 'visitors')),
       getDocs(collection(db, 'visitors')),
       getDoc(doc(db, 'stats', 'cv_downloads')),
       getDoc(doc(db, 'stats', 'events')),
       getDoc(doc(db, 'stats', 'project_events')),
       getDocs(collection(db, 'projects')),
+      getDoc(doc(db, 'stats', 'analytics')),
     ]);
 
     const visitorsData = visitorsSnapshot.data() || {};
@@ -124,10 +159,11 @@ export async function getPortfolioStats(): Promise<PortfolioStats> {
       events,
       visitors,
       projectAnalytics,
+      analytics: analyticsSnapshot.data() || {},
     };
   } catch (error) {
     console.error('Error fetching portfolio stats:', error);
-    return { totalVisitors: 0, totalVisits: 0, cvDownloads: 0, events: {}, visitors: [], projectAnalytics: [] };
+    return { totalVisitors: 0, totalVisits: 0, cvDownloads: 0, events: {}, visitors: [], projectAnalytics: [], analytics: {} };
   }
 }
 

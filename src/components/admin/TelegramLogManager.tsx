@@ -19,7 +19,7 @@ const fieldLabels: Record<string, string> = {
 
 function valueOf(value: unknown): string {
   if (value === null || value === undefined || value === '') return 'Unavailable';
-  return String(value);
+  return typeof value === 'object' ? JSON.stringify(value) : String(value);
 }
 
 function getTime(log: TelegramLog): number {
@@ -185,10 +185,10 @@ export default function TelegramLogManager() {
           <Detail icon={MapPin} label="Location" value={`${valueOf(payload.flag)} ${location || 'Unavailable'}`} wide />
           <Detail icon={Clock3} label="Timezone" value={payload.timezone} />
           <Detail icon={Monitor} label="Device" value={payload.device} />
-          <Detail icon={Globe2} label="IP address" value={payload.ip} />
-          <Detail icon={Navigation} label="Coordinates" value={coordinates} />
+          {!!payload.ip && <Detail icon={Globe2} label="IP address (historical)" value={payload.ip} />}
+          {coordinates && <Detail icon={Navigation} label="Coordinates (historical)" value={coordinates} />}
           <Detail icon={UserRound} label="Visitor ID" value={payload.visitorId} wide />
-          <Detail icon={Monitor} label="Browser signature" value={payload.userAgent} wide />
+          {!!payload.userAgent && <Detail icon={Monitor} label="Browser signature (historical)" value={payload.userAgent} wide />}
           {log.type === 'visitor' && <Detail icon={Eye} label="New visitor" value={payload.isNewVisitor === true ? 'Yes' : 'No'} />}
         </div>
 
