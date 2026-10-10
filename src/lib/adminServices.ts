@@ -38,6 +38,9 @@ export interface VisitorTimelineEvent {
   timestamp: string;
   durationMs?: number;
   scrollDepth?: number;
+  projectId?: string;
+  projectName?: string;
+  button?: string;
 }
 
 export async function getVisitorTimeline(visitorId: string, cursor?: QueryDocumentSnapshot) {

@@ -61,7 +61,7 @@ async function record(event: TrackingEvent, request: Request) {
       analytics.scrollDepth = Math.max(0, (event.scrollDepth || 0) - Number(sessionData.scrollDepth || 0));
     }
     const writes: object[] = [
-      writeDocument(eventPath, { visitorId: event.visitorId, sessionId: event.sessionId, pageId: event.pageId, event: event.event, target: event.target, path: event.path, timestamp: now, ...(event.durationMs !== undefined ? { durationMs: event.durationMs, scrollDepth: event.scrollDepth || 0 } : {}), ...(event.projectId ? { projectId: event.projectId } : {}) }, { data: {} }),
+      writeDocument(eventPath, { visitorId: event.visitorId, sessionId: event.sessionId, pageId: event.pageId, event: event.event, target: event.target, path: event.path, timestamp: now, ...(event.durationMs !== undefined ? { durationMs: event.durationMs, scrollDepth: event.scrollDepth || 0 } : {}), ...(event.projectId ? { projectId: event.projectId } : {}), ...(event.projectName ? { projectName: event.projectName } : {}), ...(event.button ? { button: event.button } : {}) }, { data: {} }),
     ];
     let notification: Record<string, unknown> | undefined;
     let visitorTotalsWrite = -1;

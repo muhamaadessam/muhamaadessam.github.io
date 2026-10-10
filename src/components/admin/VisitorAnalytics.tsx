@@ -69,7 +69,7 @@ export default function VisitorAnalytics({ analytics, visitors }: { analytics: V
           {visitors.map(visitor => <option key={visitor.id} value={visitor.id}>{visitor.id} — {visitor.visits} visits</option>)}
         </select>
         <div aria-live="polite" className="mt-4 space-y-3 max-h-96 overflow-auto">
-          {events.map(event => <div key={event.id} className="border-b border-white/10 pb-3 text-sm"><p className="text-primary">{event.event.replaceAll('_', ' ')} — {event.target}</p><p className="text-gray-400 break-all">{new Date(event.timestamp).toLocaleString()} · {event.path} · Session {event.sessionId}</p>{event.durationMs !== undefined && <p className="text-gray-300">Visible time: {Math.round(event.durationMs / 1000)}s · Scroll: {event.scrollDepth}%</p>}</div>)}
+          {events.map(event => <div key={event.id} className="border-b border-white/10 pb-3 text-sm"><p className="text-primary">{event.event.replaceAll('_', ' ')} — {event.projectName || event.target}</p>{event.button && <p className="text-gray-300">Button: {event.button}</p>}<p className="text-gray-400 break-all">{new Date(event.timestamp).toLocaleString()} · {event.path} · Session {event.sessionId}</p>{event.durationMs !== undefined && <p className="text-gray-300">Visible time: {Math.round(event.durationMs / 1000)}s · Scroll: {event.scrollDepth}%</p>}</div>)}
           {loading && <p className="text-gray-400">Loading timeline...</p>}
           {error && <p className="text-red-400">{error}</p>}
           {visitorId && !loading && !error && !events.length && <p className="text-gray-500">No detailed events yet. Older visits only have counters.</p>}
