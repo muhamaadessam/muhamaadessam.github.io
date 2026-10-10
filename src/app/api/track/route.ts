@@ -20,7 +20,7 @@ function allowedOrigin(request: Request) {
 }
 
 async function notify(kind: 'visitor' | 'cv-download', payload: object) {
-  const endpoint = process.env.NEXT_PUBLIC_CONTACT_ENDPOINT || 'https://portfolio-contact-api-muhammad-essam.vercel.app/api/contact';
+  const endpoint = process.env.NEXT_PUBLIC_CONTACT_ENDPOINT || 'https://portfolio-contact-api-three.vercel.app/api/contact';
   try {
     const response = await fetch(endpoint.replace(/\/contact\/?$/, `/${kind}`), { method: 'POST', headers: { 'Content-Type': 'application/json', ...(process.env.VISITOR_NOTIFICATION_SECRET ? { Authorization: `Bearer ${process.env.VISITOR_NOTIFICATION_SECRET}` } : {}) }, body: JSON.stringify(payload), signal: AbortSignal.timeout(8000) });
     if (!response.ok) console.error(`Analytics ${kind} notification failed (${response.status})`);
