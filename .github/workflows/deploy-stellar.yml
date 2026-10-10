@@ -62,6 +62,8 @@ jobs:
           [[ "$STELLAR_APP_DIR" == '/home/konobbue/portfolio-app' ]]
       - name: Prepare SSH
         env:
+          STELLAR_HOST: ${{ secrets.STELLAR_HOST }}
+          STELLAR_PORT: ${{ secrets.STELLAR_PORT }}
           STELLAR_SSH_KEY: ${{ secrets.STELLAR_SSH_KEY }}
           STELLAR_KNOWN_HOSTS: ${{ secrets.STELLAR_KNOWN_HOSTS }}
         run: |
