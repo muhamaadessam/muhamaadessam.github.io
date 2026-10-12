@@ -85,7 +85,8 @@ function storage() {
 function route(db) {
   const notifications = [];
   const pending = [];
-  const handlerModule = loadTs('../src/app/api/track/route.ts', { '@/lib/analytics': analytics, '@/lib/analyticsServer': db, 'next/server': { after: callback => pending.push(callback) } }, { fetch: async (url, options) => { notifications.push({ url, payload: JSON.parse(options.body) }); return new Response('{}'); } });
+  const fetch = async (url, options) => { notifications.push({ url, payload: JSON.parse(options.body) }); return new Response('{}'); };
+  const handlerModule = loadTs('../src/app/api/track/route.ts', { '@/lib/analytics': analytics, '@/lib/analyticsServer': db, '@/lib/notifications': loadTs('../src/lib/notifications.ts', {}, { fetch }), 'next/server': { after: callback => pending.push(callback) } });
   return {
     notifications,
     send: async data => {
@@ -242,7 +243,7 @@ test('parallel page views and section events preserve exact counters', async () 
 
 test('proxy origin, Cloudflare priority, placeholders and country-only sessions', async () => {
   const db = storage();
-  const handler = loadTs('../src/app/api/track/route.ts', { '@/lib/analytics': analytics, '@/lib/analyticsServer': db, 'next/server': { after: () => {} } }, { process: { env: { SITE_ORIGIN: 'https://portfolio.test/' } } });
+  const handler = loadTs('../src/app/api/track/route.ts', { '@/lib/analytics': analytics, '@/lib/analyticsServer': db, '@/lib/notifications': loadTs('../src/lib/notifications.ts'), 'next/server': { after: () => {} } }, { process: { env: { SITE_ORIGIN: 'https://portfolio.test/' } } });
   const request = (data, headers) => new Request('http://localhost:3000/api/track', { method: 'POST', headers: { origin: 'https://portfolio.test', 'content-type': 'application/json', ...headers }, body: JSON.stringify(data) });
   const first = event();
   const result = await handler.POST(request(first, { 'cf-ipcountry': 'EG', 'cf-ipcity': 'Cairo', 'cf-region-code': 'C', 'x-vercel-ip-country': 'US', 'x-vercel-ip-city': 'Boston' }));
