@@ -2,6 +2,18 @@ import { trafficSource, type PortfolioEvent, type TrackingEvent } from './analyt
 
 let context: Omit<TrackingEvent, 'event' | 'target' | 'eventId'> | null = null;
 
+const attributionParams = ['utm_source', 'utm_medium', 'utm_campaign', 'ref'];
+
+// The source is already captured in storage, so the campaign params only make the visible URL noisy to copy or share.
+function stripAttributionParams() {
+  try {
+    const url = new URL(location.href);
+    if (!attributionParams.some(key => url.searchParams.has(key))) return;
+    attributionParams.forEach(key => url.searchParams.delete(key));
+    history.replaceState(history.state, '', `${url.pathname}${url.search}${url.hash}`);
+  } catch { /* Leaving the URL as is is harmless. */ }
+}
+
 function trackingContext() {
   if (typeof window === 'undefined' || navigator.doNotTrack === '1' || location.pathname.startsWith('/admin')) return null;
   if (context) return context;
@@ -21,6 +33,7 @@ function trackingContext() {
     const sessionSource = JSON.parse(sessionStorage.getItem('analytics_source') || 'null') || source;
     localStorage.setItem('analytics_first_touch', JSON.stringify(firstTouch));
     sessionStorage.setItem('analytics_source', JSON.stringify(sessionSource));
+    stripAttributionParams();
     context = { visitorId, sessionId, pageId: crypto.randomUUID(), path: location.pathname, source: sessionSource, firstTouch, language: navigator.language, timezone: Intl.DateTimeFormat().resolvedOptions().timeZone, screen: `${screen.width}x${screen.height}` };
     return context;
   } catch {
