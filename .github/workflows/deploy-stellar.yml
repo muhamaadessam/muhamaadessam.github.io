@@ -136,7 +136,7 @@ jobs:
           STELLAR_APP_DIR: ${{ vars.STELLAR_APP_DIR }}
         run: |
           ssh -i ~/.ssh/stellar_key -p "$STELLAR_PORT" -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
-            "$STELLAR_USER@$STELLAR_HOST" 'touch /home/konobbue/portfolio-app/tmp/restart.txt'
+            "$STELLAR_USER@$STELLAR_HOST" 'rm -rf /home/konobbue/portfolio-app/.next/server/route-cache && touch /home/konobbue/portfolio-app/tmp/restart.txt'
       - name: Smoke test
         run: |
           sleep 20
@@ -149,6 +149,10 @@ jobs:
           deployed_hash="$(curl -fsS "https://muhammadessam.me/_next/static/$build_id/_buildManifest.js" | sha256sum | cut -d' ' -f1)"
           [[ "$asset_hash" == "$deployed_hash" ]]
           echo 'build manifest: matches the deployed release'
+          # A stale page cache can serve old HTML even when the new assets exist.
+          layout="$(ls deploy/stellar/.next/static/chunks/app/ | grep -m1 '^layout-')"
+          [[ "$home" == *"$layout"* ]]
+          echo "homepage HTML: references $layout"
       - name: Record deployed dependency fingerprint
         env:
           STELLAR_HOST: ${{ secrets.STELLAR_HOST }}
