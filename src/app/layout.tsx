@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Fira_Code } from 'next/font/google';
 import './globals.css';
 import JsonLd from '@/components/JsonLd';
@@ -7,6 +7,12 @@ import MotionProvider from '@/components/MotionProvider';
 import { DEFAULT_DESCRIPTION, DEFAULT_TITLE, KNOWS_ABOUT, PERSON_ID, PERSON_NAME, SITE_NAME, SITE_URL, WEBSITE_ID } from '@/lib/seo';
 
 const firaCode = Fira_Code({ subsets: ['latin'] });
+
+// Lets the browser paint the dark canvas before the stylesheet arrives, instead of a white flash.
+export const viewport: Viewport = {
+  colorScheme: 'dark',
+  themeColor: '#282C33',
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -74,7 +80,7 @@ export default function RootLayout({
   };
 
   return (
-    <html lang="en" className="dark" data-scroll-behavior="smooth" suppressHydrationWarning>
+    <html lang="en" className="dark" data-scroll-behavior="smooth" style={{ backgroundColor: '#282C33' }} suppressHydrationWarning>
       <body className={`${firaCode.className} antialiased selection:bg-primary/30 selection:text-primary-dark`}>
         <JsonLd data={siteSchema} />
         <MotionProvider>{children}</MotionProvider>

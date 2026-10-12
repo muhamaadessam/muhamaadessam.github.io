@@ -153,6 +153,10 @@ jobs:
           layout="$(ls deploy/stellar/.next/static/chunks/app/ | grep -m1 '^layout-')"
           [[ "$home" == *"$layout"* ]]
           echo "homepage HTML: references $layout"
+          # Rebuild the cleared page cache now so the first real visitor does not wait on it.
+          for path in $(curl -fsS https://muhammadessam.me/sitemap.xml | grep -oE 'https://muhammadessam.me[^<]*' | sort -u); do
+            curl -fsS -o /dev/null -w "warm %{http_code} %{time_total}s $path\n" "$path" || true
+          done
       - name: Record deployed dependency fingerprint
         env:
           STELLAR_HOST: ${{ secrets.STELLAR_HOST }}
