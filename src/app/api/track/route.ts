@@ -1,6 +1,6 @@
 import { after } from 'next/server';
 import { deviceInfo, toAnalyticsKey, validTrackingEvent, type TrackingEvent } from '@/lib/analytics';
-import { notify, requestGeography } from '@/lib/notifications';
+import { notify, requestGeography, timezoneMismatch } from '@/lib/notifications';
 import { commitWrites, FirestoreError, incrementFields, quotedField, readDocument, writeDocument } from '@/lib/analyticsServer';
 
 export const runtime = 'nodejs';
@@ -64,7 +64,7 @@ async function record(event: TrackingEvent, request: Request) {
         writes.push(writeDocument(visitorPath, { ...visitor.data, visits: visits + 1, firstSeen: visitor.data.firstSeen || new Date(now), lastSeen: new Date(now), firstTouch: visitor.data.firstTouch || event.firstTouch }, visitor));
         visitorTotalsWrite = writes.length;
         writes.push(incrementFields('stats/visitors', { total_visitors: isNewVisitor ? 1 : 0, total_visites: 1 }));
-        notification = { visitorId: event.visitorId, sessionId: event.sessionId, isNewVisitor, source: sessionData.source, firstTouch: visitor.data.firstTouch || event.firstTouch, country: sessionData.country, city: sessionData.city, region: sessionData.region, device: sessionData.device, browser: sessionData.browser, os: sessionData.os, screen: sessionData.screen, language: sessionData.language, timezone: sessionData.timezone, path: event.path };
+        notification = { visitorId: event.visitorId, sessionId: event.sessionId, isNewVisitor, source: sessionData.source, firstTouch: visitor.data.firstTouch || event.firstTouch, country: sessionData.country, city: sessionData.city, region: sessionData.region, device: sessionData.device, browser: sessionData.browser, os: sessionData.os, screen: sessionData.screen, language: sessionData.language, timezone: sessionData.timezone, ipTimezone: sessionData.ipTimezone, timezoneMismatch: timezoneMismatch(sessionData.timezone, sessionData.ipTimezone), path: event.path };
       }
     }
     if (!['engagement', 'section_view'].includes(event.event)) {

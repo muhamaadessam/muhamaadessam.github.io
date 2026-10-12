@@ -9,7 +9,22 @@ export function geoValue(request: Request, ...headers: string[]) {
 }
 
 export function requestGeography(request: Request) {
-  return { country: geoValue(request, 'cf-ipcountry', 'x-vercel-ip-country') || 'Unknown', city: geoValue(request, 'cf-ipcity', 'x-vercel-ip-city'), region: geoValue(request, 'cf-region-code', 'cf-region', 'x-vercel-ip-country-region') };
+  return { country: geoValue(request, 'cf-ipcountry', 'x-vercel-ip-country') || 'Unknown', city: geoValue(request, 'cf-ipcity', 'x-vercel-ip-city'), region: geoValue(request, 'cf-region-code', 'cf-region', 'x-vercel-ip-country-region'), ipTimezone: geoValue(request, 'cf-timezone', 'x-vercel-ip-timezone') };
+}
+
+function utcOffset(timeZone: string) {
+  try {
+    return new Intl.DateTimeFormat('en-US', { timeZone, timeZoneName: 'longOffset' }).formatToParts(new Date()).find(part => part.type === 'timeZoneName')?.value || null;
+  } catch { return null; }
+}
+
+// A device clock set to a different UTC offset than the IP's location usually means a VPN, proxy or corporate exit node.
+// Offsets are compared rather than zone names so neighbours like Asia/Riyadh and Asia/Kuwait never count as a mismatch.
+export function timezoneMismatch(deviceTimezone: unknown, ipTimezone: unknown) {
+  if (typeof deviceTimezone !== 'string' || typeof ipTimezone !== 'string' || !deviceTimezone || !ipTimezone) return false;
+  const device = utcOffset(deviceTimezone);
+  const ip = utcOffset(ipTimezone);
+  return Boolean(device && ip && device !== ip);
 }
 
 export async function notify(kind: 'visitor' | 'cv-download', payload: object) {

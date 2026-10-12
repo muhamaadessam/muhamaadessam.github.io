@@ -271,3 +271,12 @@ test('service account accepts literal backslash newlines from cPanel', async () 
   });
   await server.commitWrites([]);
 });
+
+test('timezone mismatch compares UTC offsets, not zone names', () => {
+  const { timezoneMismatch } = loadTs('../src/lib/notifications.ts', {}, { Intl });
+  assert.equal(timezoneMismatch('Africa/Cairo', 'Europe/Berlin') || timezoneMismatch('Africa/Cairo', 'America/New_York'), true);
+  assert.equal(timezoneMismatch('Asia/Riyadh', 'Asia/Kuwait'), false);
+  assert.equal(timezoneMismatch('Africa/Cairo', 'Africa/Cairo'), false);
+  assert.equal(timezoneMismatch('Africa/Cairo', ''), false);
+  assert.equal(timezoneMismatch('Not/AZone', 'Africa/Cairo'), false);
+});
