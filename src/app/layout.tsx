@@ -43,6 +43,10 @@ export const metadata: Metadata = {
     description: DEFAULT_DESCRIPTION,
     creator: '@muhammadessam',
   },
+  // AdSense ownership check for this domain and its subdomains (FPL Pro shows the ads).
+  verification: {
+    other: { 'google-adsense-account': 'ca-pub-7614735907221714' },
+  },
 };
 
 export default function RootLayout({
