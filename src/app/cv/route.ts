@@ -2,13 +2,14 @@ import { after } from 'next/server';
 import { deviceInfo, trafficSource } from '@/lib/analytics';
 import { commitWrites, incrementFields } from '@/lib/analyticsServer';
 import { notify, requestGeography } from '@/lib/notifications';
+import { CV_DRIVE_FILE_ID } from '@/lib/constants';
+import { SITE_URL } from '@/lib/seo';
 
 export const runtime = 'nodejs';
 
 // The CV lives in Google Drive so it can be replaced in place; this link always serves the current file.
-const DRIVE_FILE_ID = '11R3XbF-0bTpnFe4wCdOYy9Qgw4ISQKEc';
-const DRIVE_DOWNLOAD_URL = `https://drive.usercontent.google.com/download?id=${DRIVE_FILE_ID}&export=download`;
-const DRIVE_VIEW_URL = `https://drive.google.com/file/d/${DRIVE_FILE_ID}/view`;
+const DRIVE_DOWNLOAD_URL = `https://drive.usercontent.google.com/download?id=${CV_DRIVE_FILE_ID}&export=download`;
+const DRIVE_VIEW_URL = `https://drive.google.com/file/d/${CV_DRIVE_FILE_ID}/view`;
 const CACHE_MS = 5 * 60 * 1000;
 const BOT_PATTERN = /bot|crawl|spider|preview|slurp|facebookexternalhit|whatsapp|telegram|slack|discord|linkedin|google-?inspection|headless/i;
 
@@ -58,7 +59,39 @@ function recordOpen(request: Request) {
   });
 }
 
+const PREVIEW_TITLE = 'Muhammad Essam | CV';
+const PREVIEW_DESCRIPTION = 'Flutter Developer and Mobile Engineer. Open to view or download the latest CV (PDF).';
+
+// Chat apps can't preview a PDF, so link-preview bots get a card with the title and the CV's first page instead.
+function previewPage() {
+  const image = `${SITE_URL}/cv/preview`;
+  const html = `<!doctype html><html lang="en"><head><meta charset="utf-8">
+<title>${PREVIEW_TITLE}</title>
+<meta name="description" content="${PREVIEW_DESCRIPTION}">
+<meta name="robots" content="noindex">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Muhammad Essam">
+<meta property="og:url" content="${SITE_URL}/cv">
+<meta property="og:title" content="${PREVIEW_TITLE}">
+<meta property="og:description" content="${PREVIEW_DESCRIPTION}">
+<meta property="og:image" content="${image}">
+<meta property="og:image:secure_url" content="${image}">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="First page of Muhammad Essam's CV">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="${PREVIEW_TITLE}">
+<meta name="twitter:description" content="${PREVIEW_DESCRIPTION}">
+<meta name="twitter:image" content="${image}">
+</head><body><a href="${SITE_URL}/cv">${PREVIEW_TITLE}</a></body></html>`;
+  return new Response(html, {
+    headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex' },
+  });
+}
+
 export async function GET(request: Request) {
+  if (BOT_PATTERN.test(request.headers.get('user-agent') || '')) return previewPage();
   const pdf = await currentCv();
   if (!pdf) return Response.redirect(DRIVE_VIEW_URL, 302);
   // The site's own Download CV buttons already report the click through /api/track.
