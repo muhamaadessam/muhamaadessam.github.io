@@ -64,7 +64,7 @@ const PREVIEW_DESCRIPTION = 'Flutter Developer and Mobile Engineer. Open to view
 
 // Chat apps can't preview a PDF, so link-preview bots get a card with the title and the CV's first page instead.
 function previewPage() {
-  const image = `${SITE_URL}/cv/preview`;
+  const image = `${SITE_URL}/cv-card.png`;
   const html = `<!doctype html><html lang="en"><head><meta charset="utf-8">
 <title>${PREVIEW_TITLE}</title>
 <meta name="description" content="${PREVIEW_DESCRIPTION}">
@@ -76,8 +76,11 @@ function previewPage() {
 <meta property="og:description" content="${PREVIEW_DESCRIPTION}">
 <meta property="og:image" content="${image}">
 <meta property="og:image:secure_url" content="${image}">
-<meta property="og:image:alt" content="First page of Muhammad Essam's CV">
-<meta name="twitter:card" content="summary">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Muhammad Essam's CV with its first page">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="${PREVIEW_TITLE}">
 <meta name="twitter:description" content="${PREVIEW_DESCRIPTION}">
 <meta name="twitter:image" content="${image}">
