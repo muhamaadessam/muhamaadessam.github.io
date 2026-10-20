@@ -76,11 +76,8 @@ function previewPage() {
 <meta property="og:description" content="${PREVIEW_DESCRIPTION}">
 <meta property="og:image" content="${image}">
 <meta property="og:image:secure_url" content="${image}">
-<meta property="og:image:type" content="image/png">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="First page of Muhammad Essam's CV">
-<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="${PREVIEW_TITLE}">
 <meta name="twitter:description" content="${PREVIEW_DESCRIPTION}">
 <meta name="twitter:image" content="${image}">
