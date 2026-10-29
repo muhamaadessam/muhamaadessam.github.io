@@ -55,15 +55,16 @@ export default function Footer({ data }: { data: PortfolioData | null }) {
                 </li>
               )}
               {data?.phone && (
-                <li className="flex items-center gap-3">
+                <li className="flex flex-wrap items-center justify-center md:justify-start gap-x-3 gap-y-3">
                   <a href={`tel:${data.phone}`} aria-label={`Call ${data.phone}`} className="flex items-center gap-3 hover:text-primary transition-colors group">
                     <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
                       <Phone className="w-4 h-4 text-gray-300 group-hover:text-primary" />
                     </div>
                     <span>{data.phone}</span>
                   </a>
-                  <a href={`https://api.whatsapp.com/send/?phone=${data.phone.replace('+', '')}&text&type=phone_number&app_absent=0`} target="_blank" rel="noreferrer" aria-label="Chat on WhatsApp" className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center hover:bg-[#25D366]/20 transition-colors group">
-                    <FaWhatsapp className="w-4 h-4 text-gray-300 group-hover:text-[#25D366]" />
+                  <a href={`https://api.whatsapp.com/send/?phone=${data.phone.replace('+', '')}&text&type=phone_number&app_absent=0`} target="_blank" rel="noreferrer" aria-label="Chat on WhatsApp" className="h-8 pl-2.5 pr-3.5 rounded-full bg-[#25D366]/15 border border-[#25D366]/30 inline-flex items-center gap-2 text-[#25D366] hover:bg-[#25D366]/25 transition-colors">
+                    <FaWhatsapp className="w-4 h-4" />
+                    <span className="text-xs font-medium">WhatsApp</span>
                   </a>
                 </li>
               )}
