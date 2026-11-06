@@ -4,7 +4,7 @@ import './globals.css';
 import JsonLd from '@/components/JsonLd';
 import VisitorTracker from '@/components/VisitorTracker';
 import MotionProvider from '@/components/MotionProvider';
-import { DEFAULT_DESCRIPTION, DEFAULT_TITLE, KNOWS_ABOUT, PERSON_ID, PERSON_NAME, SITE_NAME, SITE_URL, WEBSITE_ID } from '@/lib/seo';
+import { ALTERNATE_NAMES, DEFAULT_DESCRIPTION, DEFAULT_TITLE, KNOWS_ABOUT, PERSON_ID, PERSON_NAME, SAME_AS, SITE_NAME, SITE_URL, WEBSITE_ID } from '@/lib/seo';
 
 const firaCode = Fira_Code({ subsets: ['latin'] });
 
@@ -19,11 +19,13 @@ export const metadata: Metadata = {
   title: { default: DEFAULT_TITLE, template: '%s | Muhammad Essam' },
   description: DEFAULT_DESCRIPTION,
   applicationName: SITE_NAME,
-  keywords: ['Muhammad Essam', 'Flutter Developer', 'Mobile Application Engineer', 'Dart', 'BLoC', 'Clean Architecture', 'Firebase', 'Android', 'iOS'],
+  keywords: ['Muhammad Essam', 'Mohamed Essam', 'محمد عصام', 'Flutter Developer', 'Flutter Developer Egypt', 'Mobile Application Engineer', 'Dart', 'BLoC', 'Clean Architecture', 'Firebase', 'Android', 'iOS'],
   authors: [{ name: PERSON_NAME, url: SITE_URL }],
   creator: PERSON_NAME,
   category: 'technology',
-  alternates: { canonical: '/' },
+  // The llms.txt link lets AI crawlers find the plain-text summary from any page.
+  alternates: { canonical: '/', types: { 'text/plain': [{ url: '/llms.txt', title: 'LLM summary' }] } },
+  formatDetection: { telephone: false, email: false, address: false },
   robots: {
     index: true,
     follow: true,
@@ -63,13 +65,19 @@ export default function RootLayout({
         name: PERSON_NAME,
         jobTitle: 'Flutter Developer',
         description: DEFAULT_DESCRIPTION,
+        alternateName: ALTERNATE_NAMES,
         url: `${SITE_URL}/`,
-        image: `${SITE_URL}/profilePic.webp`,
-        sameAs: [
-          'https://github.com/muhamaadessam',
-          'https://www.linkedin.com/in/muhammadessam159/',
-        ],
+        mainEntityOfPage: `${SITE_URL}/`,
+        image: { '@type': 'ImageObject', url: `${SITE_URL}/profilePic.webp`, caption: PERSON_NAME },
+        sameAs: SAME_AS,
         knowsAbout: KNOWS_ABOUT,
+        knowsLanguage: ['en', 'ar'],
+        hasOccupation: {
+          '@type': 'Occupation',
+          name: 'Flutter Developer',
+          occupationalCategory: '15-1252.00 Software Developers',
+          skills: KNOWS_ABOUT.join(', '),
+        },
       },
       {
         '@type': 'WebSite',
@@ -79,6 +87,7 @@ export default function RootLayout({
         description: DEFAULT_DESCRIPTION,
         inLanguage: 'en',
         publisher: { '@id': PERSON_ID },
+        author: { '@id': PERSON_ID },
       },
     ],
   };

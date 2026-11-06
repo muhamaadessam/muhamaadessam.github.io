@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { getPortfolioData, getProjectById, getProjects } from '@/lib/services';
 import JsonLd from '@/components/JsonLd';
-import { PERSON_ID, SITE_NAME, SITE_URL, SOCIAL_DESCRIPTION_LIMIT, operatingSystemsFromLinks, projectUrl, truncateText } from '@/lib/seo';
+import { PERSON_ID, SITE_NAME, SITE_URL, WEBSITE_ID, SOCIAL_DESCRIPTION_LIMIT, operatingSystemsFromLinks, projectUrl, truncateText } from '@/lib/seo';
 import ProjectDetailsClient from './ProjectDetailsClient';
 
 type ProjectPageProps = {
@@ -66,6 +66,20 @@ export default async function ProjectDetailsPage({ params }: ProjectPageProps) {
         '@context': 'https://schema.org',
         '@graph': [
           {
+            '@type': 'WebPage',
+            '@id': `${url}#webpage`,
+            url,
+            name: `${project.projectName} | Muhammad Essam`,
+            description: truncateText(project.projectDescription, 160),
+            inLanguage: 'en',
+            isPartOf: { '@id': WEBSITE_ID },
+            about: { '@id': `${url}#app` },
+            mainEntity: { '@id': `${url}#app` },
+            author: { '@id': PERSON_ID },
+            breadcrumb: { '@id': `${url}#breadcrumb` },
+            ...(project.projectImage ? { primaryImageOfPage: { '@type': 'ImageObject', url: project.projectImage } } : {}),
+          },
+          {
             '@type': 'SoftwareApplication',
             '@id': `${url}#app`,
             name: project.projectName,
@@ -74,13 +88,16 @@ export default async function ProjectDetailsPage({ params }: ProjectPageProps) {
             applicationCategory: 'MobileApplication',
             ...(operatingSystem ? { operatingSystem } : {}),
             ...(project.projectImage ? { image: project.projectImage } : {}),
+            ...(project.screenshots?.length ? { screenshot: project.screenshots } : {}),
             ...(project.techStack?.length ? { keywords: project.techStack.join(', ') } : {}),
             ...(project.keyFeaturesAndBenefits?.length ? { featureList: project.keyFeaturesAndBenefits } : {}),
             author: { '@id': PERSON_ID },
+            creator: { '@id': PERSON_ID },
             ...(links.length ? { sameAs: links } : {}),
           },
           {
             '@type': 'BreadcrumbList',
+            '@id': `${url}#breadcrumb`,
             itemListElement: [
               { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}/` },
               { '@type': 'ListItem', position: 2, name: 'Projects', item: `${SITE_URL}/#projects` },

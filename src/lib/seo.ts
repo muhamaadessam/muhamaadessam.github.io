@@ -7,6 +7,10 @@ export const DEFAULT_TITLE = 'Muhammad Essam | Flutter Developer | Mobile Engine
 export const DEFAULT_DESCRIPTION =
   'Flutter Developer with 3+ years building production Android and iOS apps with Flutter, Dart, BLoC, and Firebase.';
 export const KNOWS_ABOUT = ['Flutter', 'Dart', 'BLoC', 'Clean Architecture', 'Firebase', 'REST APIs', 'Android', 'iOS'];
+export const YEARS_OF_EXPERIENCE = '3+';
+// Other spellings people search for, so search and answer engines tie them to the same person.
+export const ALTERNATE_NAMES = ['M.Essam', 'Mohamed Essam', 'Mohammed Essam', 'محمد عصام'];
+export const SAME_AS = ['https://github.com/muhamaadessam', 'https://www.linkedin.com/in/muhammadessam159/'];
 
 // Escapes "<" so a value can never close the surrounding <script> tag.
 export function serializeJsonLd(data: unknown): string {

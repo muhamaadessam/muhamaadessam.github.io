@@ -15,14 +15,26 @@ const AI_CRAWLERS = [
   'Perplexity-User',
   'Google-Extended',
   'Applebot-Extended',
+  'Google-CloudVertexBot',
+  'Gemini-Deep-Research',
+  'Bingbot',
+  'Amazonbot',
+  'meta-externalagent',
+  'meta-externalfetcher',
+  'DuckAssistBot',
+  'MistralAI-User',
+  'cohere-ai',
+  'YouBot',
   'CCBot',
 ];
+
+const PRIVATE_PATHS = ['/admin', '/api/'];
 
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
-      { userAgent: '*', allow: '/', disallow: '/admin' },
-      { userAgent: AI_CRAWLERS, allow: '/', disallow: '/admin' },
+      { userAgent: '*', allow: '/', disallow: PRIVATE_PATHS },
+      { userAgent: AI_CRAWLERS, allow: '/', disallow: PRIVATE_PATHS },
     ],
     sitemap: `${SITE_URL}/sitemap.xml`,
     host: SITE_URL,
